@@ -1,0 +1,350 @@
+{
+    "taskFormHeadList": [
+        {
+            "key": "-f8gXKDB3N1lPom160TrW",
+            "taskName": "FK-1-1",
+            "taskNotes": "TIANHE",
+            "state": "1",
+            "priority": 1,
+            "isExclusiveTask": false
+        },
+        {
+            "key": "K3kzhHsJVmusnAK6kyKoj",
+            "taskName": "FK-1-2",
+            "taskNotes": "TIANHE",
+            "state": "2",
+            "priority": 1,
+            "isExclusiveTask": false
+        },
+        {
+            "key": "xqhDlN7fEmb1phrfPxRAS",
+            "taskName": "FK-1-3_1",
+            "taskNotes": "TIANHE",
+            "state": "1",
+            "priority": 1,
+            "isExclusiveTask": true
+        },
+        {
+            "key": "3qhpRCAJ8TH0s9mjGxDPv",
+            "taskName": "FK-1-3_2",
+            "taskNotes": "TIANHE",
+            "state": "1",
+            "priority": 1,
+            "isExclusiveTask": true
+        },
+        {
+            "key": "sD7wRfNrNn4nSOMyqcae1",
+            "taskName": "FK-1-4",
+            "taskNotes": "TIANHE",
+            "state": "1",
+            "priority": 1,
+            "isExclusiveTask": false
+        },
+        {
+            "key": "bcQyzt3SnhnGaDCATxrOn",
+            "taskName": "FK-2-1",
+            "taskNotes": "TIANHE",
+            "state": "0",
+            "priority": 1,
+            "isExclusiveTask": false
+        }
+    ],
+    "taskBasicInfoList": [
+        {
+            "key": "-f8gXKDB3N1lPom160TrW",
+            "schedulePreference": "",
+            "timePointPreference": "",
+            "startTimePreference": "",
+            "keyPointConstraint": []
+        },
+        {
+            "key": "K3kzhHsJVmusnAK6kyKoj",
+            "schedulePreference": "",
+            "timePointPreference": "",
+            "startTimePreference": "",
+            "keyPointConstraint": []
+        },
+        {
+            "key": "xqhDlN7fEmb1phrfPxRAS",
+            "schedulePreference": "",
+            "timePointPreference": "",
+            "startTimePreference": "",
+            "keyPointConstraint": []
+        },
+        {
+            "key": "3qhpRCAJ8TH0s9mjGxDPv",
+            "schedulePreference": "",
+            "timePointPreference": "",
+            "startTimePreference": "",
+            "keyPointConstraint": []
+        },
+        {
+            "key": "sD7wRfNrNn4nSOMyqcae1",
+            "schedulePreference": "",
+            "timePointPreference": "",
+            "startTimePreference": "",
+            "keyPointConstraint": [
+                {
+                    "id": 1,
+                    "taskTimePoint": 2,
+                    "taskKeyPoint": 4,
+                    "offset": -300
+                }
+            ]
+        },
+        {
+            "key": "bcQyzt3SnhnGaDCATxrOn",
+            "schedulePreference": "",
+            "timePointPreference": "",
+            "startTimePreference": "",
+            "keyPointConstraint": []
+        }
+    ],
+    "taskPropList": [
+        {
+            "key": "-f8gXKDB3N1lPom160TrW",
+            "availability": 1,
+            "timeWindowType": 2,
+            "selectedTimeOption": 1,
+            "selectedTimeOption2": 1,
+            "selectedTimeOption3": 1,
+            "selectedTimeOption4": 1,
+            "minIntervalTime1": null,
+            "maxIntervalTime1": null,
+            "minIntervalTime2": null,
+            "maxIntervalTime2": null,
+            "singlePeriodData": [],
+            "singleDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ],
+            "repeatPeriodData": [],
+            "repeatDiscreteData": []
+        },
+        {
+            "key": "K3kzhHsJVmusnAK6kyKoj",
+            "availability": 1,
+            "timeWindowType": 2,
+            "selectedTimeOption": 1,
+            "selectedTimeOption2": 1,
+            "selectedTimeOption3": 1,
+            "selectedTimeOption4": 1,
+            "minIntervalTime1": null,
+            "maxIntervalTime1": null,
+            "minIntervalTime2": null,
+            "maxIntervalTime2": null,
+            "singlePeriodData": [],
+            "singleDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ],
+            "repeatPeriodData": [],
+            "repeatDiscreteData": []
+        },
+        {
+            "key": "xqhDlN7fEmb1phrfPxRAS",
+            "availability": 1,
+            "timeWindowType": 2,
+            "selectedTimeOption": 1,
+            "selectedTimeOption2": 1,
+            "selectedTimeOption3": 1,
+            "selectedTimeOption4": 1,
+            "minIntervalTime1": null,
+            "maxIntervalTime1": null,
+            "minIntervalTime2": null,
+            "maxIntervalTime2": null,
+            "singlePeriodData": [],
+            "singleDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ],
+            "repeatPeriodData": [],
+            "repeatDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "key": "3qhpRCAJ8TH0s9mjGxDPv",
+            "availability": 1,
+            "timeWindowType": 2,
+            "selectedTimeOption": 1,
+            "selectedTimeOption2": 1,
+            "selectedTimeOption3": 1,
+            "selectedTimeOption4": 1,
+            "minIntervalTime1": null,
+            "maxIntervalTime1": null,
+            "minIntervalTime2": null,
+            "maxIntervalTime2": null,
+            "singlePeriodData": [],
+            "singleDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ],
+            "repeatPeriodData": [],
+            "repeatDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "key": "sD7wRfNrNn4nSOMyqcae1",
+            "availability": 1,
+            "timeWindowType": 2,
+            "selectedTimeOption": 1,
+            "selectedTimeOption2": 1,
+            "selectedTimeOption3": 1,
+            "selectedTimeOption4": 1,
+            "minIntervalTime1": null,
+            "maxIntervalTime1": null,
+            "minIntervalTime2": null,
+            "maxIntervalTime2": null,
+            "singlePeriodData": [],
+            "singleDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ],
+            "repeatPeriodData": [],
+            "repeatDiscreteData": []
+        },
+        {
+            "key": "bcQyzt3SnhnGaDCATxrOn",
+            "availability": 1,
+            "timeWindowType": 2,
+            "selectedTimeOption": 1,
+            "selectedTimeOption2": 1,
+            "selectedTimeOption3": 1,
+            "selectedTimeOption4": 1,
+            "minIntervalTime1": null,
+            "maxIntervalTime1": null,
+            "minIntervalTime2": null,
+            "maxIntervalTime2": null,
+            "singlePeriodData": [],
+            "singleDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ],
+            "repeatPeriodData": [],
+            "repeatDiscreteData": []
+        }
+    ],
+    "taskDurationList": [
+        {
+            "key": "-f8gXKDB3N1lPom160TrW",
+            "durationType": 1,
+            "fixedDuration": 360,
+            "minTotalDuration": null,
+            "needsRestrict": false,
+            "needsFullWindow": false,
+            "allowsSegmentedCompletion": false,
+            "allowsResourceChange": false,
+            "segmentMinDuration": null,
+            "maxOverlapDuration": null,
+            "exactOverlapDuration": null,
+            "overlapType": 1
+        },
+        {
+            "key": "K3kzhHsJVmusnAK6kyKoj",
+            "durationType": 1,
+            "fixedDuration": 300,
+            "minTotalDuration": null,
+            "needsRestrict": false,
+            "needsFullWindow": false,
+            "allowsSegmentedCompletion": false,
+            "allowsResourceChange": false,
+            "segmentMinDuration": null,
+            "maxOverlapDuration": null,
+            "exactOverlapDuration": null,
+            "overlapType": 1
+        },
+        {
+            "key": "xqhDlN7fEmb1phrfPxRAS",
+            "durationType": 1,
+            "fixedDuration": 360,
+            "minTotalDuration": null,
+            "needsRestrict": false,
+            "needsFullWindow": false,
+            "allowsSegmentedCompletion": false,
+            "allowsResourceChange": false,
+            "segmentMinDuration": null,
+            "maxOverlapDuration": null,
+            "exactOverlapDuration": null,
+            "overlapType": 1
+        },
+        {
+            "key": "3qhpRCAJ8TH0s9mjGxDPv",
+            "durationType": 1,
+            "fixedDuration": 360,
+            "minTotalDuration": null,
+            "needsRestrict": false,
+            "needsFullWindow": false,
+            "allowsSegmentedCompletion": false,
+            "allowsResourceChange": false,
+            "segmentMinDuration": null,
+            "maxOverlapDuration": null,
+            "exactOverlapDuration": null,
+            "overlapType": 1
+        },
+        {
+            "key": "sD7wRfNrNn4nSOMyqcae1",
+            "durationType": 1,
+            "fixedDuration": 300,
+            "minTotalDuration": null,
+            "needsRestrict": false,
+            "needsFullWindow": false,
+            "allowsSegmentedCompletion": false,
+            "allowsResourceChange": false,
+            "segmentMinDuration": null,
+            "maxOverlapDuration": null,
+            "exactOverlapDuration": null,
+            "overlapType": 1
+        },
+        {
+            "key": "bcQyzt3SnhnGaDCATxrOn",
+            "durationType": 1,
+            "fixedDuration": 3780,
+            "minTotalDuration": null,
+            "needsRestrict": false,
+            "needsFullWindow": false,
+            "allowsSegmentedCompletion": false,
+            "allowsResourceChange": false,
+            "segmentMinDuration": null,
+            "maxOverlapDuration": null,
+            "exactOverlapDuration": null,
+            "overlapType": 1
+        }
+    ],
+    "taskSchedulerStateMap": []
+}

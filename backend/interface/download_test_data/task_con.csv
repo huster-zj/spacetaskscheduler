@@ -1,0 +1,2 @@
+ID,Spacecraft,is_Data_Task,is_Key_Task,Early_Start_Time,Last_End_Time,Early_Start_Timestamp,Last_End_Timestamp,Duration,Sun,Early_Start_Group_Time,Last_End_Group_Time,Early_Start_Group_Timestamp,Last_End_Group_Timestamp
+FK-2-1,CSS_TIANHE,0,0,2023/11/6 0:00,2023/11/7 0:00,1699200000,1699286400,3780,0,2023/11/6 0:00,2023/11/8 8:00,1699200000,1699401600

@@ -1,0 +1,31 @@
+# Ruff 配置 - Python 代码规范工具
+
+# 目标版本
+target-version = "py39"
+
+# 规则集
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # Pyflakes
+    "I",     # isort
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "C4",    # flake8-comprehensions
+    "RUF",   # Ruff特定规则
+]
+
+ignore = [
+    "E501",  # 行长度限制（由 Prettier 处理）
+    "B008",  # 不在函数定义中执行默认可迭代对象
+    "C901",  # 函数复杂度
+]
+
+# 行长度限制
+line-length = 100
+
+# isort 配置
+[tool.isort]
+known-first-party = ["backend"]
+force-single-line = false
+lines-after-imports = 2

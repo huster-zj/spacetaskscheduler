@@ -1,0 +1,38 @@
+[
+  {
+    "task_name": "FK-2-1",
+    "tracking_plan_id": "Plan_2_1",
+    "start_time": 1699200286,
+    "end_time": 1699204335,
+    "duration": 3780,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-01",
+        "cekong_resource_id": "CK-TIANLIAN_2-01-1"
+      },
+      {
+        "cekong_station": "TIANLIAN_2-02",
+        "cekong_resource_id": "CK-TIANLIAN_2-02-1"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-2-1",
+    "tracking_plan_id": "Plan_2_2",
+    "start_time": 1699206027,
+    "end_time": 1699210166,
+    "duration": 3780,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-01",
+        "cekong_resource_id": "CK-TIANLIAN_2-01-2"
+      },
+      {
+        "cekong_station": "TIANLIAN_2-02",
+        "cekong_resource_id": "CK-TIANLIAN_2-02-2"
+      }
+    ]
+  }
+]

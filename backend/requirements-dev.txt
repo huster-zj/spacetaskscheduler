@@ -1,0 +1,12 @@
+# 后端开发依赖 - 测试和代码规范
+
+# 测试
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+
+# 代码规范
+ruff>=0.1.0
+
+# 开发工具
+httpx>=0.25.0  # 用于测试 FastAPI

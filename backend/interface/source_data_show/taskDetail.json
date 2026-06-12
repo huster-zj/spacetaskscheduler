@@ -1,0 +1,350 @@
+{
+    "taskFormHeadList": [
+        {
+            "key": "FK-1-1",
+            "taskName": "FK-1-1",
+            "taskNotes": "TIANHE",
+            "state": "1",
+            "priority": 1,
+            "isExclusiveTask": false
+        },
+        {
+            "key": "FK-1-2",
+            "taskName": "FK-1-2",
+            "taskNotes": "TIANHE",
+            "state": "2",
+            "priority": 1,
+            "isExclusiveTask": false
+        },
+        {
+            "key": "FK-1-3_1",
+            "taskName": "FK-1-3_1",
+            "taskNotes": "TIANHE",
+            "state": "1",
+            "priority": 1,
+            "isExclusiveTask": true
+        },
+        {
+            "key": "FK-1-3_2",
+            "taskName": "FK-1-3_2",
+            "taskNotes": "TIANHE",
+            "state": "1",
+            "priority": 1,
+            "isExclusiveTask": true
+        },
+        {
+            "key": "FK-1-4",
+            "taskName": "FK-1-4",
+            "taskNotes": "TIANHE",
+            "state": "1",
+            "priority": 1,
+            "isExclusiveTask": false
+        },
+        {
+            "key": "FK-2-1",
+            "taskName": "FK-2-1",
+            "taskNotes": "TIANHE",
+            "state": "0",
+            "priority": 1,
+            "isExclusiveTask": false
+        }
+    ],
+    "taskBasicInfoList": [
+        {
+            "key": "FK-1-1",
+            "schedulePreference": "",
+            "timePointPreference": "",
+            "startTimePreference": "",
+            "keyPointConstraint": []
+        },
+        {
+            "key": "FK-1-2",
+            "schedulePreference": "",
+            "timePointPreference": "",
+            "startTimePreference": "",
+            "keyPointConstraint": []
+        },
+        {
+            "key": "FK-1-3_1",
+            "schedulePreference": "",
+            "timePointPreference": "",
+            "startTimePreference": "",
+            "keyPointConstraint": []
+        },
+        {
+            "key": "FK-1-3_2",
+            "schedulePreference": "",
+            "timePointPreference": "",
+            "startTimePreference": "",
+            "keyPointConstraint": []
+        },
+        {
+            "key": "FK-1-4",
+            "schedulePreference": "",
+            "timePointPreference": "",
+            "startTimePreference": "",
+            "keyPointConstraint": [
+              {
+                "id": 1,
+                "taskTimePoint": 2,
+                "taskKeyPoint": 4,
+                "offset": -300
+              }
+            ]
+        },
+        {
+            "key": "FK-2-1",
+            "schedulePreference": "",
+            "timePointPreference": "",
+            "startTimePreference": "",
+            "keyPointConstraint": []
+        }
+    ],
+    "taskPropList": [
+        {
+            "key": "FK-1-1",
+            "availability": 1,
+            "timeWindowType": 2,
+            "selectedTimeOption": 1,
+            "selectedTimeOption2": 1,
+            "selectedTimeOption3": 1,
+            "selectedTimeOption4": 1,
+            "minIntervalTime1": null,
+            "maxIntervalTime1": null,
+            "minIntervalTime2": null,
+            "maxIntervalTime2": null,
+            "singlePeriodData": [],
+            "singleDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ],
+            "repeatPeriodData": [],
+            "repeatDiscreteData": []
+        },
+        {
+            "key": "FK-1-2",
+            "availability": 1,
+            "timeWindowType": 2,
+            "selectedTimeOption": 1,
+            "selectedTimeOption2": 1,
+            "selectedTimeOption3": 1,
+            "selectedTimeOption4": 1,
+            "minIntervalTime1": null,
+            "maxIntervalTime1": null,
+            "minIntervalTime2": null,
+            "maxIntervalTime2": null,
+            "singlePeriodData": [],
+            "singleDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ],
+            "repeatPeriodData": [],
+            "repeatDiscreteData": []
+        },
+        {
+            "key": "FK-1-3_1",
+            "availability": 1,
+            "timeWindowType": 2,
+            "selectedTimeOption": 1,
+            "selectedTimeOption2": 1,
+            "selectedTimeOption3": 1,
+            "selectedTimeOption4": 1,
+            "minIntervalTime1": null,
+            "maxIntervalTime1": null,
+            "minIntervalTime2": null,
+            "maxIntervalTime2": null,
+            "singlePeriodData": [],
+            "singleDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ],
+            "repeatPeriodData": [],
+            "repeatDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "key": "FK-1-3_2",
+            "availability": 1,
+            "timeWindowType": 2,
+            "selectedTimeOption": 1,
+            "selectedTimeOption2": 1,
+            "selectedTimeOption3": 1,
+            "selectedTimeOption4": 1,
+            "minIntervalTime1": null,
+            "maxIntervalTime1": null,
+            "minIntervalTime2": null,
+            "maxIntervalTime2": null,
+            "singlePeriodData": [],
+            "singleDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ],
+            "repeatPeriodData": [],
+            "repeatDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "key": "FK-1-4",
+            "availability": 1,
+            "timeWindowType": 2,
+            "selectedTimeOption": 1,
+            "selectedTimeOption2": 1,
+            "selectedTimeOption3": 1,
+            "selectedTimeOption4": 1,
+            "minIntervalTime1": null,
+            "maxIntervalTime1": null,
+            "minIntervalTime2": null,
+            "maxIntervalTime2": null,
+            "singlePeriodData": [],
+            "singleDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ],
+            "repeatPeriodData": [],
+            "repeatDiscreteData": []
+        },
+        {
+            "key": "FK-2-1",
+            "availability": 1,
+            "timeWindowType": 2,
+            "selectedTimeOption": 1,
+            "selectedTimeOption2": 1,
+            "selectedTimeOption3": 1,
+            "selectedTimeOption4": 1,
+            "minIntervalTime1": null,
+            "maxIntervalTime1": null,
+            "minIntervalTime2": null,
+            "maxIntervalTime2": null,
+            "singlePeriodData": [],
+            "singleDiscreteData": [
+                {
+                    "id": 1,
+                    "startTime": "2023-11-05 16:00:00",
+                    "endTime": "2023-11-06 16:00:00",
+                    "notes": ""
+                }
+            ],
+            "repeatPeriodData": [],
+            "repeatDiscreteData": []
+        }
+    ],
+    "taskDurationList": [
+        {
+            "key": "FK-1-1",
+            "durationType": 1,
+            "fixedDuration": 3600,
+            "minTotalDuration": 0,
+            "needsRestrict": false,
+            "needsFullWindow": false,
+            "allowsSegmentedCompletion": false,
+            "allowsResourceChange": false,
+            "segmentMinDuration": 0,
+            "maxOverlapDuration": 0,
+            "exactOverlapDuration": 0,
+            "overlapType": 1
+        },
+        {
+            "key": "FK-1-2",
+            "durationType": 1,
+            "fixedDuration": 300,
+            "minTotalDuration": 0,
+            "needsRestrict": false,
+            "needsFullWindow": false,
+            "allowsSegmentedCompletion": false,
+            "allowsResourceChange": false,
+            "segmentMinDuration": 0,
+            "maxOverlapDuration": 0,
+            "exactOverlapDuration": 0,
+            "overlapType": 1
+        },
+        {
+            "key": "FK-1-3_1",
+            "durationType": 1,
+            "fixedDuration": 360,
+            "minTotalDuration": 0,
+            "needsRestrict": false,
+            "needsFullWindow": false,
+            "allowsSegmentedCompletion": false,
+            "allowsResourceChange": false,
+            "segmentMinDuration": 0,
+            "maxOverlapDuration": 0,
+            "exactOverlapDuration": 0,
+            "overlapType": 1
+        },
+        {
+            "key": "FK-1-3_2",
+            "durationType": 1,
+            "fixedDuration": 360,
+            "minTotalDuration": 0,
+            "needsRestrict": false,
+            "needsFullWindow": false,
+            "allowsSegmentedCompletion": false,
+            "allowsResourceChange": false,
+            "segmentMinDuration": 0,
+            "maxOverlapDuration": 0,
+            "exactOverlapDuration": 0,
+            "overlapType": 1
+        },
+        {
+            "key": "FK-1-4",
+            "durationType": 1,
+            "fixedDuration": 300,
+            "minTotalDuration": 0,
+            "needsRestrict": false,
+            "needsFullWindow": false,
+            "allowsSegmentedCompletion": false,
+            "allowsResourceChange": false,
+            "segmentMinDuration": 0,
+            "maxOverlapDuration": 0,
+            "exactOverlapDuration": 0,
+            "overlapType": 1
+        },
+        {
+            "key": "FK-2-1",
+            "durationType": 1,
+            "fixedDuration": 3780,
+            "minTotalDuration": 0,
+            "needsRestrict": false,
+            "needsFullWindow": false,
+            "allowsSegmentedCompletion": false,
+            "allowsResourceChange": false,
+            "segmentMinDuration": 0,
+            "maxOverlapDuration": 0,
+            "exactOverlapDuration": 0,
+            "overlapType": 1
+        }
+    ],
+    "taskSchedulerStateMap": {}
+}

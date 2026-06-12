@@ -1,0 +1,34 @@
+[ {
+  "schedulingPlanNum" : 1,
+  "stationID" : "",
+  "cost" : 0.0,
+  "Q" : 0.0,
+  "empty" : false,
+  "tasksLength" : 1,
+  "startTimeList" : [ 1.699200286E9 ],
+  "twlist" : [ "CK-TIANLIAN_2-01-1", "CK-TIANLIAN_2-02-1" ],
+  "q" : 0.0,
+  "plan" : [ "FK-2-1" ]
+}, {
+  "schedulingPlanNum" : 2,
+  "stationID" : "TIANLIAN_2-01",
+  "cost" : 0.0,
+  "Q" : 0.0,
+  "empty" : false,
+  "tasksLength" : 1,
+  "startTimeList" : [ 1.699206027E9 ],
+  "twlist" : [ "CK-TIANLIAN_2-01-2" ],
+  "q" : 0.0,
+  "plan" : [ "FK-1-2" ]
+}, {
+  "schedulingPlanNum" : 3,
+  "stationID" : "TIANLIAN_2-02",
+  "cost" : 0.0,
+  "Q" : 0.0,
+  "empty" : false,
+  "tasksLength" : 4,
+  "startTimeList" : [ 1.699207299E9, 1.699207661E9, 1.699208023E9, 1.699209515E9 ],
+  "twlist" : [ "CK-TIANLIAN_2-02-2" ],
+  "q" : 0.0,
+  "plan" : [ "FK-1-1", "FK-1-3_1", "FK-1-3_2", "FK-1-4" ]
+} ]

@@ -1,0 +1,335 @@
+<template>
+  <Steps :current_page="page" />
+  <a-modal v-model:visible="visible" ok-text="确定" :footer="footer" wrapClassName="result_modal">
+    <!-- 使用title插槽实现自定义标题样式 -->
+    <template #title>
+      <div class="custom_title">{{ result }}</div>
+    </template>
+    <ul>
+      <li v-for="item in task_result_list" :key="item.key" class="result_taskList">
+        <RouterLink :to="`/task_detail/${item.key}`">
+          {{ item.task }}{{ item.task_result }}
+        </RouterLink>
+      </li>
+    </ul>
+    <footer class="footer">
+      <a-button type="primary" @click="handleOk" class="sureBtn">确定</a-button>
+    </footer>
+  </a-modal>
+
+  <ShowTable :columns="columns" :data="formHeadList">
+    <!-- 特定按钮功能 -->
+    <template #special_btn>
+      <div class="task_btn">
+        <a-upload :show-upload-list="true" :before-upload="handleTaskFile" accept=".csv,.json" multiple :max-count="3"
+          :file-list="fileList" :auto-upload="false">
+          <a-button :loading="loading">
+            <div class="text">导入任务</div>
+          </a-button>
+        </a-upload>
+        <div>
+          <a-button type="primary" class="text" @click="showResult">计算可行时间窗</a-button>
+        </div>
+        <RouterLink to="/task_detail">
+          <div class="custom_btn">自定义</div>
+        </RouterLink>
+      </div>
+    </template>
+    <!-- 资源组列表 -->
+    <template #column_name="record">
+      {{ record.column1.name }}
+    </template>
+    <!-- 编辑删除操作 -->
+    <template #column_action="action">
+      <span>
+        <RouterLink :to="`/task_detail/${action.column1.key}`">
+          <FormOutlined />
+        </RouterLink>
+        <a-divider type="vertical" />
+        <a-popconfirm title="是否删除该数据？" ok-text="是" cancel-text="否" @confirm="deleteTask(action.column1.key)">
+          <CloseOutlined />
+        </a-popconfirm>
+      </span>
+    </template>
+  </ShowTable>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
+import ShowTable from '@/components/table/show_table.vue'
+import { useFormHeadStore } from '@/stores/taskDetailNumStore.js'
+import Steps from '@/components/Steps.vue'
+import { deleteTaskKey } from '@/stores/keyManager.js'
+import TaskTransferService from '@/services/TaskTransfer.js'
+import { message } from 'ant-design-vue'; // 添加这行导入
+import PreprocessService from '@/services/Preprocess.js'
+import { usePreprocessOutputStore } from '@/stores/usePreprocessOutput' // 导入预处理输出 store
+import eventBus from '@/utils/eventBus.js';
+
+const page = ref(5)    // 当前所在页面对应的value,计数从0开始,传递给Steps组件
+
+const columns = reactive([
+  {
+    title: '任务名称',
+    dataIndex: 'taskName',
+    key: 'taskName'
+  },
+  {
+    title: '任务优先级',
+    dataIndex: 'priority',
+    key: 'priority'
+  },
+  {
+    title: '备注',
+    key: 'taskNotes',
+    dataIndex: 'taskNotes'
+  },
+  {
+    title: '操作',
+    key: 'action'
+  }
+])
+
+const formHeadStore = useFormHeadStore()
+const { formHeadList } = formHeadStore
+
+const loading = ref(false)
+
+const fileList = ref([])  // 添加文件列表状态
+const notProcessed = ref(true)  // 添加处理状态标志
+
+// 修改文件处理函数
+async function handleTaskFile(file, fileList) {
+  if (loading.value) {
+    return false
+  }
+
+  if (fileList.length < 1) {
+    return false
+  }
+
+  loading.value = true
+  try {
+    let jsonData = null
+    const fileExtension = fileList[0].name.split('.').pop().toLowerCase()
+
+    if (fileExtension === 'csv') {
+      // CSV 文件需要转换
+      if (fileList.length < 3) {
+        throw new Error('CSV格式需要上传3个文件')
+      }
+
+      const formData = new FormData()
+      fileList.forEach(file => {
+        if (file.name.includes('non')) {
+          formData.append('task_non_file', file)
+        } else if (file.name.includes('con')) {
+          formData.append('task_con_file', file)
+        } else if (file.name.includes('key')) {
+          formData.append('key_points_file', file)
+        }
+      })
+
+      const response = await fetch('http://localhost:8000/api/convert_csv_to_json', {
+        method: 'POST',
+        body: formData
+      })
+
+      const data = await response.json()
+      console.log('CSV转换结果:', data)
+      if (!data.success) {
+        throw new Error(data.message || 'CSV转换失败')
+      }
+      jsonData = data.data.task
+    } else if (fileExtension === 'json') {
+      // JSON 文件直接读取
+      if (fileList.length > 1) {
+        throw new Error('JSON格式只需要上传1个文件')
+      }
+
+      const reader = new FileReader()
+      jsonData = await new Promise((resolve, reject) => {
+        reader.onload = (e) => {
+          try {
+            resolve(JSON.parse(e.target.result))
+          } catch (error) {
+            reject(new Error('JSON解析失败'))
+          }
+        }
+        reader.onerror = () => reject(new Error('文件读取失败'))
+        reader.readAsText(fileList[0])
+      })
+    } else {
+      throw new Error('不支持的文件格式，请上传 .json 或 .csv 文件')
+    }
+
+    // 统一处理JSON数据
+    const taskService = new TaskTransferService()
+    const result = taskService.transferTask(jsonData)
+
+    if (result.success) {
+      message.success('任务导入成功')
+      notProcessed.value = false
+      fileList.value = []
+    } else {
+      throw new Error(result.message || '任务导入失败')
+    }
+
+  } catch (error) {
+    console.error('文件处理失败:', error)
+    message.error(error.message || '文件处理失败')
+  } finally {
+    loading.value = false
+  }
+
+  return false
+}
+
+function deleteTask(key: string) {
+  deleteTaskKey(key)
+}
+
+// 计算可行时间窗部分-显示、关闭、跳转至其他页面
+let result = ref<string>('')
+let visible = ref<boolean>(false)
+
+// 更新任务结果列表函数
+function updateTaskResultList() {
+  const preprocessStore = usePreprocessOutputStore()
+  const formHeadStore = useFormHeadStore()
+
+  // 获取预处理结果
+  const continuousEvents = preprocessStore.getContinuousEvents() || []
+  const discreteEvents = preprocessStore.getDiscreteEvents() || []
+
+  // 获取所有任务名称集合
+  const processedTasks = new Set([
+    ...continuousEvents.map(event => event.task_name),
+    ...discreteEvents.map(event => event.task_name)
+  ])
+
+  // 过滤未处理的任务
+  task_result_list.length = 0 // 清空现有数据
+  formHeadStore.formHeadList.forEach(task => {
+    if (!processedTasks.has(task.taskName)) {
+      task_result_list.push({
+        key: task.key,
+        task: task.taskName,
+        task_result: '无可行时间窗'
+      })
+    }
+  })
+
+  console.log('更新后的任务结果列表:', task_result_list)
+}
+
+// 修改 showResult 函数，添加结果列表更新
+// 修改 showResult 函数
+async function showResult() {
+  try {
+    loading.value = true
+    const preprocessResult = await PreprocessService.preprocessTaskTimewindow()
+
+    if (preprocessResult.success) {
+      result.value = '预处理成功'  // 修改这里
+      // 更新任务结果列表
+      updateTaskResultList()
+      // 触发预处理成功事件
+      eventBus.emit('preprocessSuccess')
+      visible.value = true
+    } else {
+      throw new Error(preprocessResult.message)
+    }
+  } catch (error) {
+    console.error('计算可行时间窗失败:', error)
+    message.error(error.message || '计算可行时间窗失败')
+    result.value = '预处理失败'  // 修改这里
+    visible.value = true
+  } finally {
+    loading.value = false
+  }
+}
+
+let task_result_list = reactive([])
+
+// 清除模态框的底部内容，只显示代码中添加的一个"确定"按钮
+const footer = ref(null)
+
+function handleOk() {
+  // console.log(e);
+  visible.value = false
+}
+
+</script>
+
+<style scoped>
+li {
+  list-style: none;
+}
+
+/* 导入任务按钮样式 */
+.task_btn {
+  display: flex;
+  justify-content: space-between;
+}
+
+.task_btn .ant-btn,
+.task_btn .custom_btn {
+  /* background-color: pink; */
+  margin-right: 30px;
+  height: 40px;
+  font-size: 18px;
+  color: #2e2e2e;
+  border: 1.5px solid hsl(0, 1%, 57%);
+  border-radius: 10px;
+  padding: 5px 10px;
+  background-color: #f7f8fa;
+}
+
+/* 模态框标题样式 */
+.result_modal {
+  display: flex;
+  align-items: center;
+}
+
+.result_modal .custom_title {
+  /* background-color: pink; */
+  font-size: 25px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+}
+
+/* 模态框内容样式 */
+.result_modal ul {
+  /* background-color: pink; */
+  margin: 0px;
+  padding: 0;
+}
+
+.result_modal .result_taskList {
+  /* background-color: pink; */
+  border-bottom: 1px solid #f0f0f0;
+  padding: 10px 0 10px 15px;
+  font-size: 20px;
+}
+
+/* 模态框底部样式 */
+.footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.footer .sureBtn {
+  /* background-color: pink; */
+  width: 100px;
+  height: 40px;
+  font-size: 18px;
+  color: #2e2e2e;
+  border: 1.5px solid hsl(0, 1%, 57%);
+  border-radius: 10px;
+  padding: 5px 10px;
+  background-color: #f7f8fa;
+}
+</style>

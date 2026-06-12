@@ -1,0 +1,226 @@
+[
+  {
+    "task_name": "FK-1-1",
+    "tracking_plan_id": "Plan_1_1",
+    "start_time": 1699201218,
+    "end_time": 1699203022,
+    "duration": 360,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-01",
+        "cekong_resource_id": "CK-TIANLIAN_2-01-1"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-1-1",
+    "tracking_plan_id": "Plan_1_2",
+    "start_time": 1699206751,
+    "end_time": 1699208899,
+    "duration": 360,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-01",
+        "cekong_resource_id": "CK-TIANLIAN_2-01-2"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-1-1",
+    "tracking_plan_id": "Plan_1_3",
+    "start_time": 1699201451,
+    "end_time": 1699204335,
+    "duration": 360,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-02",
+        "cekong_resource_id": "CK-TIANLIAN_2-02-1"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-1-1",
+    "tracking_plan_id": "Plan_1_4",
+    "start_time": 1699207299,
+    "end_time": 1699210115,
+    "duration": 360,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-02",
+        "cekong_resource_id": "CK-TIANLIAN_2-02-2"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-1-2",
+    "tracking_plan_id": "Plan_1_5",
+    "start_time": 1699200286,
+    "end_time": 1699201210,
+    "duration": 300,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-01",
+        "cekong_resource_id": "CK-TIANLIAN_2-01-1"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-1-2",
+    "tracking_plan_id": "Plan_1_6",
+    "start_time": 1699206027,
+    "end_time": 1699206743,
+    "duration": 300,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-01",
+        "cekong_resource_id": "CK-TIANLIAN_2-01-2"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-1-3_1",
+    "tracking_plan_id": "Plan_1_7",
+    "start_time": 1699201218,
+    "end_time": 1699203022,
+    "duration": 360,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-01",
+        "cekong_resource_id": "CK-TIANLIAN_2-01-1"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-1-3_1",
+    "tracking_plan_id": "Plan_1_8",
+    "start_time": 1699206751,
+    "end_time": 1699208899,
+    "duration": 360,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-01",
+        "cekong_resource_id": "CK-TIANLIAN_2-01-2"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-1-3_1",
+    "tracking_plan_id": "Plan_1_9",
+    "start_time": 1699201451,
+    "end_time": 1699204335,
+    "duration": 360,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-02",
+        "cekong_resource_id": "CK-TIANLIAN_2-02-1"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-1-3_1",
+    "tracking_plan_id": "Plan_1_10",
+    "start_time": 1699207299,
+    "end_time": 1699210115,
+    "duration": 360,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-02",
+        "cekong_resource_id": "CK-TIANLIAN_2-02-2"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-1-3_2",
+    "tracking_plan_id": "Plan_1_11",
+    "start_time": 1699201218,
+    "end_time": 1699203022,
+    "duration": 360,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-01",
+        "cekong_resource_id": "CK-TIANLIAN_2-01-1"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-1-3_2",
+    "tracking_plan_id": "Plan_1_12",
+    "start_time": 1699206751,
+    "end_time": 1699208899,
+    "duration": 360,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-01",
+        "cekong_resource_id": "CK-TIANLIAN_2-01-2"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-1-3_2",
+    "tracking_plan_id": "Plan_1_13",
+    "start_time": 1699201451,
+    "end_time": 1699204335,
+    "duration": 360,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-02",
+        "cekong_resource_id": "CK-TIANLIAN_2-02-1"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-1-3_2",
+    "tracking_plan_id": "Plan_1_14",
+    "start_time": 1699207299,
+    "end_time": 1699210115,
+    "duration": 360,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-02",
+        "cekong_resource_id": "CK-TIANLIAN_2-02-2"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-1-4",
+    "tracking_plan_id": "Plan_1_15",
+    "start_time": 1699203982,
+    "end_time": 1699204282,
+    "duration": 300,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-02",
+        "cekong_resource_id": "CK-TIANLIAN_2-02-1"
+      }
+    ]
+  },
+  {
+    "task_name": "FK-1-4",
+    "tracking_plan_id": "Plan_1_16",
+    "start_time": 1699209515,
+    "end_time": 1699209815,
+    "duration": 300,
+    "task_to_craft": "TIANHE",
+    "cekong_resource": [
+      {
+        "cekong_station": "TIANLIAN_2-02",
+        "cekong_resource_id": "CK-TIANLIAN_2-02-2"
+      }
+    ]
+  }
+]
