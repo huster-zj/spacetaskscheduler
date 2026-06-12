@@ -1,0 +1,23 @@
+installation:
+  version: 6.8.0
+  installDate: 2026-06-12T14:07:49.192Z
+  lastUpdated: 2026-06-12T14:07:49.192Z
+modules:
+  - name: core
+    version: 6.8.0
+    installDate: 2026-06-12T14:07:47.813Z
+    lastUpdated: 2026-06-12T14:07:49.182Z
+    source: built-in
+    npmPackage: null
+    repoUrl: null
+  - name: bmm
+    version: 6.8.0
+    installDate: 2026-06-12T14:07:47.666Z
+    lastUpdated: 2026-06-12T14:07:49.191Z
+    source: built-in
+    npmPackage: null
+    repoUrl: null
+ides:
+  - claude-code
+  - codex
+  - kimi-code
