@@ -6,23 +6,27 @@
  * @FilePath: \spacetaskscheduler\src\views\MainView.vue
 -->
 <template>
-  <div class="main-container">
-    <div class="view-control">
-      <a-radio-group v-model:value="currentView" option-type="button" @change="switchView">
-        <a-radio-button value="resource">资源视图</a-radio-button>
-        <a-radio-button value="task">任务视图</a-radio-button>
-        <a-radio-button value="calendar">日程表视图</a-radio-button>
-      </a-radio-group>
-      <a-checkbox 
-          v-show="currentView !== 'calendar'" 
-          v-model:checked="showSkinOptions" 
+  <section class="page-shell main-view-page">
+    <div class="main-container surface-panel">
+      <div class="view-control">
+        <a-radio-group v-model:value="currentView" option-type="button" @change="switchView">
+          <a-radio-button value="resource">资源视图</a-radio-button>
+          <a-radio-button value="task">任务视图</a-radio-button>
+          <a-radio-button value="calendar">日程表视图</a-radio-button>
+        </a-radio-group>
+        <a-checkbox
+          v-show="currentView !== 'calendar'"
+          v-model:checked="showSkinOptions"
           class="custom-skin"
         >皮肤样式</a-checkbox>
+      </div>
+      <div class="view-stage">
+        <TaskView v-if="currentView === 'task'" :showSkinOptions="showSkinOptions" />
+        <ResourceView v-if="currentView === 'resource'" :showSkinOptions="showSkinOptions" />
+        <CalendarView v-if="currentView === 'calendar'" />
+      </div>
     </div>
-    <TaskView v-if="currentView === 'task'" :showSkinOptions="showSkinOptions" />
-    <ResourceView v-if="currentView === 'resource'" :showSkinOptions="showSkinOptions" />
-    <CalendarView v-if="currentView === 'calendar'" />
-  </div>
+  </section>
 </template>
 
 <script setup>
@@ -43,24 +47,56 @@ function switchView(e) {
 .main-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 560px;
+  overflow: hidden;
 }
 
 .view-control {
   display: flex;
-  gap: 10px;
-  padding: 10px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--sts-border);
+  background: var(--sts-surface-raised);
 }
 
 .custom-skin {
-  font-size: 16px;
-  margin-left: 100px;
-  /* 设置统一的字体大小 */
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: 14px;
 }
 
-.task-container,
-.resource-container,
-.calendar-container {
+.view-stage {
   flex: 1;
+  min-height: clamp(480px, 65vh, 760px);
+  overflow: hidden;
+}
+
+.view-stage > * {
+  min-height: inherit;
+}
+
+@media (max-width: 767px) {
+  .main-view-page {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .main-container {
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+  }
+
+  .view-control {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .view-stage {
+    min-height: 560px;
+  }
 }
 </style>

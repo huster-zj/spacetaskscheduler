@@ -96,19 +96,17 @@ const filteredExcludeList = computed(() => {
 <style scoped>
 /* 两个表格并排显示 */
 .two_table {
-  display: flex;
-  justify-content: space-between;
-  margin: 0px 0px 0 0px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+  margin: 0;
 }
 
 /* 表格宽度设置 */
-.incloud {
-  width: 45%;
-}
-
+.incloud,
 .exclude {
-  width: 48%;
-  /* 设置宽度为48%以留出间距 */
+  min-width: 0;
 }
 
 /* 文本标题样式 */
@@ -130,5 +128,13 @@ const filteredExcludeList = computed(() => {
   text-align: center;
   font-size: 15px;
   color: #121111;
+}
+
+@media (max-width: 767px) {
+  .two_table {
+    overflow-x: auto;
+    grid-template-columns: repeat(2, minmax(300px, 1fr));
+    padding-bottom: 4px;
+  }
 }
 </style>

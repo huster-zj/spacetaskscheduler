@@ -82,33 +82,35 @@ const filteredData = computed(() => {
 
 <style scoped>
 .container {
-  /* background-color: black; */
-  margin: 30px;
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: 16px;
+  margin: 0;
 }
 
 .container .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 /* 设置搜索框样式 */
 
 :deep(.custom-search-input) {
-  /* background-color: green; */
-  max-width: 400px;
-  border: 1px solid #7b7676;
-  /* border-radius: 10%; */
-  border-radius: 5px;
+  width: min(100%, 360px);
+  border: 1px solid var(--sts-border-strong);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-raised);
 }
 
 :deep(.custom-search-input .ant-input) {
-  /* background-color: pink; */
-  height: 40px;
-  font-size: 20px;
+  height: 36px;
+  font-size: 14px;
   border: none;
-  border-radius: 5px;
+  border-radius: var(--sts-radius-md);
 }
 
 /* 设置输入框获得焦点时的样式 */
@@ -120,18 +122,18 @@ const filteredData = computed(() => {
 
 
 :deep(.custom-search-input .ant-input-group-addon .ant-btn) {
-  height: 40px;
+  height: 36px;
   border: none;
   border-radius: 5px;
 }
 
 :deep(.custom-search-input .ant-input-group-addon .ant-input-search-button .anticon.anticon-search) {
-  font-size: 20px;
+  font-size: 16px;
 }
 
 /* 设置表格样式 */
 :deep(.ant-table-thead) {
-  font-size: 20px;
+  font-size: 13px;
 }
 
 :deep(.ant-table-thead .ant-table-cell) {
@@ -141,11 +143,23 @@ const filteredData = computed(() => {
 
 :deep(.ant-table-tbody .ant-table-cell) {
   text-align: center;
-  font-size: 20px;
-  color: #121111;
+  font-size: 14px;
+  color: var(--sts-ink-primary);
 }
 
 :deep(.ant-table-cell a) {
-  color: #121111;
+  color: var(--sts-primary);
+}
+
+@media (max-width: 767px) {
+  .container .header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  :deep(.custom-search-input) {
+    width: 100%;
+    max-width: none;
+  }
 }
 </style>

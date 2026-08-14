@@ -7,8 +7,8 @@
 -->
 <template>
   <div class="calendar-container">
-    <a-table :columns="output_columns" :dataSource="output_data" rowKey="id" />
-    <a-table :columns="preprocess_columns" :dataSource="preprocess_data" rowKey="tracking_plan_id" />
+    <a-table :columns="output_columns" :dataSource="output_data" :scroll="{ x: 760 }" rowKey="id" />
+    <a-table :columns="preprocess_columns" :dataSource="preprocess_data" :scroll="{ x: 980 }" rowKey="tracking_plan_id" />
   </div>
 </template>
 
@@ -90,5 +90,16 @@ export default {
 </script>
 
 <style scoped>
-/* 添加样式以适应表格布局 */
+.calendar-container {
+  display: grid;
+  gap: 20px;
+  padding: 20px;
+  overflow: auto;
+}
+
+@media (max-width: 767px) {
+  .calendar-container {
+    padding: 12px;
+  }
+}
 </style>

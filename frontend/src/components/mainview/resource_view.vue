@@ -93,19 +93,27 @@ body {
 }
 
 .container {
-  height: 100vh;
+  display: flex;
+  height: 100%;
+  min-height: inherit;
   width: 100%;
+  flex-direction: column;
 }
 
 .left-container {
-  overflow: hidden;
   position: relative;
-  height: calc(100vh - 52px);
+  flex: 1;
+  min-height: 480px;
+  overflow: hidden;
 }
 
 .gantt-control {
   display: flex;
-  gap: 10px;
-  padding: 10px;
+  gap: 8px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--sts-border);
+  background: var(--sts-surface-subtle);
+  white-space: nowrap;
 }
 </style>

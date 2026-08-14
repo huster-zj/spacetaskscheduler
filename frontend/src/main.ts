@@ -12,6 +12,7 @@ import './utils/timezone' // 导入时区配置
 import router from './router'
 import Antd from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
+import './assets/theme.css'
 import * as Icons from '@ant-design/icons-vue'
 import { createPinia } from 'pinia'
 import piniaPersist from 'pinia-plugin-persistedstate'

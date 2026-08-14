@@ -1,33 +1,33 @@
 <template>
   <Steps :current_page="page" />
-  <!-- <h1 style="color: red;">点击模态框的确定按钮，需跳转至主视图界面</h1> -->
-  <div class="target">
-    <div class="target-title">目标：</div>
-    <div class="target-content">
-      <a-radio-group v-model:value="valueTarget" name="targetRadioGroup">
-        <a-radio v-for="item in targetList" :key="item.key" :value="item.key" :disabled="disabled">{{ item.target_name
-          }}</a-radio>
-      </a-radio-group>
+  <section class="page-shell operating-page">
+    <header class="page-header">
+      <h1 class="page-heading">运行配置</h1>
+    </header>
+    <div class="target surface-panel">
+      <div class="target-title section-heading">目标</div>
+      <div class="target-content">
+        <a-radio-group v-model:value="valueTarget" name="targetRadioGroup" class="option-stack">
+          <a-radio v-for="item in targetList" :key="item.key" :value="item.key" :disabled="disabled">{{ item.target_name
+            }}</a-radio>
+        </a-radio-group>
+      </div>
     </div>
-  </div>
-  <div class="algorithms">
-    <div class="algorithms-title">算法：</div>
-    <div class="algorithms-content">
-      <a-radio-group @change="handelChangeAlgorithm" v-model:value="valueAlgorithm" name="algorithmsRadioGroup">
-        <a-radio v-for="item in algorithmsList" :key="item.key" :value="item.key" style="display:flex ;">
-          {{ item.algorithm_name }}：
-          <span class="algorithm_note">
-            {{ item.algorithm_note }}
-          </span>
-        </a-radio>
-      </a-radio-group>
+    <div class="algorithms surface-panel">
+      <div class="algorithms-title section-heading">算法</div>
+      <div class="algorithms-content">
+        <a-radio-group @change="handelChangeAlgorithm" v-model:value="valueAlgorithm" name="algorithmsRadioGroup" class="option-stack">
+          <a-radio v-for="item in algorithmsList" :key="item.key" :value="item.key" class="algorithm-option">
+            <span class="algorithm-name">{{ item.algorithm_name }}</span>
+            <span class="algorithm_note">{{ item.algorithm_note }}</span>
+          </a-radio>
+        </a-radio-group>
+      </div>
     </div>
-  </div>
-  <div class="box">
-    <RouterLink>
+    <div class="box">
       <a-button type="primary" @click="handleRun" class="btn">运行</a-button>
-    </RouterLink>
-  </div>
+    </div>
+  </section>
   <a-modal v-model:visible="visible" ok-text="确定" :footer="footer" wrapClassName="result_modal">
     <!-- 使用title插槽实现自定义标题样式 -->
     <template #title>
@@ -130,45 +130,57 @@ async function handleRun() {
 /* 运行-目标、算法配置样式 */
 .target,
 .algorithms {
-  display: flex;
-  margin: 30px 0 20px 100px;
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 20px;
+  margin: 16px 0 0;
+  padding: 20px;
 }
 
 .target .target-title,
 .algorithms .algorithms-title {
-  font-size: 20px;
-  font-weight: bold;
+  padding-top: 2px;
 }
 
 .target .target-content .ant-radio-wrapper,
 .algorithms .algorithms-content .ant-radio-wrapper {
-  font-size: 20px;
-  margin: 0 20px 20px 20px;
+  margin: 0;
+  font-size: 14px;
 }
 
-/* 运行-算法备注样式 */
-/* .algorithms .algorithms-content .algorithm_note {
+.option-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.algorithm-option {
   display: flex;
-  margin: 10px 0 0 20px;
-  background-color: palegoldenrod;
-} */
+  align-items: flex-start;
+}
+
+.algorithm-name {
+  display: block;
+  color: var(--sts-ink-primary);
+  font-weight: 600;
+}
+
+.algorithm_note {
+  display: block;
+  margin-top: 2px;
+  color: var(--sts-ink-secondary);
+  line-height: 1.6;
+}
 
 /* 运行按钮样式 */
 /* 保存按钮样式 */
 .box {
   display: flex;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: 24px;
 }
 
 .btn {
-  height: 40px;
-  font-size: 18px;
-  color: #2e2e2e;
-  border: 1.5px solid hsl(0, 1%, 57%);
-  border-radius: 10px;
-  padding: 5px 15px;
-  background-color: #f7f8fa;
+  min-width: 96px;
 }
 
 /* 模态框样式 */
@@ -183,11 +195,8 @@ li {
 }
 
 .result_modal .custom_title {
-  /* background-color: pink; */
-  font-size: 25px;
-  height: 40px;
-  line-height: 40px;
-  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 /* 模态框内容样式 */
@@ -198,10 +207,24 @@ li {
 }
 
 .result_modal .result_taskList {
-  /* background-color: pink; */
   border-bottom: 1px solid #f0f0f0;
   padding: 10px 0 10px 15px;
-  font-size: 20px;
+  font-size: 14px;
+}
+
+.output-content {
+  max-height: min(56vh, 520px);
+  overflow: auto;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--sts-border);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-subtle);
+  color: var(--sts-ink-primary);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
 }
 
 /* 模态框底部样式 */
@@ -209,5 +232,14 @@ li {
   display: flex;
   justify-content: center;
   margin-top: 20px;
+}
+
+@media (max-width: 767px) {
+  .target,
+  .algorithms {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+  }
 }
 </style>

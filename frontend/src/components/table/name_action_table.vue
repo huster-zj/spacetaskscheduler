@@ -13,18 +13,15 @@ import NameActionTable from '@/components/table/name_action_table.vue';
           <div class="text">已包含</div>
         </template>
         <template #column_action="action">
-          <span class="icons">
-            <MinusOutlined @click="deleteAction(action.column1.key)" />
-          </span>
+          <button class="icon-button" type="button" aria-label="移出项目" @click="deleteAction(action.column1.key)">
+            <MinusOutlined />
+          </button>
         </template>
       </ShowTable>
     </div>
-    <div class="hint_box">
-      <!-- <div class="arrow"> -->
-        <ArrowRightOutlined :style="{width: '200px', height: '40px'}" />
-        <!-- <br /> -->
-        <ArrowLeftOutlined />
-      <!-- </div> -->
+    <div class="hint_box" aria-hidden="true">
+      <ArrowRightOutlined />
+      <ArrowLeftOutlined />
     </div>
     <div class="exclude">
       <ShowTable :columns="columns" :data="filteredExcludeList">
@@ -32,9 +29,9 @@ import NameActionTable from '@/components/table/name_action_table.vue';
           <div class="text">未包含</div>
         </template>
         <template #column_action="action">
-          <span class="icons">
-            <PlusOutlined @click="addAction(action.column1.key)" />
-          </span>
+          <button class="icon-button" type="button" aria-label="加入项目" @click="addAction(action.column1.key)">
+            <PlusOutlined />
+          </button>
         </template>
       </ShowTable>
     </div>
@@ -102,52 +99,74 @@ const filteredExcludeList = computed(() => {
 <style scoped>
 /* 两个表格并排显示 */
 .two_table {
-  display: flex;
-  justify-content: space-between;
-  margin: 20px 30px 0 30px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+  margin: 20px 0 0;
 }
 /* 表格宽度设置 */
 .incloud,.exclude {
-  width: 40%;
+  min-width: 0;
 }
 .hint_box {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  /* background-color: pink; */
-  width: 200px;
+  width: 48px;
+  color: var(--sts-ink-muted);
 }
 .hint_box .anticon {
-  /* background-color: green; */
-  font-size: 40px;
-  width: 200px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
   text-align: center;
 }
 .hint_box .anticon :deep(svg) {
-  /* background-color: pink; */
-  width: 50px;
-  height: 30px;
+  width: 22px;
+  height: 22px;
 }
 
 
 /* 搜索框文本标题样式 */
 .text {
-  /* color: blue; */
-  float: left;
-  height: 40px;
-  font-size: 22px;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 25px;
-  margin-left: 20px;
+  color: var(--sts-ink-primary);
+  font-size: 16px;
+  font-weight: 600;
 }
 /* 修改搜索框样式靠右 */
 :deep(.container .header) {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin-bottom: 20px
+  margin-bottom: 0;
+}
+
+.icon-button {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid var(--sts-border-strong);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-raised);
+  color: var(--sts-primary);
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  border-color: var(--sts-primary);
+  background: var(--sts-primary-soft);
+}
+
+@media (max-width: 900px) {
+  .two_table {
+    overflow-x: auto;
+    grid-template-columns: minmax(300px, 1fr) 40px minmax(300px, 1fr);
+    padding-bottom: 4px;
+  }
 }
 </style>

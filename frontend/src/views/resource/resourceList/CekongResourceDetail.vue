@@ -1,7 +1,7 @@
 <template>
-  <div class="box">
+  <div class="page-shell detail-list-page">
     <div class="header">
-      <span>{{ cekongResourceDetail.visible_time_window[0].station }}对{{ cekongResourceDetail.visible_time_window[0].craft }}的可见性报告</span>
+      <h1 class="page-heading">{{ cekongResourceDetail.visible_time_window[0].station }}对{{ cekongResourceDetail.visible_time_window[0].craft }}的可见性报告</h1>
     </div>
     <div class="detail">
       <ShowTable :columns="columns" :data="dataSource" :searchIsShow=false />
@@ -63,10 +63,7 @@ const dataSource = cekongResourceDetail.visible_time_window.map(item => {
 
 <style scoped>
 .header {
-  font-size: 28px;
-  font-weight: bold;
-  text-align: center;
-  margin-top: 30px;
+  margin-bottom: 16px;
 }
 
 </style>

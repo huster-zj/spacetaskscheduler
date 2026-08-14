@@ -4,7 +4,8 @@
     TODO：定义界面在定义任务组属性时，需要允许用户输入内容，<br />
     并获取显示到列表中，在ant-design中单选按钮有这样的功能
   </h1> -->
-  <ShowTable :columns="columns" :data="data">
+  <section class="page-shell list-page">
+    <ShowTable :columns="columns" :data="data">
     <!-- 特定按钮功能 -->
     <template #special_btn>
       <RouterLink to="/custom_logical_constraint">
@@ -34,7 +35,8 @@
         </a-popconfirm>
       </span>
     </template>
-  </ShowTable>
+    </ShowTable>
+  </section>
 </template>
 
 <script setup>
@@ -120,14 +122,6 @@ function deleteTaskGroup(key) {
 
 <style scoped>
 .custom_btn {
-  /* background-color: pink; */
-  margin-right: 30px;
-  height: 40px;
-  font-size: 18px;
-  color: #2e2e2e;
-  border: 1.5px solid hsl(0, 1%, 57%);
-  border-radius: 10px;
-  padding: 5px 10px;
-  background-color: #f7f8fa;
+  margin: 0;
 }
 </style>

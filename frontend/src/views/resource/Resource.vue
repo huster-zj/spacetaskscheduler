@@ -2,8 +2,9 @@
 <template>
   <!-- <button @click="cekongResourceListStore.importCekongResourceList(test_cekong_resource)">点击调用导入测控资源数据函数</button> -->
   <Steps :current_page="page" />
-  <!-- 资源列表 -->
-  <ShowTable :columns="columns" :data="formHeadList">
+  <section class="page-shell list-page">
+    <!-- 资源列表 -->
+    <ShowTable :columns="columns" :data="formHeadList">
     <!-- 特定按钮功能 -->
     <template #special_btn>
       <div class="import_resource">
@@ -46,7 +47,8 @@
         </a-popconfirm>
       </span>
     </template>
-  </ShowTable>
+    </ShowTable>
+  </section>
 </template>
 
 <script setup>
@@ -172,23 +174,21 @@ function deleteResource(key) {
 
 <style scoped>
 .import_resource {
-  /* background-color: pink; */
   display: flex;
-  justify-content: space-between;
-  /* background-color: pink; */
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .import_resource .ant-btn,
 .import_resource .custom_btn {
-  /* background-color: pink; */
-  margin-right: 30px;
-  height: 40px;
-  font-size: 18px;
-  color: #2e2e2e;
-  border: 1.5px solid hsl(0, 1%, 57%);
-  border-radius: 10px;
-  padding: 5px 10px;
-  background-color: #f7f8fa;
+  margin: 0;
+  min-height: 36px;
+  border: 1px solid var(--sts-border-strong);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-raised);
+  color: var(--sts-ink-primary);
+  font-size: 14px;
 }
 
 .import_resource a {
@@ -199,5 +199,11 @@ function deleteResource(key) {
 .import_resource a:hover {
   background-color: inherit;
   /* 取消背景色变化 */
+}
+
+@media (max-width: 767px) {
+  .import_resource {
+    justify-content: flex-start;
+  }
 }
 </style>

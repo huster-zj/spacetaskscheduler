@@ -44,12 +44,12 @@ defineExpose({
 
 <style scoped>
 .ant-picker {
-  width: 200px;
-  height: 40px;
-  border-radius: 5px;
+  width: 180px;
+  min-height: 36px;
+  border-radius: var(--sts-radius-md);
 }
 :deep(.ant-picker .ant-picker-input input) {
-  font-size: 20px;
-  line-height: 40px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 </style>

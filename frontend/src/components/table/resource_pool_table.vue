@@ -3,9 +3,9 @@
     <div class="table-wrapper">
       <a-table :columns="includeColumns" :dataSource="filteredIncludeList" :pagination="false">
         <template #bodyCell="{ column, record }">
-          <span v-if="column.key === 'action'" class="icons">
-            <MinusOutlined @click="deleteAction(record.key)" />
-          </span>
+          <button v-if="column.key === 'action'" class="icon-button" type="button" aria-label="移出资源" @click="deleteAction(record.key)">
+            <MinusOutlined />
+          </button>
           <span v-else>{{ record[column.dataIndex] }}</span>
         </template>
       </a-table>
@@ -13,9 +13,9 @@
     <div class="table-wrapper">
       <a-table :columns="excludeColumns" :dataSource="filteredExcludeList" :pagination="false">
         <template #bodyCell="{ column, record }">
-          <span v-if="column.key === 'action'" class="icons">
-            <PlusOutlined @click="addAction(record.key)" />
-          </span>
+          <button v-if="column.key === 'action'" class="icon-button" type="button" aria-label="加入资源" @click="addAction(record.key)">
+            <PlusOutlined />
+          </button>
           <span v-else>{{ record[column.dataIndex] }}</span>
         </template>
       </a-table>
@@ -86,15 +86,40 @@ const filteredExcludeList = computed(() => {
 <style scoped>
 /* 两个表格并排显示 */
 .two_table {
-  display: flex;
-  justify-content: space-between;
-  gap: 100px;
-  /* 设置两个表格之间的间距 */
-  margin: 0px 30px 0 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+  margin: 0;
 }
 
+.table-wrapper {
+  min-width: 0;
+}
 
-.icons {
+.icon-button {
+  display: inline-grid;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid var(--sts-border-strong);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-raised);
+  color: var(--sts-primary);
   cursor: pointer;
+}
+
+.icon-button:hover {
+  border-color: var(--sts-primary);
+  background: var(--sts-primary-soft);
+}
+
+@media (max-width: 900px) {
+  .two_table {
+    overflow-x: auto;
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
+    padding-bottom: 4px;
+  }
 }
 </style>

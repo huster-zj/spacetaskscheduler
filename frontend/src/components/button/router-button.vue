@@ -49,15 +49,25 @@ btnWidth1 = ref(btnWidth1);
 
 <style scoped>
 .custom_btn {
-  /* background-color: pink; */
-  margin-right: 30px;
-  height: 40px;
-  font-size: 18px;
+  display: inline-flex;
+  min-width: 80px;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-size: 14px;
   text-align: center;
-  color: #2e2e2e;
-  border: 1.5px solid hsl(0, 1%, 57%);
-  border-radius: 10px;
-  padding: 5px 10px;
-  background-color: #ffffff;
+  color: #ffffff;
+  border: 1px solid var(--sts-primary);
+  border-radius: var(--sts-radius-md);
+  padding: 6px 14px;
+  background: var(--sts-primary);
+  font-weight: 500;
+}
+
+.custom_btn:hover {
+  border-color: var(--sts-primary-hover);
+  background: var(--sts-primary-hover);
+  color: #ffffff;
 }
 </style>

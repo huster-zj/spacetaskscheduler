@@ -1,14 +1,16 @@
 <template>
-  <div class="content">
-    <div class="header">
-      <a-button type="primary" @click="downloadMarkdown">
-        <template #icon>
-          <DownloadOutlined />
-        </template>
-        下载报告
-      </a-button>
+  <div class="page-shell report-content-page">
+    <div class="content">
+      <div class="header">
+        <a-button type="primary" @click="downloadMarkdown">
+          <template #icon>
+            <DownloadOutlined />
+          </template>
+          下载报告
+        </a-button>
+      </div>
+      <div class="markdown-container" v-html="renderedContent"></div>
     </div>
-    <div class="markdown-container" v-html="renderedContent"></div>
   </div>
 </template>
 
@@ -82,9 +84,8 @@ const downloadMarkdown = () => {
 
 <style scoped>
 .content {
-  max-width: 1000px;
-  margin: 20px auto;
-  padding: 0 20px;
+  max-width: 1040px;
+  margin: 0 auto;
 }
 
 .header {
@@ -94,10 +95,14 @@ const downloadMarkdown = () => {
 }
 
 .markdown-container {
-  background: #fff;
-  padding: 20px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overflow-wrap: anywhere;
+  padding: 24px;
+  border: 1px solid var(--sts-border);
+  border-radius: var(--sts-radius-lg);
+  background: var(--sts-surface-raised);
+  box-shadow: var(--sts-shadow-sm);
 }
 
 :deep(h1) {
@@ -117,7 +122,7 @@ const downloadMarkdown = () => {
 }
 
 :deep(pre) {
-  background: #f6f8fa;
+  background: var(--sts-surface-subtle);
   padding: 16px;
   border-radius: 4px;
   overflow-x: auto;
@@ -134,5 +139,15 @@ const downloadMarkdown = () => {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
+}
+
+:deep(.markdown-container > *) {
+  max-width: 100%;
+}
+
+@media (max-width: 767px) {
+  .markdown-container {
+    padding: 16px;
+  }
 }
 </style>

@@ -1,8 +1,8 @@
 <template>
   <ModalTask ref="modal_task1" @update-task="changeTask1" />
   <ModalTask ref="modal_task2" @update-task="changeTask2" />
-  <div class="flexCenter">
-    <div class="box">
+  <section class="page-shell constraint-editor-page">
+    <div class="box surface-panel">
       <div class="tasks">
         <div class="task">
           <span class="text">任务1:</span>
@@ -38,7 +38,7 @@
         <!-- <button @click="console.log(newTemCon)">点击输出当前编辑的时态约束数据</button> -->
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup>
@@ -292,5 +292,127 @@ function saveData() {
 /* 去除radio按钮的左边距，时态约束类型那一行的左间距 */
 div.radio {
   margin-left: 0;
+}
+
+/* Responsive visual layer; all selection refs and save behavior stay unchanged. */
+.flexCenter {
+  display: block;
+  height: auto;
+  margin: 0;
+}
+
+.box {
+  width: 100%;
+  padding: 24px;
+}
+
+.box .tasks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.box .tasks .task,
+.box .tasks > div {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.box .tasks .task .task_name {
+  min-width: 52px;
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--sts-border);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-subtle);
+  color: var(--sts-ink-primary);
+  font-size: 14px;
+  text-align: center;
+}
+
+.box .tasks .task .chooseTask {
+  min-height: 36px;
+  border: 1px solid var(--sts-primary);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-primary);
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.box .tasks .text,
+.box .interval .text {
+  flex: 0 0 auto;
+  margin: 0;
+  color: var(--sts-ink-secondary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.box .tasks .ant-input {
+  min-width: 0;
+  width: 100%;
+  height: 36px;
+  margin: 0;
+  font-size: 14px;
+}
+
+.box .constraintType {
+  margin-bottom: 12px;
+  padding: 16px;
+  border: 1px solid var(--sts-border);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-subtle);
+}
+
+.box .interval {
+  display: grid;
+  grid-template-columns: 130px minmax(240px, 1fr) 180px;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  padding: 16px;
+  border: 1px solid var(--sts-border);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-raised);
+}
+
+.box .interval :deep(.dropdown_box) {
+  width: 100%;
+  margin: 0;
+}
+
+.box .interval :deep(.ant-select-selector) {
+  margin: 0;
+}
+
+.box .interval :deep(.ant-select-arrow) {
+  right: 11px;
+}
+
+.box .saveBtn {
+  margin-top: 24px;
+}
+
+@media (max-width: 1023px) {
+  .box .tasks,
+  .box .interval {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .box {
+    padding: 16px;
+  }
+
+  .box .tasks .task,
+  .box .tasks > div {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
 }
 </style>

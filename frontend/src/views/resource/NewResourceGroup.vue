@@ -1,18 +1,23 @@
 <template>
-  <div class="box">
-    <div class="name-note">
+  <section class="page-shell editor-page">
+    <header class="page-header">
+      <h1 class="page-heading">新建资源组</h1>
+    </header>
+    <div class="box surface-panel">
+      <div class="name-note">
       <span class="text">资源组名称：</span>
       <a-input v-model:value="new_resource_group.resourceGroupName" placeholder="请输入资源组名称"/>
       <span class="text">资源类型：</span>
       <a-input v-model:value="new_resource_group.resourceType" placeholder="请输入资源类型"/>
       <span class="text">备注：</span>
       <a-input v-model:value="new_resource_group.resourceGroupNote" placeholder="请输入资源组备注"/>
+      </div>
+      <NameActionTable :columns="columns" :includeList="includeList" :excludeList="excludeList" />
+      <div class="saveBtn">
+        <RouterBtn toPath="/resource_group" btnWidth="80px" btnText="保存" @click="saveResourceGroup" />
+      </div>
     </div>
-     <NameActionTable :columns="columns" :includeList="includeList" :excludeList="excludeList" />
-     <div class="saveBtn">
-      <RouterBtn toPath="/resource_group" btnWidth="80px" btnText="保存" @click="saveResourceGroup" />
-     </div>
-  </div>
+  </section>
 </template>
 
 <script setup>
@@ -84,36 +89,47 @@ function saveResourceGroup() {
 
 <style scoped>
 .box {
-  margin: 30px 100px 0 100px;
+  padding: 24px;
 }
 .box .name-note {
-  /* background-color: pink; */
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: max-content minmax(180px, 1fr) max-content minmax(180px, 1fr) max-content minmax(180px, 1fr);
+  align-items: center;
+  gap: 12px;
   margin-bottom: 20px;
 }
 .box .name-note .text {
-  /* background-color: green; */
-  font-size: 22px;
-  font-weight: bold;
-  /* width: 150px; */
-  text-align: center;
+  color: var(--sts-ink-secondary);
+  font-size: 14px;
+  font-weight: 600;
 }
 .box .name-note .ant-input {
-  /* background-color: pink; */
-  height: 40px;
-  font-size: 20px;
-  border-radius: 5px;
-  width: 400px;
-  margin-left: -50px;
-}
-.box .name-note .ant-input:focus {
-  border-radius: 5px;
-  box-shadow: 0 0 0px; /* 覆盖默认阴影 */
+  width: 100%;
 }
 .box .saveBtn {
   display: flex;
   justify-content: center;
   margin-top: 20px;
+}
+
+.page-header {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 900px) {
+  .box .name-note {
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .box {
+    padding: 16px;
+  }
+
+  .box .name-note {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
 }
 </style>
