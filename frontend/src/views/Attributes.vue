@@ -1,7 +1,9 @@
 <template>
-  <div class="box">
-    <div class="form-container">
-      <a-col :span="24">
+  <Steps :current_page="0" />
+  <div class="page-shell attributes-page">
+    <div class="box surface-panel">
+      <div class="form-container">
+        <a-col :span="24">
         <div class="form-head">
           <a-row :gutter="32" class="form-row">
             <a-col>
@@ -88,7 +90,8 @@
             <a-button type="primary" @click="handleSubmit" class="custom_btn">保存</a-button>
           </RouterLink>
         </div>
-      </a-col>
+        </a-col>
+      </div>
     </div>
   </div>
 </template>
@@ -99,6 +102,7 @@ import { storeToRefs } from 'pinia';
 import dayjs from 'dayjs';
 import { reactive, computed } from 'vue';
 import { message } from 'ant-design-vue';  // 导入 message 组件
+import Steps from '@/components/Steps.vue';
 
 const configStore = useConfigStore();
 const { basicConfig } = storeToRefs(configStore);
@@ -126,27 +130,28 @@ const handleSubmit = () => {
 
 <style scoped>
 .box {
-  display: flex;
-  justify-content: center;
+  width: 100%;
 }
 
 .form-container {
-  display: flex;
-  width: 1500px;
-  padding: 2rem;
-  justify-content: space-around;
+  width: 100%;
+  padding: 24px;
 }
 
 .form-row {
   display: flex;
   align-items: center;
+  row-gap: 16px;
 }
 
 .form-section {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
-  border-radius: 4px;
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid var(--sts-border);
+  border-radius: var(--sts-radius-lg);
+  background: var(--sts-surface-subtle);
 }
 
 .form-item {
@@ -157,34 +162,52 @@ const handleSubmit = () => {
 
 .form-item-center {
   justify-content: center;
-  /* 水平居中对齐 */
+  margin: 24px 0 0;
 }
 
 .form-label {
-  margin-right: 1rem;
-  /* 设置标签和输入框之间的间距 */
+  min-width: 88px;
+  margin-right: 12px;
+  color: var(--sts-ink-secondary);
+  font-weight: 500;
   white-space: nowrap;
   /* 防止标签文本换行 */
 }
 
-/* 统一其他部分的字体大小 */
 .form-item label,
 .form-input,
 a-input-number,
 a-radio {
-  font-size: 18px;
-  /* 统一字体大小 */
+  font-size: 14px;
 }
 
 .custom_btn {
-  /* background-color: pink; */
-  margin-right: 30px;
-  height: 40px;
-  font-size: 18px;
-  color: #2e2e2e;
-  border: 1.5px solid hsl(0, 1%, 57%);
-  border-radius: 10px;
-  padding: 5px 10px;
-  background-color: #f7f8fa;
+  min-width: 96px;
+}
+
+@media (max-width: 767px) {
+  .form-container {
+    padding: 16px;
+  }
+
+  .form-row {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  .form-section {
+    padding: 16px;
+  }
+
+  .form-item {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-label {
+    min-width: 0;
+    margin-right: 0;
+  }
 }
 </style>

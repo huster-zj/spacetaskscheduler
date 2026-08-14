@@ -6,17 +6,18 @@
  * @FilePath: \spacetaskscheduler\src\components\AppHeader.vue
 -->
 <template>
-  <div class="header">
-    <span class="logo">
-      <RouterLink to="/">
-        <img src="../assets/logo.jpg" alt="无法正常显示" />
-        <!-- <img src="" alt="无法正常显示" /> -->
-        <span class="name">Spacecraft Task Scheduler</span>
+  <div class="app-header">
+    <div class="app-header__inner">
+      <RouterLink to="/" class="brand" aria-label="航天任务调度工具工作台">
+        <img src="../assets/logo.jpg" alt="" class="brand__logo" />
       </RouterLink>
-    </span>
-    <span class="download" @click="handleDownload">
-      <img src="../assets/download.png" title="示例数据下载" class="download-icon" />
-    </span>
+      <div class="app-header__navigation">
+        <slot />
+      </div>
+      <button class="download-button" type="button" aria-label="下载示例数据" title="下载示例数据" @click="handleDownload">
+        <DownloadOutlined aria-hidden="true" />
+      </button>
+    </div>
   </div>
 </template>
 
@@ -105,69 +106,93 @@ const handleDownload = async () => {
 </script>
 
 <style scoped>
-.header {
-  display: flex;
-  /* margin: 0 20px; */
-  border: 2px solid #dbdada;
-  margin-top: 3px;
-  margin-bottom: 3px;
-  /* flex-direction: column; */
-  justify-content: space-between;
-  /* background-color: pink; */
+.app-header {
+  background: var(--sts-surface-raised);
 }
 
-.header .logo {
+.app-header__inner {
   display: flex;
-  height: 60px;
-  width: 1000px;
-  position: relative;
-  margin-left: 20px;
+  width: 100%;
+  min-height: 76px;
+  padding: 0 12px;
   align-items: center;
-  padding-left: 10px;
-  /* background-color: green; */
+  gap: 8px;
 }
 
-.header .logo img {
-  position: absolute;
-  top: 50%;
-  left: 0%;
-  transform: translate(0%, -50%);
-  width: 50px;
-  /* height: 50px; */
+.brand {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  color: var(--sts-ink-primary);
 }
 
-.header .logo .name {
-  position: absolute;
-  top: 50%;
-  left: 20%;
-  transform: translate(-50%, -50%);
-  font-size: 20px;
-  font-weight: bold;
-  /* margin-left: 60px; */
-  color: #333333;
+.brand:hover {
+  color: var(--sts-ink-primary);
 }
 
-.header .download {
-  display: flex;
-  height: 60px;
-  width: 100px;
-  position: relative;
-  margin-right: 1px;
+.brand__logo {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  border: 1px solid var(--sts-border);
+  border-radius: var(--sts-radius-md);
+  object-fit: cover;
+}
+
+.app-header__navigation {
+  min-width: 0;
+  flex: 1;
+}
+
+.download-button {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
   align-items: center;
   justify-content: center;
+  padding: 0;
+  border: 1px solid var(--sts-border-strong);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-raised);
+  color: var(--sts-ink-primary);
   cursor: pointer;
-  /* 移除背景色 */
 }
 
-/* 新增下载图标样式 */
-.download-icon {
-  width: 50px;
-  height: 50px;
-  transition: transform 0.2s ease;
+.download-button:hover {
+  border-color: var(--sts-primary);
+  background: var(--sts-primary-soft);
+  color: var(--sts-primary-hover);
 }
 
-/* 添加悬停效果 */
-.header .download:hover .download-icon {
-  transform: scale(1.1);
+.download-button .anticon {
+  display: inline-flex;
+  color: currentColor;
+  font-size: 16px;
+}
+
+.download-button .anticon :deep(svg) {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 767px) {
+  .app-header__inner {
+    min-height: 68px;
+    padding: 0 8px;
+    gap: 6px;
+  }
+
+  .brand__logo {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .download-button {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
 }
 </style>

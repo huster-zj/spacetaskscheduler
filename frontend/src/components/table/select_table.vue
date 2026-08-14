@@ -4,12 +4,12 @@
  :addBtnisShow，可选择是否传递一个布尔值，控制最后的“添加至资源列表按钮是否显示”，默认显示（为资源的导入服务） -->
 
 <template>
-  <div>
+  <div class="select-table">
     <!-- 头部搜索栏 -->
     <div class="header">
       <!-- 搜索+添加按钮 -->
       <div class="search_add">
-        <a-input-search v-model:value="searchQuery" class="custom-search-input" :bordered="false" />
+        <a-input-search v-model:value="searchQuery" class="custom-search-input" :bordered="false" placeholder="请输入搜索内容" />
         <div class="add" v-if="addBtnisShow1">
           <a-button @click="handleSendSelectedResourceList">添加至资源列表</a-button>
         </div>
@@ -90,34 +90,43 @@ const handleSendSelectedResourceList = () => {
 </script>
 
 <style scoped>
+.select-table {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: 16px;
+}
+
 /* 设计搜索栏样式 */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .search_add {
   display: flex;
   justify-content: start;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 /* 设置搜索框样式 */
 
 :deep(.custom-search-input) {
-  /* background-color: green; */
-  max-width: 400px;
-  border: 1px solid #7b7676;
-  /* border-radius: 10%; */
-  border-radius: 5px;
+  width: min(100%, 360px);
+  border: 1px solid var(--sts-border-strong);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-raised);
 }
 
 :deep(.custom-search-input .ant-input) {
   /* background-color: pink; */
-  height: 40px;
-  font-size: 20px;
+  height: 36px;
+  font-size: 14px;
   border: none;
   border-radius: 5px;
 }
@@ -130,18 +139,18 @@ const handleSendSelectedResourceList = () => {
 }
 
 :deep(.custom-search-input .ant-input-group-addon .ant-btn) {
-  height: 40px;
+  height: 36px;
   border: none;
   border-radius: 5px;
 }
 
 :deep(.custom-search-input .ant-input-group-addon .ant-input-search-button .anticon.anticon-search) {
-  font-size: 20px;
+  font-size: 16px;
 }
 
 /* 设置表格样式 */
 :deep(.ant-table-thead) {
-  font-size: 20px;
+  font-size: 13px;
 }
 
 :deep(.ant-table-thead .ant-table-cell) {
@@ -151,30 +160,37 @@ const handleSendSelectedResourceList = () => {
 
 :deep(.ant-table-tbody .ant-table-cell) {
   text-align: left;
-  font-size: 20px;
-  color: #121111;
+  font-size: 14px;
+  color: var(--sts-ink-primary);
 }
 
 :deep(.ant-table-cell a) {
-  color: #121111;
+  color: var(--sts-primary);
 }
 
 /* 设置添加资源按钮样式 */
 .add {
-  /* background-color: yellow; */
   display: flex;
   justify-content: flex-start;
-  margin: 30px;
+  margin: 0;
 }
 
 .add .ant-btn {
-  margin-right: 30px;
-  height: 40px;
-  font-size: 18px;
-  color: #2e2e2e;
-  border: 1.5px solid hsl(0, 1%, 57%);
-  border-radius: 10px;
-  padding: 5px 10px;
-  background-color: #f7f8fa;
+  margin: 0;
+  border-color: var(--sts-primary);
+  color: var(--sts-primary);
+}
+
+@media (max-width: 767px) {
+  .header,
+  .search_add {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  :deep(.custom-search-input) {
+    width: 100%;
+    max-width: none;
+  }
 }
 </style>

@@ -1,20 +1,24 @@
 <template>
-  <div class="box">
-    <div class="name-note">
+  <section class="page-shell editor-page">
+    <header class="page-header">
+      <h1 class="page-heading">编辑任务组</h1>
+    </header>
+    <div class="box surface-panel">
+      <div class="name-note">
       <span class="text">任务组名称：</span>
       <a-input v-model:value="logical_con_detail.task_group_name" placeholder="请输入任务组名称"/>
       <span class="text">备注：</span>
       <a-input v-model:value="logical_con_detail.task_group_note" placeholder="请输入任务组备注"/>
+      </div>
+      <div class="relate">
+        <RadioBtn ref="taskRelationData" :radio_beforeText="radio_beforeText" :radio_selection="radio_selection" :special_result="logical_con_detail.task_relationship" />
+      </div>
+      <NameActionTable :columns="columns" :includeList="includeTaskList" :excludeList="excludeTaskList" />
+      <div class="saveBtn">
+        <RouterBtn toPath="/logical_constraint" btnWidth="80px" btnText="保存" @click="saveLogicalConstraint" />
+      </div>
     </div>
-    <div class="relate">
-      <RadioBtn ref="taskRelationData" :radio_beforeText="radio_beforeText" :radio_selection="radio_selection" :special_result="logical_con_detail.task_relationship" />
-    </div>
-    <NameActionTable :columns="columns" :includeList="includeTaskList" :excludeList="excludeTaskList" />
-    <!-- <button @click="outputData">点击输出当前任务组包含的所有任务</button> -->
-    <div class="saveBtn">
-      <RouterBtn toPath="/logical_constraint" btnWidth="80px" btnText="保存" @click="saveLogicalConstraint" />
-    </div>
-  </div>
+  </section>
 </template>
 
 <script setup>
@@ -103,36 +107,48 @@ let columns = reactive([
 
 <style scoped>
 .box {
-  margin: 30px 100px 0 100px;
+  padding: 24px;
 }
 .box .name-note {
-  /* background-color: pink; */
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: max-content minmax(180px, 1fr) max-content minmax(180px, 1fr);
+  align-items: center;
+  gap: 12px;
   margin-bottom: 20px;
 }
 .box .name-note .text {
-  /* background-color: green; */
-  font-size: 22px;
-  font-weight: bold;
-  width: 150px;
-  text-align: center;
+  color: var(--sts-ink-secondary);
+  font-size: 14px;
+  font-weight: 600;
 }
 .box .name-note .ant-input {
-  /* background-color: pink; */
-  height: 40px;
-  font-size: 20px;
-  border-radius: 5px;
-  width: 500px;
-  margin-left: -300px;
+  width: 100%;
 }
-.box .name-note .ant-input:focus {
-  border-radius: 5px;
-  box-shadow: 0 0 0px; /* 覆盖默认阴影 */
+.box .relate {
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid var(--sts-border);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-subtle);
 }
 .box .saveBtn {
   display: flex;
   justify-content: center;
   margin-top: 20px;
+}
+
+.page-header {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 767px) {
+  .box {
+    padding: 16px;
+  }
+
+  .box .name-note {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
 }
 </style>

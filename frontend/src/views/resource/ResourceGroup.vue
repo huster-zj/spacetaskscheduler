@@ -7,7 +7,8 @@
 -->
 <template>
   <Steps :current_page="page" />
-  <ShowTable :columns="columns" :data="data">
+  <section class="page-shell list-page">
+    <ShowTable :columns="columns" :data="data">
     <!-- 头部搜索栏+导入资源按钮 -->
     <template #special_btn>
       <Dropdown before_select_text="场景：" :selectList="strategyList">
@@ -47,7 +48,8 @@
         </a-popconfirm>
       </span>
     </template>
-  </ShowTable>
+    </ShowTable>
+  </section>
 
 
 </template>
@@ -253,14 +255,6 @@ const router = useRouter()
 
 <style scoped>
 .text_create {
-  /* background-color: pink; */
-  margin: 0 30px 0 60px;
-  height: 40px;
-  font-size: 18px;
-  color: #2e2e2e;
-  border: 1.5px solid hsl(0, 1%, 57%);
-  border-radius: 10px;
-  padding: 5px 10px;
-  background-color: #f7f8fa;
+  margin: 0 8px;
 }
 </style>

@@ -6,7 +6,7 @@
  * @FilePath: \spacetaskscheduler\src\views\resource\resourceList\CekongResource.vue
 -->
 <template>
-  <div class="box">
+  <div class="page-shell list-page">
     <!-- <h1 style="color: red;text-align: center;">TODO：导入的测控资源一定会被当成新的资源，没有判断导入的资源是否已经在列表中</h1> -->
     <SelectTable :columns="columns" :data="cekongResourceList1" :addBtnisShow="addBtnisShow" @addToResourceList="handleAddToResourceList">
       <template #column_name="record">
@@ -97,7 +97,7 @@ const handleAddToResourceList = (selectedRows) => {
 } */
 /* 显示可通过点击测控资源名称进入该测控资源详情页 */
 .cekong_resource_detail_link {
-  color: #1890ff;
+  color: var(--sts-primary);
   cursor: pointer;
 }
 </style>

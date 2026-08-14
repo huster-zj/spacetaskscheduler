@@ -1,61 +1,57 @@
 <template>
   <Steps :current_page="page" />
   <ModalTask ref="modal_task" @update-task="changeTask" />
-  <div class="anchor">
-    <h1 class="title">锚定需求列表</h1>
-    <ShowTable :columns="columns_anchor" :data="anchorContraintList" :searchIsShow="false">
-      <template #column_action="action">
-        <span class="before_selectedTaskBtn">{{ action.column1.anchor_type }}</span>
-      <!-- 选择具体锚定需求对应的任务 -->
-      <!-- TODO: 需要确保锚定在最前和锚定在最后的任务并非同一个 -->
-       <!-- <span class="before_selectedTaskBtn">{{ action.column1.anchor_task }}</span> -->
-      <a-button type="primary" @click="showModal(action.column1)" class="chooseTask" >选择任务</a-button>
-      <!-- <CloseOutlined @click="deleteAnchorConstraint(action.column1.key)" /> -->
-      </template>
-      <template #column_name="name">
-       <span>{{ name.column1.anchor_task }}</span>
-      <CloseOutlined @click="deleteAnchorConstraint(name.column1.key)" />
-      </template>
-    </ShowTable>
-  </div>
-  <div class="temConstraints">
-    <h1 class="title">时态约束列表</h1>
-    <ShowTable :columns="columns_tem" :data="data_tem">
-      <!-- 特定按钮功能 -->
-    <template #special_btn>
-      <RouterLink to="/custom_tem_constraint">
-        <div class="custom_btn">添加</div>
-      </RouterLink>
-    </template>
-    <template #column_name="record">
-      <RouterLink :to="`/tem_constraint_detail/${record.column1.tem_constraint_task1}-${record.column1.tem_constraint_task2}`">
-        {{ record.column1.tem_constraint_task1 }}
-      </RouterLink>
-    </template>
-    <template #column_name2="record">
-      <RouterLink :to="`/tem_constraint_detail/${record.column1.tem_constraint_task1}-${record.column1.tem_constraint_task2}`">
-        {{ record.column1.tem_constraint_task2 }}
-      </RouterLink>
-    </template>
-    <template #column_action="action">
-      <span>
-        <!-- <span @click="goToTemConDetailPage(action.column1.name,action.column1.name2)"> -->
-        <RouterLink :to="`/tem_constraint_detail/${action.column1.tem_constraint_task1}-${action.column1.tem_constraint_task2}`">
-          <FormOutlined />
-        </RouterLink>
-        <a-divider type="vertical" />
-        <a-popconfirm
-           title="是否删除该数据？"
-           ok-text="是"
-           cancel-text="否"
-           @confirm="deleteTemConstraint(action.column1.key)"
-           >
+  <section class="page-shell constraints-page">
+    <div class="anchor">
+      <h1 class="title">锚定需求列表</h1>
+      <ShowTable :columns="columns_anchor" :data="anchorContraintList" :searchIsShow="false">
+        <template #column_action="action">
+          <span class="before_selectedTaskBtn">{{ action.column1.anchor_type }}</span>
+          <a-button type="primary" @click="showModal(action.column1)" class="chooseTask">选择任务</a-button>
+        </template>
+        <template #column_name="name">
+          <span>{{ name.column1.anchor_task }}</span>
+          <CloseOutlined @click="deleteAnchorConstraint(name.column1.key)" />
+        </template>
+      </ShowTable>
+    </div>
+    <div class="temConstraints">
+      <h1 class="title">时态约束列表</h1>
+      <ShowTable :columns="columns_tem" :data="data_tem">
+        <template #special_btn>
+          <RouterLink to="/custom_tem_constraint">
+            <div class="custom_btn">添加</div>
+          </RouterLink>
+        </template>
+        <template #column_name="record">
+          <RouterLink :to="`/tem_constraint_detail/${record.column1.tem_constraint_task1}-${record.column1.tem_constraint_task2}`">
+            {{ record.column1.tem_constraint_task1 }}
+          </RouterLink>
+        </template>
+        <template #column_name2="record">
+          <RouterLink :to="`/tem_constraint_detail/${record.column1.tem_constraint_task1}-${record.column1.tem_constraint_task2}`">
+            {{ record.column1.tem_constraint_task2 }}
+          </RouterLink>
+        </template>
+        <template #column_action="action">
+          <span>
+            <RouterLink :to="`/tem_constraint_detail/${action.column1.tem_constraint_task1}-${action.column1.tem_constraint_task2}`">
+              <FormOutlined />
+            </RouterLink>
+            <a-divider type="vertical" />
+            <a-popconfirm
+              title="是否删除该数据？"
+              ok-text="是"
+              cancel-text="否"
+              @confirm="deleteTemConstraint(action.column1.key)"
+            >
               <CloseOutlined />
-          </a-popconfirm>
-      </span>
-    </template>
-    </ShowTable>
-  </div>
+            </a-popconfirm>
+          </span>
+        </template>
+      </ShowTable>
+    </div>
+  </section>
 </template>
 
 <script setup>
@@ -226,45 +222,29 @@ function deleteTemConstraint(key) {
 
 <style scoped>
 h1.title {
-  font-size: 30px;
-  font-weight: bold;
-  color: #2e2e2e;
-  margin-bottom: 20px;
-  margin-top: 30px;
-  text-align: center;
+  margin: 24px 0 12px;
+  color: var(--sts-ink-primary);
+  font-size: 18px;
+  font-weight: 600;
+  text-align: left;
 }
 
 .before_selectedTaskBtn {
-  font-size: 20px;
-  color: #2e2e2e;
-  margin-right: 30px;
+  margin-right: 12px;
+  color: var(--sts-ink-secondary);
+  font-size: 14px;
 }
 
 .chooseTask {
-  /* background-color: pink; */
-  height: 40px;
-  font-size: 18px;
-  color: #2e2e2e;
-  border: 1.5px solid hsl(0, 1%, 57%);
-  border-radius: 10px;
-  padding: 5px 10px;
-  background-color: #f7f8fa;
+  min-width: 84px;
 }
 
 .custom_btn {
-  /* background-color: pink; */
-  margin-right: 30px;
-  height: 40px;
-  font-size: 18px;
-  color: #2e2e2e;
-  border: 1.5px solid hsl(0, 1%, 57%);
-  border-radius: 10px;
-  padding: 5px 10px;
-  background-color: #f7f8fa;
+  margin: 0;
 }
 
 /* 设置锚定需求列表中删除图标的样式 */
 .anchor td.ant-table-cell span.anticon-close {
-  margin-left: 30px;
+  margin-left: 12px;
 }
 </style>

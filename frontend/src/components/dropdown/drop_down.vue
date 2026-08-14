@@ -13,7 +13,7 @@ import Dropdown from '@/components/dropdown/drop_down.vue'
         <a-select
           ref="select"
           v-model:value="selectValue"
-          style="width: 120px"
+          class="dropdown-select"
         >
           <a-select-option v-for="item in selectList" :key="item.id" :value="item.value">
             {{ item.label }}
@@ -76,46 +76,36 @@ defineExpose({
 <style scoped>
 /* 策略部分-样式 */
 .dropdown_box {
-  /* background-color: pink; */
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  width: calc(100% - 600px);
-  margin: 20px 30px;
-  font-size: 20px;
-}
-.dropdown_box .dif_text .text_name {
-  font-size: 20px;
-  font-weight: bold;
+  width: auto;
+  max-width: 100%;
+  margin: 0;
+  font-size: 14px;
 }
 
-.dropdown_box .dif_text :deep(.ant-select-selector) {
-  position: relative;
-  height: 40px;
+.dropdown_box .dif_text {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dropdown_box .dif_text .text_name {
+  color: var(--sts-ink-secondary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dropdown-select {
   width: 150px;
-  border-radius: 5px;
 }
 
 .dropdown_box .dif_text :deep(.ant-select-selection-item) {
-  font-size: 20px;
-  line-height: 38px;
-  margin-left: 3px;
-}
-
-.dropdown_box .dif_text :deep(.ant-select-arrow) {
-  position: absolute;
-  right: -10px;
-  top: 50%;
-  color: #2e2e2e;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .dropdown_box .ant-btn {
-  height: 40px;
-  color: #2e2e2e;
-  border: 1.5px solid hsl(0, 1%, 57%);
-  border-radius: 10px;
+  margin: 0;
 }
-
-
 </style>

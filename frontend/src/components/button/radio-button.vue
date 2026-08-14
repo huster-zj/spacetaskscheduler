@@ -63,19 +63,21 @@ defineExpose({
 
 <style scoped>
 .radio {
-  /* background-color: pink; */
   display: flex;
-  margin-top: 30px;
-  margin-left: 30px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 0;
 }
 
 .radio .radio_text {
-  font-size: 20px;
-  font-weight: bold;
+  color: var(--sts-ink-secondary);
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .radio .radio_selection .ant-radio-wrapper {
-  font-size: 20px;
-  margin: 0 20px 0 20px;
+  margin: 0 20px 8px 0;
+  font-size: 14px;
 }
 </style>

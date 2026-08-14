@@ -3,7 +3,7 @@
     <a-row>
       <a-col :span="24">
         <a-typography-title :level="4" style="font-size: 23px;">占用情况</a-typography-title>
-        <a-row :gutter="32">
+        <a-row :gutter="32" class="occupancy-summary">
           <a-col :span="5">
             <div class="form-item">
               <label for="total-available-time" class="form-label">总可用时长:</label>
@@ -26,7 +26,7 @@
 
         <div class="form-body">
           <label class="form-label" style="font-weight: bold;">任务列表</label>
-          <a-table :dataSource="dataSource" :columns="columns" rowKey="id" class="table" />
+          <a-table :dataSource="dataSource" :columns="columns" :scroll="{ x: 980 }" rowKey="id" class="table" />
         </div>
       </a-col>
     </a-row>
@@ -158,5 +158,19 @@ const columns = [
 
 :deep(.ant-table-tbody .ant-table-cell) {
   font-size: 16px;
+}
+
+@media (max-width: 767px) {
+  .occupancy-summary > .ant-col {
+    max-width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .form-label,
+  .form-input,
+  :deep(.ant-table-thead),
+  :deep(.ant-table-tbody .ant-table-cell) {
+    font-size: 14px;
+  }
 }
 </style>

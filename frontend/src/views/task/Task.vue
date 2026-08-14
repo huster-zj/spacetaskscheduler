@@ -17,7 +17,8 @@
     </footer>
   </a-modal>
 
-  <ShowTable :columns="columns" :data="formHeadList">
+  <section class="page-shell list-page">
+    <ShowTable :columns="columns" :data="formHeadList">
     <!-- 特定按钮功能 -->
     <template #special_btn>
       <div class="task_btn">
@@ -51,7 +52,8 @@
         </a-popconfirm>
       </span>
     </template>
-  </ShowTable>
+    </ShowTable>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -270,20 +272,20 @@ li {
 /* 导入任务按钮样式 */
 .task_btn {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .task_btn .ant-btn,
 .task_btn .custom_btn {
-  /* background-color: pink; */
-  margin-right: 30px;
-  height: 40px;
-  font-size: 18px;
-  color: #2e2e2e;
-  border: 1.5px solid hsl(0, 1%, 57%);
-  border-radius: 10px;
-  padding: 5px 10px;
-  background-color: #f7f8fa;
+  margin: 0;
+  min-height: 36px;
+  border: 1px solid var(--sts-border-strong);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-raised);
+  color: var(--sts-ink-primary);
+  font-size: 14px;
 }
 
 /* 模态框标题样式 */
@@ -293,11 +295,8 @@ li {
 }
 
 .result_modal .custom_title {
-  /* background-color: pink; */
-  font-size: 25px;
-  height: 40px;
-  line-height: 40px;
-  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 /* 模态框内容样式 */
@@ -308,10 +307,9 @@ li {
 }
 
 .result_modal .result_taskList {
-  /* background-color: pink; */
   border-bottom: 1px solid #f0f0f0;
   padding: 10px 0 10px 15px;
-  font-size: 20px;
+  font-size: 14px;
 }
 
 /* 模态框底部样式 */
@@ -322,14 +320,12 @@ li {
 }
 
 .footer .sureBtn {
-  /* background-color: pink; */
-  width: 100px;
-  height: 40px;
-  font-size: 18px;
-  color: #2e2e2e;
-  border: 1.5px solid hsl(0, 1%, 57%);
-  border-radius: 10px;
-  padding: 5px 10px;
-  background-color: #f7f8fa;
+  min-width: 96px;
+}
+
+@media (max-width: 767px) {
+  .task_btn {
+    justify-content: flex-start;
+  }
 }
 </style>

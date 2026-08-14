@@ -11,7 +11,7 @@
               <div class="form-item">
                 <label style="font-weight: bold;">任务安排信息表</label>
               </div>
-              <a-table :columns="taskScheduleColumns" :dataSource="taskScheduleData" :pagination="false" />
+              <a-table :columns="taskScheduleColumns" :dataSource="taskScheduleData" :pagination="false" :scroll="{ x: 760 }" />
             </a-col>
           </a-row>
           <a-row :gutter="32" style="margin-top: 2rem;">
@@ -19,7 +19,7 @@
               <div class="form-item">
                 <label style="font-weight: bold;">潜在冲突表</label>
               </div>
-              <a-table :columns="potentialConflictColumns" :dataSource="potentialConflictData" :pagination="false" />
+              <a-table :columns="potentialConflictColumns" :dataSource="potentialConflictData" :pagination="false" :scroll="{ x: 720 }" />
             </a-col>
           </a-row>
         </div>

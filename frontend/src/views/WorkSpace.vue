@@ -1,11 +1,14 @@
 <template>
   <Steps :current_page="page" />
-  <span class="h1_text">历史文档</span>
-  <a-table :data-source="data" :columns="columns" :customHeaderRow="customHeaderRow" :rowClassName="rowClassName"
-    class="custom_table">
+  <section class="page-shell workspace-page">
+    <header class="page-header">
+      <h1 class="page-heading">历史文档</h1>
+    </header>
+    <a-table :data-source="data" :columns="columns" :customHeaderRow="customHeaderRow" :rowClassName="rowClassName"
+      :scroll="{ x: 720 }" class="custom_table workspace-table">
     <template #headerCell="{ column }">
       <template v-if="column.key === 'filename'">
-        <span style="color: #333333" class="headline_fileicon">
+        <span class="headline_fileicon">
           <FolderOutlined />
           文件名
         </span>
@@ -34,7 +37,7 @@
       <!-- 加图片在单元格中显示 -->
       <template v-if="column.key === 'filename'">
         <span>
-          <img src="../assets/logo.jpg" alt="无法正常显示" class="logo_img">
+          <img src="../assets/logo.jpg" alt="" class="logo_img">
           {{ text }}
         </span>
       </template>
@@ -50,7 +53,8 @@
         </template>
       </span>
     </template>
-  </a-table>
+    </a-table>
+  </section>
 </template>
 <script setup>
 // import { update } from 'cypress/types/lodash';
@@ -132,41 +136,37 @@ const handleReset = (clearFilters) => {
 }
 </script>
 
-<!-- 设置一般样式 -->
 <style scoped>
-.h1_text {
-  margin: 10px 0;
-  padding-left: 20px;
-  font-size: 24px;
-  line-height: 2;
-  font-weight: normal;
-  /* background-color: rgb(172, 205, 172); */
+.workspace-page {
+  display: grid;
+  gap: 16px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>
 
 <!-- 设置table中行的样式 -->
 <style>
 .custom_table {
-  /* border-collapse: collapse; 合并单元格边框 */
-  margin-left: 15px;
+  margin: 0;
 }
 
 .headline {
-  font-size: 20px;
-  /* border-collapse: collapse; */
+  font-size: 13px;
   text-align: left;
 }
 
 .headline .ant-table-cell {
-  border-collapse: collapse;
-  border-bottom: 2px solid #969595;
-  /* background-color: #8d3b3b; */
+  border-bottom: 1px solid var(--sts-border-strong);
 }
 
 .row {
-  font-size: 18px;
-  line-height: 2;
-  /* background-color: #8d3b3b; */
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 /* .row:hover {
@@ -174,8 +174,7 @@ const handleReset = (clearFilters) => {
 } */
 
 .row .ant-table-cell {
-  border-collapse: collapse;
-  border-bottom: 2px solid #969595;
+  border-bottom: 1px solid var(--sts-border);
 }
 
 .highlight {
@@ -184,10 +183,7 @@ const handleReset = (clearFilters) => {
 }
 
 .headline .ant-table-cell .anticon {
-  /* background-color: pink; */
-  font-size: 20px;
-  /* color: aqua; */
-  /* margin-right: 25px; */
+  font-size: 16px;
 }
 
 .search_box .ant-input {
@@ -198,13 +194,16 @@ const handleReset = (clearFilters) => {
 }
 
 .headline_fileicon .anticon {
-  /* background-color: #ffc0cb; */
-  margin-right: 10px;
+  margin-right: 8px;
+  color: var(--sts-primary);
 }
 
 .logo_img {
-  width: 36px;
-  /* height: 20px; */
-  margin-right: 10px;
+  width: 28px;
+  height: 28px;
+  margin-right: 8px;
+  border-radius: var(--sts-radius-sm);
+  object-fit: cover;
+  vertical-align: middle;
 }
 </style>

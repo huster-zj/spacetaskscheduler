@@ -1,12 +1,14 @@
 <template>
-  <div class="box">
-    <div class="page-container">
+  <div class="page-shell detail-page">
+    <div class="box">
+      <div class="page-container surface-panel">
       <FormHead class="page-section" :taskKey="taskKey" />
       <BasicInfo class="page-section" :taskKey="taskKey" />
       <Prop class="page-section" :taskKey="taskKey" />
       <Duration class="page-section" :taskKey="taskKey" />
       <Requirement class="page-section" />
       <SchedulerState class="page-section" :taskKey="taskKey" />
+      </div>
     </div>
   </div>
 
@@ -33,16 +35,12 @@ console.log('taskKey', props);
 
 <style scoped>
 .box {
-  display: flex;
-  justify-content: center;
+  width: 100%;
 }
 
 .page-container {
-  width: 1500px;
-  background-color: #ffffff;
-  /* 设置统一的背景色 */
-  padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  padding: 24px;
 }
 
 .page-section {
@@ -56,5 +54,11 @@ console.log('taskKey', props);
   /* 确保没有底部间距 */
   padding-bottom: 0;
   /* 确保没有底部内边距 */
+}
+
+@media (max-width: 767px) {
+  .page-container {
+    padding: 16px;
+  }
 }
 </style>

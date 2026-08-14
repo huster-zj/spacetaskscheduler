@@ -1,14 +1,14 @@
 <template>
   <div>
-    <div>
+    <div class="constraint-line">
       <label for="resource-constraint" class="form-label">资源约束:</label>
       <a-input id="resource-constraint" v-model:value="resourceConstraint" class="form-input"
-        style="width: 350px; margin-right: 16px;" disabled />
+        disabled />
       <a-button type="primary" @click="calculateFeasibleTimeWindow">计算可行时间窗</a-button>
     </div>
     <a-row :gutter="16" class="form-item">
       <a-col :span="24">
-        <div class="form-item" style="margin-left: 80px; margin-top: 5px;">
+        <div class="form-item operator-row">
           <a-button type="default" @click="insertText('and')">and</a-button>
           <a-button type="default" @click="insertText('or')">or</a-button>
           <a-button type="default" @click="insertText('（')">（</a-button>
@@ -16,8 +16,8 @@
         </div>
       </a-col>
     </a-row>
-    <a-row>
-      <a-col :span="5" :style="{ border: '1px solid #000', marginRight: '50px', padding: '10px' }">
+    <a-row class="resource-grid" :gutter="16">
+      <a-col :span="5" class="resource-panel">
         <div class="form-item">
           <label class="form-label" style="font-weight: bold;">资源列表:</label>
         </div>
@@ -26,7 +26,7 @@
             }}</a-button>
         </div>
       </a-col>
-      <a-col :span="4" :style="{ border: '1px solid #000', marginRight: '5px', padding: '10px' }">
+      <a-col :span="4" class="resource-panel">
         <div class="form-item">
           <label class="form-label" style="font-weight: bold;">资源池列表:</label>
         </div>
@@ -35,10 +35,10 @@
             item.name }}</a-button>
         </div>
       </a-col>
-      <a-col :span="10" :style="{ border: '1px solid #000', marginRight: '5px', padding: '10px' }">
+      <a-col :span="15" class="resource-panel resource-pool-panel">
         <div class="form-item">
           <label class="form-label" style="font-weight: bold;">资源池:</label>
-          <a-button style="margin-left: 80px;">创建</a-button>
+          <a-button>创建</a-button>
         </div>
         <div class="form-item">
           <a-radio-group v-model:value="resourcePoolType" class="form-input">
@@ -150,6 +150,40 @@ const poolResourceGroupData = [
   margin-bottom: 1rem;
 }
 
+.constraint-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.constraint-line .form-input {
+  width: min(100%, 350px);
+  margin: 0;
+}
+
+.operator-row {
+  gap: 6px;
+  margin: 8px 0 12px;
+}
+
+.resource-grid {
+  row-gap: 16px;
+}
+
+.resource-panel {
+  padding: 14px !important;
+  border: 1px solid var(--sts-border);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-raised);
+}
+
+.resource-pool-panel .form-item {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .input-number {
   margin-left: 10px;
   /* 调整右边的间距 */
@@ -169,11 +203,8 @@ const poolResourceGroupData = [
 }
 
 .table-container {
-  display: flex;
-  gap: 20px;
-  /* 设置两个表格之间的间距 */
   width: 100%;
-  /* 确保父容器的宽度是 100% */
+  min-width: 0;
 }
 
 .table-container :deep(.ant-table) {
@@ -197,5 +228,24 @@ const poolResourceGroupData = [
 
 :deep(.ant-table-tbody .ant-table-cell) {
   font-size: 16px;
+}
+
+@media (max-width: 767px) {
+  .resource-grid > .ant-col {
+    max-width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .resource-panel {
+    padding: 12px !important;
+  }
+
+  .form-label,
+  .form-input,
+  :deep(.ant-btn),
+  :deep(.ant-table-thead),
+  :deep(.ant-table-tbody .ant-table-cell) {
+    font-size: 14px;
+  }
 }
 </style>
