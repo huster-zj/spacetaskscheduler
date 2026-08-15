@@ -23,7 +23,6 @@ import { ref, reactive } from 'vue';
 import SelectTable from '@/components/table/select_table.vue'
 import { useCekongResourceListStore } from '@/stores/useCekongResourceListStore.js'
 import ResourceTransferService from '@/services/ResourceTransfer.js'
-import ResourceViewTransfer from '@/services/ResourceViewTransfer.js'
 
 // 表格数据
 const columns = reactive([
@@ -77,15 +76,6 @@ const handleAddToResourceList = (selectedRows) => {
     });
   } else {
     console.error('资源转移失败:', result.message)
-  }
-
-  // 创建实例和获取 store
-  const resourceViewTransfer = new ResourceViewTransfer();
-  
-  // 先执行数据转换
-  const result2 = resourceViewTransfer.transferToResourceView();
-  if (!result2.success) {
-    console.error('资源数据转换失败:', result2.message);
   }
 };
 

@@ -25,7 +25,8 @@
       </div>
     </div>
     <div class="box">
-      <a-button type="primary" @click="handleRun" class="btn">运行</a-button>
+      <a-button type="primary" :loading="running" :disabled="running" @click="handleRun" class="btn">运行</a-button>
+      <span v-if="runStatus" class="run-status" role="status">{{ runStatus }}</span>
     </div>
   </section>
   <a-modal v-model:visible="visible" ok-text="确定" :footer="footer" wrapClassName="result_modal">
@@ -49,8 +50,14 @@ import { ref } from 'vue';
 import Steps from '@/components/Steps.vue'
 import { message } from 'ant-design-vue';
 import AlgorithmService from '@/services/Algorithm.js'
+import PreprocessService from '@/services/Preprocess.js'
+import { useAlgorithmOutputStore } from '@/stores/useAlgorithmOutput.js'
 import eventBus from '@/utils/eventBus.js';
+
+defineOptions({ name: 'PlanningOperatingView' })
+
 const page = ref(8)    // 当前所在页面对应的value,计数从0开始,传递给Steps组件
+const algorithmOutputStore = useAlgorithmOutputStore()
 
 
 // 目标配置
@@ -67,7 +74,8 @@ const algorithmsList = [
   { key: '2', algorithm_name: '求解器-COPT', algorithm_note: '只能求解资源供大于需的问题，可能无解，解较优' },
   { key: '3', algorithm_name: '分支定价切割算法', algorithm_note: '可求解资源供小于需的问题，解最优，计算时间长' },
 ];
-const valueAlgorithm = ref(algorithmsList[2].key);
+const valueAlgorithm = ref(algorithmsList[0].key);
+disabled.value = true
 function handelChangeAlgorithm() {
   console.log('value', valueAlgorithm.value);
   if (valueAlgorithm.value === algorithmsList[0].key) {
@@ -83,6 +91,8 @@ const visible = ref(false);    // 控制模态框显示
 const footer = ref(false);    // 控制模态框底部默认按钮不显示
 const result = ref('算法运行结果')
 const outputContent = ref('')
+const running = ref(false)
+const runStatus = ref('')
 
 function handleSure() {
   visible.value = false
@@ -90,6 +100,8 @@ function handleSure() {
 
 // 运行按钮
 async function handleRun() {
+  if (running.value) return
+
   try {
     // 检查是否选择了启发式算法
     if (valueAlgorithm.value !== '1') {
@@ -97,9 +109,25 @@ async function handleRun() {
       return
     }
 
-    console.log('开始运行算法...')
+    algorithmOutputStore.clearOutput()
+    outputContent.value = ''
+    visible.value = false
+    running.value = true
+    runStatus.value = '正在预处理当前规划包...'
+    message.loading({ content: '正在预处理当前规划包...', duration: 0, key: 'planning-run' })
 
-    // 调用算法服务
+    const preprocessResult = await PreprocessService.preprocessTaskTimewindow()
+    if (!preprocessResult.success) {
+      message.error({
+        content: `预处理失败：${preprocessResult.message || '请检查任务与资源数据'}`,
+        key: 'planning-run'
+      })
+      runStatus.value = '预处理失败'
+      return
+    }
+
+    runStatus.value = '预处理完成，正在运行启发式算法...'
+    message.loading({ content: '正在运行启发式算法...', duration: 0, key: 'planning-run' })
     const result = await AlgorithmService.executeAlgorithm()
 
     if (result.success) {
@@ -109,7 +137,8 @@ async function handleRun() {
       if (result.data && result.data.output_text) {
         outputContent.value = result.data.output_text
         visible.value = true
-        message.success('算法执行成功')
+        message.success({ content: '预处理与算法执行成功', key: 'planning-run' })
+        runStatus.value = '运行完成'
         // 触发更新事件
         eventBus.emit('algorithmSuccess')
       } else {
@@ -117,11 +146,15 @@ async function handleRun() {
       }
     } else {
       console.error('算法执行失败:', result.message)
-      message.error(result.message || '算法执行失败')
+      message.error({ content: `算法执行失败：${result.message || '未知错误'}`, key: 'planning-run' })
+      runStatus.value = '算法执行失败'
     }
   } catch (error) {
     console.error('运行过程出错:', error)
-    message.error('运行出错: ' + error.message)
+    message.error({ content: `运行出错：${error.message}`, key: 'planning-run' })
+    runStatus.value = '运行失败'
+  } finally {
+    running.value = false
   }
 }
 </script>
@@ -176,11 +209,20 @@ async function handleRun() {
 .box {
   display: flex;
   justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 8px;
   margin-top: 24px;
 }
 
 .btn {
   min-width: 96px;
+}
+
+.run-status {
+  min-height: 20px;
+  color: var(--sts-ink-secondary);
+  font-size: 13px;
 }
 
 /* 模态框样式 */

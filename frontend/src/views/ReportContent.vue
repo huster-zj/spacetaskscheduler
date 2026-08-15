@@ -17,49 +17,34 @@
 <script setup>
 import { DownloadOutlined } from '@ant-design/icons-vue'
 import MarkdownIt from 'markdown-it'
-import { ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useReportContentStore } from '@/stores/useReportContentStore'
-import { storeToRefs } from 'pinia'
+import { useDynamicReports } from '@/composables/useDynamicReports'
 
 const route = useRoute()
-const store = useReportContentStore()
-
-// 获取所有报告内容
-const {
-  scheduleReport,
-  resourceReport,
-  summaryReport,
-  taskGroupReport,
-  taskConflictReport,
-  taskReport
-} = storeToRefs(store)
+const { reports } = useDynamicReports()
 
 // 根据路由参数获取对应报告内容
 const getReportContent = () => {
   const type = route.params.type
   switch (type) {
-    case 'schedule': return scheduleReport.value
-    case 'resource': return resourceReport.value
-    case 'summary': return summaryReport.value
-    case 'taskGroup': return taskGroupReport.value
-    case 'taskConflict': return taskConflictReport.value
-    case 'task': return taskReport.value
+    case 'schedule': return reports.value.scheduleReport
+    case 'resource': return reports.value.resourceReport
+    case 'summary': return reports.value.summaryReport
+    case 'taskGroup': return reports.value.taskGroupReport
+    case 'taskConflict': return reports.value.taskConflictReport
+    case 'task': return reports.value.taskReport
     default: return ''
   }
 }
 
 const md = new MarkdownIt({
-  html: true,
+  html: false,
   breaks: true,
   linkify: true
 })
 
-const renderedContent = ref('')
-
-watch(() => route.params.type, () => {
-  renderedContent.value = md.render(getReportContent())
-}, { immediate: true })
+const renderedContent = computed(() => md.render(getReportContent()))
 
 const downloadMarkdown = () => {
   const now = new Date()

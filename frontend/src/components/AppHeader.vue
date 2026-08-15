@@ -14,93 +14,98 @@
       <div class="app-header__navigation">
         <slot />
       </div>
-      <button class="download-button" type="button" aria-label="下载示例数据" title="下载示例数据" @click="handleDownload">
-        <DownloadOutlined aria-hidden="true" />
-      </button>
+      <a-popover
+        v-model:visible="sampleSelectorVisible"
+        placement="bottomRight"
+        trigger="click"
+        overlay-class-name="sample-selector-popover"
+      >
+        <template #content>
+          <section
+            id="sample-selector"
+            class="sample-selector"
+            role="dialog"
+            aria-labelledby="sample-selector-title"
+          >
+            <header class="sample-selector__header">
+              <strong id="sample-selector-title">示例规划包</strong>
+              <span>选择一个或多个 2026 场景</span>
+            </header>
+            <div class="sample-selector__list">
+              <a-checkbox
+                v-for="sample in SAMPLE_PLANNING_PACKAGES"
+                :key="sample.id"
+                :checked="selectedSampleIds.includes(sample.id)"
+                @change="toggleSample(sample.id, $event.target.checked)"
+              >
+                <span class="sample-option">
+                  <span class="sample-option__name">{{ sample.name }}</span>
+                  <span class="sample-option__summary">{{ sample.summary }}</span>
+                </span>
+              </a-checkbox>
+            </div>
+            <footer class="sample-selector__actions">
+              <span>{{ selectedSampleIds.length }} 个已选择</span>
+              <a-button
+                type="primary"
+                size="small"
+                :disabled="selectedSampleIds.length === 0"
+                :loading="downloading"
+                @click="handleDownload"
+              >
+                下载
+              </a-button>
+            </footer>
+          </section>
+        </template>
+        <button
+          class="download-button"
+          type="button"
+          aria-label="下载示例规划包"
+          aria-haspopup="dialog"
+          aria-controls="sample-selector"
+          :aria-expanded="sampleSelectorVisible"
+          title="下载示例规划包"
+        >
+          <DownloadOutlined aria-hidden="true" />
+        </button>
+      </a-popover>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { message } from 'ant-design-vue'
+import {
+  SAMPLE_PLANNING_PACKAGES,
+  downloadSamplePlanningPackages
+} from '@/services/samplePlanningPackages'
 
-// 处理下载测试数据
+const sampleSelectorVisible = ref(false)
+const defaultSample = SAMPLE_PLANNING_PACKAGES.find(({ id }) => id === 'integrated-demo')
+  || SAMPLE_PLANNING_PACKAGES[0]
+const selectedSampleIds = ref(defaultSample ? [defaultSample.id] : [])
+const downloading = ref(false)
+
+const toggleSample = (id, checked) => {
+  const nextSelection = new Set(selectedSampleIds.value)
+  if (checked) nextSelection.add(id)
+  else nextSelection.delete(id)
+  selectedSampleIds.value = [...nextSelection]
+}
+
 const handleDownload = async () => {
+  downloading.value = true
   try {
-    message.loading('正在准备下载文件...', 0)
-    
-    console.log('开始请求下载接口...')
-    const response = await fetch('http://127.0.0.1:8000/api/download_test_files', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/octet-stream, application/zip'
-      }
-    })
-    
-    console.log('响应状态:', response.status)
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-    
-    // 获取文件名
-    const contentDisposition = response.headers.get('content-disposition')
-    
-    // 生成带日期后缀的文件名
-    const now = new Date()
-    const month = String(now.getMonth() + 1).padStart(2, '0')
-    const day = String(now.getDate()).padStart(2, '0')
-    const hour = String(now.getHours()).padStart(2, '0')
-    const minute = String(now.getMinutes()).padStart(2, '0')
-    const datePrefix = `${month}${day}${hour}${minute}`
-    
-    let filename = `测试数据${datePrefix}.zip`
-    if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename=([^;]+)/)
-      if (filenameMatch) {
-        const originalName = filenameMatch[1].replace(/"/g, '')
-        // 如果是zip文件，添加日期后缀
-        if (originalName.endsWith('.zip')) {
-          filename = `测试数据${datePrefix}.zip`
-        } else {
-          // 如果是单个文件，保持原名但添加日期后缀
-          const nameParts = originalName.split('.')
-          if (nameParts.length > 1) {
-            const ext = nameParts.pop()
-            const name = nameParts.join('.')
-            filename = `${name}_${datePrefix}.${ext}`
-          } else {
-            filename = `${originalName}_${datePrefix}`
-          }
-        }
-      }
-    }
-    
-    console.log('准备下载文件:', filename)
-    
-    // 创建blob并下载
-    const blob = await response.blob()
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = filename
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
-    
-    message.destroy()
-    message.success('文件下载成功！')
+    const result = await downloadSamplePlanningPackages(selectedSampleIds.value)
+    sampleSelectorVisible.value = false
+    message.success(`已下载 ${result.filename}`)
   } catch (error) {
-    message.destroy()
-    console.error('下载失败详情:', error)
-    
-    // 提供更详细的错误信息
-    if (error.message.includes('Failed to fetch')) {
-      message.error('网络连接失败，请确保后端服务正在运行并检查CORS设置')
-    } else {
-      message.error(`下载失败: ${error.message}`)
-    }
+    message.error(error instanceof Error ? error.message : '示例规划包生成失败')
+  } finally {
+    downloading.value = false
   }
 }
 </script>
@@ -174,6 +179,70 @@ const handleDownload = async () => {
 .download-button .anticon :deep(svg) {
   width: 16px;
   height: 16px;
+}
+
+.sample-selector {
+  width: min(320px, calc(100vw - 32px));
+}
+
+.sample-selector__header {
+  display: grid;
+  gap: 2px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--sts-border);
+}
+
+.sample-selector__header strong {
+  color: var(--sts-ink-primary);
+  font-size: 14px;
+}
+
+.sample-selector__header span,
+.sample-selector__actions > span,
+.sample-option__summary {
+  color: var(--sts-ink-muted);
+  font-size: 12px;
+}
+
+.sample-selector__list {
+  display: grid;
+  gap: 2px;
+  padding: 8px 0;
+}
+
+.sample-selector__list :deep(.ant-checkbox-wrapper) {
+  display: flex;
+  margin: 0;
+  padding: 8px 6px;
+  align-items: flex-start;
+  border-radius: var(--sts-radius-md);
+}
+
+.sample-selector__list :deep(.ant-checkbox-wrapper:hover) {
+  background: var(--sts-surface-subtle);
+}
+
+.sample-selector__list :deep(.ant-checkbox) {
+  margin-top: 3px;
+}
+
+.sample-option {
+  display: grid;
+  gap: 1px;
+}
+
+.sample-option__name {
+  color: var(--sts-ink-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sample-selector__actions {
+  display: flex;
+  padding-top: 10px;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--sts-border);
 }
 
 @media (max-width: 767px) {
