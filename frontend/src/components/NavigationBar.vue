@@ -5,17 +5,11 @@
         <section class="command-group" aria-labelledby="nav-project">
           <span id="nav-project" class="command-group__label">项目</span>
           <div class="command-group__items">
-            <RouterLink
-              to="/attributes"
-              class="command-item"
-              active-class="command-item--create-active"
-              exact-active-class="command-item--create-exact-active"
-              aria-current="false"
-            >
+            <button class="command-item" type="button" @click="handleCreatePackage">
               <PlusCircleOutlined aria-hidden="true" />
               <span>新建</span>
-            </RouterLink>
-            <a-upload :show-upload-list="false" :before-upload="handleFileChangeHandler" accept=".zip">
+            </button>
+            <a-upload :show-upload-list="false" :before-upload="handleFileChangeHandler" accept=".sts,.zip">
               <button class="command-item" type="button">
                 <FolderOpenOutlined aria-hidden="true" />
                 <span>打开</span>
@@ -140,18 +134,30 @@
         <section class="command-group command-group--help" aria-labelledby="nav-help">
           <span id="nav-help" class="command-group__label">帮助</span>
           <div class="command-group__items">
-            <button class="command-item" type="button" @click="openHelpDoc">
+            <RouterLink
+              to="/help"
+              class="command-item"
+              :class="{ 'is-active': isRouteActive(['/help']) }"
+            >
               <QuestionCircleOutlined aria-hidden="true" />
               <span>帮助中心</span>
-            </button>
-            <button class="command-item" type="button" @click="openHelpDoc">
+            </RouterLink>
+            <RouterLink
+              to="/license"
+              class="command-item"
+              :class="{ 'is-active': isRouteActive(['/license']) }"
+            >
               <SolutionOutlined aria-hidden="true" />
               <span>许可证</span>
-            </button>
-            <button class="command-item" type="button" @click="openAboutDoc">
+            </RouterLink>
+            <RouterLink
+              to="/about"
+              class="command-item"
+              :class="{ 'is-active': isRouteActive(['/about']) }"
+            >
               <InfoCircleOutlined aria-hidden="true" />
               <span>关于</span>
-            </button>
+            </RouterLink>
           </div>
         </section>
 
@@ -178,10 +184,12 @@
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router'
-import { saveZipFile, handleFileChange } from '@/utils/fileHandler'
+import { message } from 'ant-design-vue'
+import { useRoute, useRouter } from 'vue-router'
+import { handleFileChange, resetPlanningPackage, saveZipFile } from '@/utils/fileHandler'
 
 const route = useRoute()
+const router = useRouter()
 
 const resourceRoutes = ['/resource', '/resource_detail', '/cekong_resource', '/cekong_resource_detail']
 const resourceGroupRoutes = ['/resource_group', '/new_resource_group', '/resource_group_detail']
@@ -193,20 +201,31 @@ const reportRoutes = ['/report', '/report_content']
 const isRouteActive = (paths) => paths.some((path) => route.path === path || route.path.startsWith(`${path}/`))
 
 const saveZipFileHandler = async () => {
-  await saveZipFile()
+  try {
+    const result = await saveZipFile()
+    message.success(`已保存 ${result.filename}`)
+  } catch (error) {
+    message.error(error.message || '规划包保存失败')
+  }
 }
 
 const handleFileChangeHandler = async (file) => {
-  return await handleFileChange(file)
+  try {
+    await handleFileChange(file)
+    message.success(`已打开 ${file.name}`)
+    await router.push('/attributes')
+  } catch (error) {
+    message.error(error.message || '规划包打开失败')
+  }
+  return false
 }
 
-const openHelpDoc = () => {
-  window.open('https://jcnaybgukl26.feishu.cn/docx/PyPnduojBovsgMxp4R3cm4AvnWe', '_blank')
+const handleCreatePackage = async () => {
+  resetPlanningPackage()
+  await router.push('/attributes')
+  message.success('已新建空白规划包')
 }
 
-const openAboutDoc = () => {
-  window.open('https://gitee.com/husterzj/spacetaskscheduler', '_blank')
-}
 </script>
 
 <style scoped>
@@ -300,12 +319,6 @@ const openAboutDoc = () => {
   background: var(--sts-primary-soft);
   color: var(--sts-primary-hover);
   font-weight: 600;
-}
-
-.command-item--create-active,
-.command-item--create-exact-active {
-  background: transparent;
-  color: var(--sts-ink-secondary);
 }
 
 .command-item .anticon {

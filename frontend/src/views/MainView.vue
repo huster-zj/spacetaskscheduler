@@ -14,15 +14,11 @@
           <a-radio-button value="task">任务视图</a-radio-button>
           <a-radio-button value="calendar">日程表视图</a-radio-button>
         </a-radio-group>
-        <a-checkbox
-          v-show="currentView !== 'calendar'"
-          v-model:checked="showSkinOptions"
-          class="custom-skin"
-        >皮肤样式</a-checkbox>
+        <span class="view-hint">{{ currentView === 'calendar' ? '调度结果与预处理弧段' : '时间轴视图' }}</span>
       </div>
       <div class="view-stage">
-        <TaskView v-if="currentView === 'task'" :showSkinOptions="showSkinOptions" />
-        <ResourceView v-if="currentView === 'resource'" :showSkinOptions="showSkinOptions" />
+        <TaskView v-if="currentView === 'task'" />
+        <ResourceView v-if="currentView === 'resource'" />
         <CalendarView v-if="currentView === 'calendar'" />
       </div>
     </div>
@@ -36,7 +32,6 @@ import ResourceView from '@/components/mainview/resource_view.vue';
 import CalendarView from '@/components/mainview/calendar.vue';
 
 const currentView = ref('resource');
-const showSkinOptions = ref(false);
 
 function switchView(e) {
   currentView.value = e.target.value;
@@ -62,10 +57,10 @@ function switchView(e) {
   background: var(--sts-surface-raised);
 }
 
-.custom-skin {
+.view-hint {
   flex: 0 0 auto;
-  margin: 0;
-  font-size: 14px;
+  color: var(--sts-ink-muted);
+  font-size: 13px;
 }
 
 .view-stage {

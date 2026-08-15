@@ -21,7 +21,10 @@ const routes = [
   { path: '/operating', component: { template: '<div />' } },
   { path: '/result', component: { template: '<div />' } },
   { path: '/report', component: { template: '<div />' } },
-  { path: '/report_detail', component: { template: '<div />' } }
+  { path: '/report_detail', component: { template: '<div />' } },
+  { path: '/help', component: { template: '<div />' } },
+  { path: '/license', component: { template: '<div />' } },
+  { path: '/about', component: { template: '<div />' } }
 ]
 
 const createTestRouter = async (path = '/') => {
@@ -36,10 +39,21 @@ describe('application chrome', () => {
     const router = await createTestRouter()
     const wrapper = mount(AppHeader, {
       slots: { default: '<nav data-test="primary-navigation" />' },
-      global: { plugins: [router], components: Icons }
+      global: {
+        plugins: [router],
+        components: Icons,
+        stubs: {
+          AButton: { template: '<button><slot /></button>' },
+          ACheckbox: { template: '<label><input type="checkbox" /><slot /></label>' },
+          APopover: { template: '<div><slot /></div>' }
+        }
+      }
     })
 
-    expect(wrapper.get('button[aria-label="下载示例数据"]').exists()).toBe(true)
+    const sampleButton = wrapper.get('button[aria-label="下载示例规划包"]')
+    expect(sampleButton.attributes('aria-haspopup')).toBe('dialog')
+    expect(sampleButton.attributes('aria-controls')).toBe('sample-selector')
+    expect(sampleButton.attributes('aria-expanded')).toBe('false')
     expect(wrapper.get('.app-header__navigation nav').exists()).toBe(true)
     expect(wrapper.find('.brand__copy').exists()).toBe(false)
     expect(wrapper.find('.header-context').exists()).toBe(false)
@@ -58,6 +72,9 @@ describe('application chrome', () => {
     expect(wrapper.get('a[href="/resource"]').text()).toContain('资源')
     expect(wrapper.get('a[href="/task"]').attributes('aria-current')).toBe('page')
     expect(wrapper.get('a[href="/report"]').text()).toContain('报告')
+    expect(wrapper.get('a[href="/help"]').text()).toContain('帮助中心')
+    expect(wrapper.get('a[href="/license"]').text()).toContain('许可证')
+    expect(wrapper.get('a[href="/about"]').text()).toContain('关于')
     expect(wrapper.get('.quick-tools').attributes('aria-label')).toBe('常用功能快捷入口')
     expect(wrapper.get('.quick-tool[aria-label="主视图"]').attributes('href')).toBe('/main_view')
     expect(wrapper.get('.quick-tool[aria-label="运行"]').attributes('href')).toBe('/operating')

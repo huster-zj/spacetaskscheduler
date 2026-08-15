@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import WorkSpace from '../views/WorkSpace.vue'
 // 动态路由
 import ResourceGroup from '@/views/resource/ResourceGroup.vue'
-import ResourceGroupDetail from '@/views/resource/ResourceGroupDetail.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -56,12 +55,27 @@ const router = createRouter({
     {
       path: '/result',
       name: 'result',
-      component: () => import('../views/MainView.vue')
+      component: () => import('../views/Result.vue')
     },
     {
       path: '/report',
       name: 'report',
       component: () => import('../views/Report.vue')
+    },
+    {
+      path: '/help',
+      name: 'help',
+      component: () => import('../views/Help.vue')
+    },
+    {
+      path: '/license',
+      name: 'license',
+      component: () => import('../views/License.vue')
+    },
+    {
+      path: '/about',
+      name: 'about',
+      component: () => import('../views/About.vue')
     },
 
     // 资源相关界面

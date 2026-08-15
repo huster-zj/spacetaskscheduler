@@ -100,15 +100,21 @@
 import { useConfigStore } from '@/stores/useConfigStore';
 import { storeToRefs } from 'pinia';
 import dayjs from 'dayjs';
-import { reactive, computed } from 'vue';
+import { reactive, computed, watch } from 'vue';
 import { message } from 'ant-design-vue';  // 导入 message 组件
 import Steps from '@/components/Steps.vue';
+
+defineOptions({ name: 'PlanningAttributesView' })
 
 const configStore = useConfigStore();
 const { basicConfig } = storeToRefs(configStore);
 
 // 本地状态，用于表单数据
 const localConfig = reactive({ ...basicConfig.value });
+
+watch(basicConfig, (value) => {
+  Object.assign(localConfig, value)
+}, { deep: true })
 
 // 确保 timeRange 是 dayjs 实例
 const localTimeRange = computed({
