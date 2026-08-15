@@ -4,6 +4,11 @@
       <h2>MIT License</h2>
       <p>Copyright (c) 2026 华中科技大学管理系统工程研究中心祁超团队</p>
       <p>在保留版权声明和许可声明的前提下，可使用、复制、修改、合并、发布、分发、再许可及销售本软件副本。</p>
+      <div class="license-points" aria-label="许可证摘要">
+        <div><strong>允许使用</strong><span>可复制、修改和分发本软件。</span></div>
+        <div><strong>保留声明</strong><span>发布副本时须保留版权和许可声明。</span></div>
+        <div><strong>不提供担保</strong><span>软件按现状提供，使用风险由使用者承担。</span></div>
+      </div>
     </section>
 
     <section>
@@ -44,6 +49,31 @@ defineOptions({ name: 'PlanningLicenseView' })
   max-width: 820px;
 }
 
+.license-points {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.license-points div {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border: 1px solid var(--sts-border);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-subtle);
+}
+
+.license-points strong {
+  color: var(--sts-ink-primary);
+}
+
+.license-points span {
+  color: var(--sts-ink-secondary);
+  font-size: 13px;
+}
+
 .license-text {
   overflow-x: auto;
   margin: 0;
@@ -57,5 +87,11 @@ defineOptions({ name: 'PlanningLicenseView' })
   line-height: 1.7;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+  .license-points {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

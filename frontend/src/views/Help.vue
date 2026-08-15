@@ -23,6 +23,11 @@
       </figure>
     </section>
 
+    <aside class="capability-note" role="note">
+      <strong>当前算法能力</strong>
+      <span>目前仅接入启发式算法。</span>
+    </aside>
+
     <section>
       <h2>模块说明</h2>
       <div class="module-guide">
@@ -75,7 +80,35 @@ defineOptions({ name: 'PlanningHelpView' })
 <style scoped>
 .quick-start {
   display: grid;
-  gap: 6px;
+  gap: 0;
+  margin-left: 0;
+  padding-left: 0;
+  list-style: none;
+  counter-reset: quick-start;
+}
+
+.quick-start li {
+  position: relative;
+  padding: 10px 0 10px 40px;
+  border-left: 2px solid var(--sts-border);
+  counter-increment: quick-start;
+}
+
+.quick-start li::before {
+  position: absolute;
+  top: 9px;
+  left: -15px;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid var(--sts-primary);
+  border-radius: 50%;
+  background: var(--sts-surface-raised);
+  color: var(--sts-primary);
+  content: counter(quick-start);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .quick-start strong {
@@ -89,12 +122,28 @@ defineOptions({ name: 'PlanningHelpView' })
 
 .workflow-figure img {
   display: block;
-  width: min(100%, 820px);
+  width: min(100%, 760px);
+  max-width: 100%;
   height: auto;
   margin: 0 auto;
   border: 1px solid var(--sts-border);
   border-radius: var(--sts-radius-md);
   background: #ffffff;
+}
+
+.capability-note {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  margin-top: 24px;
+  padding: 14px 16px;
+  border-left: 3px solid var(--sts-primary);
+  background: var(--sts-primary-soft);
+  color: var(--sts-ink-secondary);
+}
+
+.capability-note strong {
+  color: var(--sts-ink-primary);
 }
 
 .workflow-figure figcaption {

@@ -38,7 +38,7 @@ defineProps({
 
 .documentation-header {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
   margin-bottom: 18px;
@@ -65,7 +65,8 @@ defineProps({
 
 .documentation-tabs a {
   min-width: 76px;
-  padding: 6px 12px;
+  min-height: 40px;
+  padding: 8px 12px;
   border-radius: var(--sts-radius-sm);
   color: var(--sts-ink-secondary);
   text-align: center;
@@ -82,10 +83,16 @@ defineProps({
   padding: 28px 32px;
 }
 
+.documentation-content :deep(section + section) {
+  margin-top: 32px;
+  padding-top: 28px;
+  border-top: 1px solid var(--sts-border);
+}
+
 .documentation-content :deep(h2) {
   margin: 32px 0 12px;
   color: var(--sts-ink-primary);
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   letter-spacing: 0;
 }
@@ -138,8 +145,9 @@ defineProps({
   .documentation-tabs a {
     min-width: 0;
     flex: 1;
-    padding-right: 6px;
-    padding-left: 6px;
+    min-height: 44px;
+    padding-right: 4px;
+    padding-left: 4px;
   }
 
   .documentation-content {

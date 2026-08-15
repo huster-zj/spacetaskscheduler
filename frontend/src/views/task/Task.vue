@@ -24,12 +24,24 @@
       <div class="task_btn">
         <a-upload :show-upload-list="true" :before-upload="handleTaskFile" accept=".csv,.json" multiple :max-count="3"
           :file-list="fileList" :auto-upload="false">
-          <a-button :loading="loading">
-            <div class="text">导入任务</div>
+          <a-button
+            class="import-task-btn"
+            :loading="isImporting"
+            :disabled="isPreprocessing"
+          >
+            <span>导入任务</span>
           </a-button>
         </a-upload>
         <div>
-          <a-button type="primary" class="text" @click="showResult">计算可行时间窗</a-button>
+          <a-button
+            type="primary"
+            class="preprocess-btn"
+            :loading="isPreprocessing"
+            :disabled="isImporting || isPreprocessing"
+            @click="showResult"
+          >
+            计算可行时间窗
+          </a-button>
         </div>
         <RouterLink to="/task_detail">
           <div class="custom_btn">自定义</div>
@@ -68,6 +80,8 @@ import PreprocessService from '@/services/Preprocess.js'
 import { usePreprocessOutputStore } from '@/stores/usePreprocessOutput' // 导入预处理输出 store
 import eventBus from '@/utils/eventBus.js';
 
+defineOptions({ name: 'PlanningTaskView' })
+
 const page = ref(5)    // 当前所在页面对应的value,计数从0开始,传递给Steps组件
 
 const columns = reactive([
@@ -95,14 +109,15 @@ const columns = reactive([
 const formHeadStore = useFormHeadStore()
 const { formHeadList } = formHeadStore
 
-const loading = ref(false)
+const isImporting = ref(false)
+const isPreprocessing = ref(false)
 
 const fileList = ref([])  // 添加文件列表状态
 const notProcessed = ref(true)  // 添加处理状态标志
 
 // 修改文件处理函数
 async function handleTaskFile(file, fileList) {
-  if (loading.value) {
+  if (isImporting.value || isPreprocessing.value) {
     return false
   }
 
@@ -110,7 +125,7 @@ async function handleTaskFile(file, fileList) {
     return false
   }
 
-  loading.value = true
+  isImporting.value = true
   try {
     let jsonData = null
     const fileExtension = fileList[0].name.split('.').pop().toLowerCase()
@@ -181,7 +196,7 @@ async function handleTaskFile(file, fileList) {
     console.error('文件处理失败:', error)
     message.error(error.message || '文件处理失败')
   } finally {
-    loading.value = false
+    isImporting.value = false
   }
 
   return false
@@ -228,8 +243,10 @@ function updateTaskResultList() {
 // 修改 showResult 函数，添加结果列表更新
 // 修改 showResult 函数
 async function showResult() {
+  if (isImporting.value || isPreprocessing.value) return
+
   try {
-    loading.value = true
+    isPreprocessing.value = true
     const preprocessResult = await PreprocessService.preprocessTaskTimewindow()
 
     if (preprocessResult.success) {
@@ -248,7 +265,7 @@ async function showResult() {
     result.value = '预处理失败'  // 修改这里
     visible.value = true
   } finally {
-    loading.value = false
+    isPreprocessing.value = false
   }
 }
 
@@ -279,13 +296,25 @@ li {
 
 .task_btn .ant-btn,
 .task_btn .custom_btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin: 0;
   min-height: 36px;
+  white-space: nowrap;
   border: 1px solid var(--sts-border-strong);
   border-radius: var(--sts-radius-md);
   background: var(--sts-surface-raised);
   color: var(--sts-ink-primary);
   font-size: 14px;
+}
+
+.task_btn .import-task-btn {
+  width: 108px;
+}
+
+.task_btn .preprocess-btn {
+  width: 156px;
 }
 
 /* 模态框标题样式 */

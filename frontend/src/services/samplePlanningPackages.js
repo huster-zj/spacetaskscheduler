@@ -1,5 +1,7 @@
 import JSZip from 'jszip'
 
+import { createDefaultAnchorConstraints } from '@/stores/useAnchorContraintListStore'
+
 import {
   PLANNING_PACKAGE_COLLECTION_FILE,
   PLANNING_PACKAGE_COLLECTION_FORMAT,
@@ -148,7 +150,7 @@ const createSnapshot = ({ name, description, createdAt, resources, tasks }) => (
     taskSchedulerStateMap: []
   },
   constraints: {
-    anchorConstraintList: [],
+    anchorConstraintList: createDefaultAnchorConstraints(),
     temporalConstraintList: [],
     logicalConstraintList: []
   },
