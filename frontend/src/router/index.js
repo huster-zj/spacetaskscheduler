@@ -170,17 +170,10 @@ const router = createRouter({
     },
     // 5. 时态-时态约束详情界面
     {
-      path: '/tem_constraint_detail/:task1-:task2',
+      path: '/tem_constraint_detail/:constraintKey',
       name: 'TemConstraintDetail',
       component: () => import('@/views/task/taskTem/TemConstraintDetail.vue'),
-      props: (route) => {
-        // console.log('dcabcsbcebfc index.js文件', route.params.task1, route.params.task2)
-        return {
-          // 子组件可以接收到的数据
-          task1: route.params.task1,
-          task2: route.params.task2
-        }
-      }
+      props: true
     },
     // 6. 逻辑约束详情界面
     {

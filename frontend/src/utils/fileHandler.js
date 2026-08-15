@@ -15,7 +15,11 @@ import {
   useSchedulerStateStore as task_useSchedulerStateStore
 } from '@/stores/taskDetailNumStore'
 import { useAlgorithmOutputStore } from '@/stores/useAlgorithmOutput'
-import { useAnchorContraintListStore } from '@/stores/useAnchorContraintListStore'
+import {
+  createDefaultAnchorConstraints,
+  normalizeAnchorConstraints,
+  useAnchorContraintListStore
+} from '@/stores/useAnchorContraintListStore'
 import { useCekongResourceListStore } from '@/stores/useCekongResourceListStore'
 import { useConfigStore } from '@/stores/useConfigStore'
 import { useFileDetailStore } from '@/stores/useFileDetailStore'
@@ -41,24 +45,7 @@ const EMPTY_CONFIG = {
   taskRule: 1
 }
 
-const EMPTY_ANCHOR_CONSTRAINTS = [
-  {
-    key: '1',
-    anchor_type: '锚定在最前',
-    anchor_task: '无',
-    anchor_task_key: '',
-    anchor_task_priority: null,
-    anchor_task_note: ''
-  },
-  {
-    key: '2',
-    anchor_type: '锚定在最后',
-    anchor_task: '无',
-    anchor_task_key: '',
-    anchor_task_priority: null,
-    anchor_task_note: ''
-  }
-]
+const EMPTY_ANCHOR_CONSTRAINTS = createDefaultAnchorConstraints()
 
 const clone = (value) => JSON.parse(JSON.stringify(value))
 const mapToEntries = (value) => Array.from(value instanceof Map ? value.entries() : [])
@@ -159,6 +146,7 @@ const getStores = () => ({
 
 export const createPlanningPackageSnapshot = () => {
   const stores = getStores()
+  stores.anchorConstraints.ensureAnchorConstraints()
   const snapshot = {
     manifest: {
       format: PLANNING_PACKAGE_FORMAT,
@@ -218,9 +206,10 @@ export const restorePlanningPackageSnapshot = (inputSnapshot) => {
   stores.taskDuration.durationList = snapshot.taskDetail.taskDurationList
   stores.taskSchedulerState.schedulerStateMap = entriesToMap(snapshot.taskDetail.taskSchedulerStateMap)
 
-  stores.anchorConstraints.anchorContraintList = clone(
-    constraints.anchorConstraintList || EMPTY_ANCHOR_CONSTRAINTS
+  stores.anchorConstraints.anchorContraintList = normalizeAnchorConstraints(
+    constraints.anchorConstraintList
   )
+  stores.anchorConstraints.ensureAnchorConstraints()
   stores.temporalConstraints.temConstraintsList = clone(constraints.temporalConstraintList || [])
   stores.logicalConstraints.logicalConstraintsList = clone(constraints.logicalConstraintList || [])
   stores.resourceGroups.customResourceGroupList = clone(resourceCatalog.resourceGroupList || [])

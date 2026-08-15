@@ -17,7 +17,7 @@
         </div>
         <div>
           <dt>指导</dt>
-          <dd>实验室博士后<strong>唐坚强</strong>以及<strong>祁超、张征</strong>为项目研究与开发提供指导。</dd>
+          <dd><strong>祁超和张征教授</strong>以及实验室博士后<strong>唐坚强</strong>为项目研究与开发提供指导。</dd>
         </div>
         <div>
           <dt>致谢</dt>
@@ -27,15 +27,19 @@
     </section>
 
     <section>
-      <h2>研究背景</h2>
-      <div class="research-grid">
-        <article>
-          <h3>祁超</h3>
-          <p>华中科技大学管理学院教授、博士生导师，主要研究复杂系统智能任务规划与调度优化方法。主持包括国家自然科学基金重点项目“面向复杂管理任务的智能规划：航天器任务规划”在内的多项科研项目。</p>
-        </article>
+      <h2>指导老师</h2>
+      <div class="mentor-grid">
         <article>
           <h3>张征</h3>
-          <p>华中科技大学人工智能与自动化学院副教授，研究方向包括时空大数据分析与挖掘、智能运维以及自然交互技术，长期参与软件系统研发与科研项目。</p>
+          <p>参与项目研究与系统建设指导，帮助完善任务规划工具的研究与开发工作。</p>
+        </article>
+        <article>
+          <h3>祁超</h3>
+          <p>指导系统规划与调度方向的研究工作，为工具设计和算法应用提供指导。</p>
+        </article>
+        <article>
+          <h3>唐坚强</h3>
+          <p>实验室博士后，主要贡献是梳理业务场景，参与完善任务规划工具的业务流程。</p>
         </article>
       </div>
     </section>
@@ -91,28 +95,28 @@ defineOptions({ name: 'PlanningAboutView' })
   color: var(--sts-ink-primary);
 }
 
-.research-grid {
+.mentor-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 28px;
 }
 
-.research-grid article {
+.mentor-grid article {
   padding-left: 16px;
   border-left: 3px solid var(--sts-primary);
 }
 
-.research-grid h3 {
+.mentor-grid h3 {
   margin-top: 0;
 }
 
-.research-grid p {
+.mentor-grid p {
   margin-bottom: 0;
 }
 
 @media (max-width: 767px) {
   .people-list div,
-  .research-grid {
+  .mentor-grid {
     grid-template-columns: 1fr;
   }
 

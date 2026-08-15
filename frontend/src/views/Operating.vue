@@ -16,8 +16,15 @@
     <div class="algorithms surface-panel">
       <div class="algorithms-title section-heading">算法</div>
       <div class="algorithms-content">
+        <a-alert
+          class="algorithm-capability"
+          type="info"
+          show-icon
+          message="目前仅接入启发式算法"
+          description="其他算法选项暂不可运行。"
+        />
         <a-radio-group @change="handelChangeAlgorithm" v-model:value="valueAlgorithm" name="algorithmsRadioGroup" class="option-stack">
-          <a-radio v-for="item in algorithmsList" :key="item.key" :value="item.key" class="algorithm-option">
+          <a-radio v-for="item in algorithmsList" :key="item.key" :value="item.key" :disabled="item.disabled" class="algorithm-option">
             <span class="algorithm-name">{{ item.algorithm_name }}</span>
             <span class="algorithm_note">{{ item.algorithm_note }}</span>
           </a-radio>
@@ -71,8 +78,8 @@ const valueTarget = ref(targetList[0].key);
 // 算法配置
 const algorithmsList = [
   { key: '1', algorithm_name: '基于优先级的调度启发式算法', algorithm_note: '可求解资源供小于需的问题，可能存在部分任务未安排，无需配置目标，计算时间短' },
-  { key: '2', algorithm_name: '求解器-COPT', algorithm_note: '只能求解资源供大于需的问题，可能无解，解较优' },
-  { key: '3', algorithm_name: '分支定价切割算法', algorithm_note: '可求解资源供小于需的问题，解最优，计算时间长' },
+  { key: '2', algorithm_name: '求解器-COPT', algorithm_note: '只能求解资源供大于需的问题，可能无解，解较优', disabled: true },
+  { key: '3', algorithm_name: '分支定价切割算法', algorithm_note: '可求解资源供小于需的问题，解最优，计算时间长', disabled: true },
 ];
 const valueAlgorithm = ref(algorithmsList[0].key);
 disabled.value = true
@@ -213,6 +220,10 @@ async function handleRun() {
   flex-direction: column;
   gap: 8px;
   margin-top: 24px;
+}
+
+.algorithm-capability {
+  margin-bottom: 16px;
 }
 
 .btn {

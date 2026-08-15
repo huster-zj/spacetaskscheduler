@@ -10,19 +10,20 @@
     <template #title>
       <div class="custom_title">任务列表</div>
     </template>
-    <a-radio-group v-model:value="value">
-      <a-radio v-for="item in formHeadList" :key="item.key" :style="radioStyle" :value="item.key"
+    <a-empty v-if="formHeadList.length === 0" description="暂无任务" />
+    <a-radio-group v-else v-model:value="value">
+      <a-radio v-for="item in formHeadList" :key="item.key" :style="radioStyle" :value="String(item.key)"
         :disabled="isOptionDisabled(item.key)">{{ item.taskName }}
       </a-radio>
     </a-radio-group>
     <footer class="footer">
-      <a-button type="primary" @click="sendTask" class="sureBtn">确定</a-button>
+      <a-button type="primary" :disabled="!value" @click="sendTask" class="sureBtn">确定</a-button>
     </footer>
   </a-modal>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { useFormHeadStore } from '@/stores/taskDetailNumStore.js'
 
 let visible = ref(false)
@@ -36,24 +37,34 @@ let props = defineProps({
   // 接收已经定义的时态约束中的任务数据
   selectedTask: {
     type: String,
-    Required: false,
+    required: false,
+    default: ''
+  },
+  selectedTaskKey: {
+    type: [String, Number],
+    required: false,
     default: ''
   }
 })
 
 // 若父组件传入了已经选择的任务数据，则界面显示选中传入的任务
 // const value = ref(formHeadList[0].key)
-const value = ref('无')
-if (props.selectedTask) {
-  console.log('props.selectedTask:', props.selectedTask);
-  // console.log('before value',value.value);
-  value.value = formHeadList.find(item => item.taskName === props.selectedTask).key
-  console.log('after value', value.value);
-}
+const value = ref(null)
+watch(
+  () => [props.selectedTaskKey, props.selectedTask, formHeadList],
+  () => {
+    const selected = props.selectedTaskKey
+      ? formHeadList.find((item) => String(item.key) === String(props.selectedTaskKey))
+      : formHeadList.find((item) => item.taskName === props.selectedTask)
+    value.value = selected ? String(selected.key) : null
+  },
+  { immediate: true, deep: true }
+)
 
 // 子组件修改父组件的值
 const emit = defineEmits(['update-task'])
 function sendTask() {
+  if (!value.value || !formHeadList.some((item) => String(item.key) === String(value.value))) return
   visible.value = false
   emit('update-task', value.value)
   // 关闭模态框
