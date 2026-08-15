@@ -85,14 +85,16 @@ export const useBasicInfoStore = defineStore(
       schedulePreference = '',
       timePointPreference = '',
       startTimePreference = '',
-      keyPointConstraint = []
+      keyPointConstraint = [],
+      resourceRequirement = ''
     ) => {
       return {
         key: getKey(),
         schedulePreference: schedulePreference,
         timePointPreference: timePointPreference,
         startTimePreference: startTimePreference,
-        keyPointConstraint: keyPointConstraint
+        keyPointConstraint: keyPointConstraint,
+        resourceRequirement: resourceRequirement
       }
     }
 
@@ -103,7 +105,8 @@ export const useBasicInfoStore = defineStore(
           newTaskBasicInfo.schedulePreference,
           newTaskBasicInfo.timePointPreference,
           newTaskBasicInfo.startTimePreference,
-          newTaskBasicInfo.keyPointConstraint
+          newTaskBasicInfo.keyPointConstraint,
+          newTaskBasicInfo.resourceRequirement
         )
       )
     }

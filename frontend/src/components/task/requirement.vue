@@ -9,7 +9,7 @@
 
         <a-col :span="24">
           <div class="form-body">
-            <resource-requirement />
+            <resource-requirement :taskKey="taskKey" />
           </div>
           <a-col :span="24">
             <time-segment class="resource-margin" style="margin-top: 16px;" />
@@ -22,10 +22,16 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
 import ResourceRequirement from './requirement/resource_requirement.vue';
 import TimeSegment from './requirement/time_segment.vue';
 import ResourceOccupation from './requirement/resource_occupation.vue';
+
+defineProps({
+  taskKey: {
+    type: String,
+    default: null
+  }
+})
 
 </script>
 

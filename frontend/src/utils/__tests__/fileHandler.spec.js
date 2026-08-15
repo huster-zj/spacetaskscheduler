@@ -71,6 +71,41 @@ describe('planning package file handler', () => {
     expect(snapshot.taskDetail.taskSchedulerStateMap).toHaveLength(1)
   })
 
+  it('defaults resource requirements when opening an older task snapshot', async () => {
+    const legacyTask = {
+      taskFormHeadList: [{ key: 'task-1', taskName: '任务 1' }],
+      taskBasicInfoList: [{ key: 'task-1', schedulePreference: '' }],
+      taskPropList: [{ key: 'task-1' }],
+      taskDurationList: [{ key: 'task-1' }],
+      taskSchedulerStateMap: []
+    }
+    const snapshot = await readPlanningPackage(await toFile(minimalPackage({ taskDetail: legacyTask })))
+
+    expect(snapshot.taskDetail.taskBasicInfoList[0].resourceRequirement).toBe('')
+  })
+
+  it('keeps resource requirements isolated by task key in saved snapshots', () => {
+    const taskDetail = {
+      taskFormHeadList: [{ key: 'task-a' }, { key: 'task-b' }],
+      taskBasicInfoList: [
+        { key: 'task-a', resourceRequirement: '资源 A' },
+        { key: 'task-b', resourceRequirement: '资源 B' }
+      ],
+      taskPropList: [{ key: 'task-a' }, { key: 'task-b' }],
+      taskDurationList: [{ key: 'task-a' }, { key: 'task-b' }],
+      taskSchedulerStateMap: []
+    }
+
+    restorePlanningPackageSnapshot(minimalPackage({ taskDetail }))
+    const captured = createPlanningPackageSnapshot()
+
+    expect(captured.taskDetail.taskBasicInfoList.map(({ key, resourceRequirement }) => ({ key, resourceRequirement })))
+      .toEqual([
+        { key: 'task-a', resourceRequirement: '资源 A' },
+        { key: 'task-b', resourceRequirement: '资源 B' }
+      ])
+  })
+
   it('accepts legacy packages without optional files', async () => {
     const legacy = minimalPackage()
     delete legacy.manifest

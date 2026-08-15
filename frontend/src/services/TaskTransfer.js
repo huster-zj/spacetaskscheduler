@@ -25,6 +25,10 @@ export default class TaskTransferService {
     const { addTaskBasicInfo } = basicInfoStore
     const { addTaskProp } = propStore
     const { addTaskDuration } = durationStore
+    const { formHeadList } = formHeadStore
+    const { basicInfoList } = basicInfoStore
+    const { propList } = propStore
+    const { durationList } = durationStore
 
     // 在这里添加数据处理逻辑
     try {
@@ -57,6 +61,7 @@ export default class TaskTransferService {
           timePointPreference: basicInfo?.timePointPreference || '',
           startTimePreference: basicInfo?.startTimePreference || '',
           keyPointConstraint: formHead?.keyPointConstraint || [],
+          resourceRequirement: basicInfo?.resourceRequirement || '',
 
           // prop部分
           availability: prop?.availability || 1,
@@ -94,6 +99,13 @@ export default class TaskTransferService {
         addTaskBasicInfo(newTask)
         addTaskProp(newTask)
         addTaskDuration(newTask)
+
+        // Store 的新增方法会生成运行时 key，导入规划包时必须恢复文件中的原 key，
+        // 否则资源需求等按任务 key 保存的字段会与其他明细列表失去对齐。
+        formHeadList[formHeadList.length - 1].key = key
+        basicInfoList[basicInfoList.length - 1].key = key
+        propList[propList.length - 1].key = key
+        durationList[durationList.length - 1].key = key
       })
 
       return {

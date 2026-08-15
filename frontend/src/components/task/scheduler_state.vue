@@ -1,37 +1,75 @@
 <template>
   <div class="form-container">
-    <a-row>
-      <a-col :span="24">
-        <div class="form-head">
-          <a-typography-title :level="3">调度情况</a-typography-title>
-        </div>
-        <div class="form-body">
-          <a-row :gutter="32">
-            <a-col :span="24">
-              <div class="form-item">
-                <label style="font-weight: bold;">任务安排信息表</label>
-              </div>
-              <a-table :columns="taskScheduleColumns" :dataSource="taskScheduleData" :pagination="false" :scroll="{ x: 760 }" />
-            </a-col>
-          </a-row>
-          <a-row :gutter="32" style="margin-top: 2rem;">
-            <a-col :span="24">
-              <div class="form-item">
-                <label style="font-weight: bold;">潜在冲突表</label>
-              </div>
-              <a-table :columns="potentialConflictColumns" :dataSource="potentialConflictData" :pagination="false" :scroll="{ x: 720 }" />
-            </a-col>
-          </a-row>
-        </div>
-      </a-col>
-    </a-row>
+    <div class="form-head">
+      <a-typography-title :level="3">调度情况</a-typography-title>
+    </div>
+
+    <a-alert
+      v-if="taskNotFound"
+      type="warning"
+      show-icon
+      message="当前任务数据不存在"
+      description="请返回任务列表重新打开任务详情。"
+    />
+    <a-alert
+      v-else-if="scheduleResult.parsingStatus === 'empty'"
+      type="info"
+      show-icon
+      message="尚未生成调度结果"
+      description="完成预处理并运行算法后，这里会显示当前任务的具体安排。"
+    />
+    <a-alert
+      v-else-if="scheduleResult.parsingStatus === 'error'"
+      type="error"
+      show-icon
+      message="调度结果解析失败"
+      :description="scheduleResult.parsingError"
+    />
+    <a-empty
+      v-else-if="!taskScheduleData.length"
+      description="当前任务没有匹配到调度结果"
+    />
+    <template v-else>
+      <div class="table-title">任务安排信息</div>
+      <a-table
+        :columns="taskScheduleColumns"
+        :data-source="taskScheduleData"
+        :pagination="false"
+        :scroll="{ x: 980 }"
+        row-key="key"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'status'">
+            <a-tag :color="record.assigned ? 'green' : 'orange'">{{ record.status }}</a-tag>
+          </template>
+        </template>
+      </a-table>
+    </template>
+
+    <div class="conflict-section">
+      <div class="table-title">潜在冲突</div>
+      <a-table
+        v-if="potentialConflictData.length"
+        :columns="potentialConflictColumns"
+        :data-source="potentialConflictData"
+        :pagination="false"
+        :scroll="{ x: 720 }"
+        row-key="key"
+      />
+      <a-empty v-else description="当前任务没有潜在冲突" />
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useSchedulerStateStore } from '@/stores/taskDetailNumStore'; // 确保路径正确
-import { getKey } from '@/stores/keyManager'
+import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
+
+import { findScheduleRowsForTask, createScheduleResult } from '@/services/scheduleData'
+import { useFormHeadStore as useTaskFormHeadStore } from '@/stores/taskDetailNumStore'
+import { useSchedulerStateStore } from '@/stores/taskDetailNumStore'
+import { useAlgorithmOutputStore } from '@/stores/useAlgorithmOutput'
+import { usePreprocessOutputStore } from '@/stores/usePreprocessOutput'
 
 const props = defineProps({
   taskKey: {
@@ -40,82 +78,94 @@ const props = defineProps({
   }
 })
 
-console.log('SchedulerState.vue, taskKey:', props.taskKey);
+const taskFormHeadStore = useTaskFormHeadStore()
+const schedulerStateStore = useSchedulerStateStore()
+const algorithmOutputStore = useAlgorithmOutputStore()
+const preprocessOutputStore = usePreprocessOutputStore()
+const { formHeadList } = storeToRefs(taskFormHeadStore)
+const { schedulerStateMap } = storeToRefs(schedulerStateStore)
+const { algorithmOutput } = storeToRefs(algorithmOutputStore)
+const { preprocessOutput } = storeToRefs(preprocessOutputStore)
 
-// 使用 Pinia store
-const schedulerStateStore = useSchedulerStateStore();
+const currentTask = computed(() => {
+  if (props.taskKey) {
+    return formHeadList.value.find((item) => String(item.key) === String(props.taskKey)) || null
+  }
+  return formHeadList.value[formHeadList.value.length - 1] || null
+})
+const taskNotFound = computed(() => Boolean(props.taskKey) && !currentTask.value)
 
-// 从 store 中解构出响应式数据
-const { schedulerStateMap, addSchedulerState, addPotentialConflict } = schedulerStateStore;
+const scheduleResult = computed(() => createScheduleResult({
+  outputText: algorithmOutput.value.outputText,
+  preprocessOutput: preprocessOutput.value,
+  taskDefinitions: formHeadList.value
+}))
 
-let taskScheduleData, potentialConflictData;
+const matchedRows = computed(() => findScheduleRowsForTask(scheduleResult.value, currentTask.value || {
+  key: props.taskKey
+}))
 
-if (props.taskKey) {
-  taskScheduleData = computed(() => schedulerStateMap.get(props.taskKey)?.taskScheduleData || []);
-  potentialConflictData = computed(() => schedulerStateMap.get(props.taskKey)?.potentialConflictData || []);
-} else {
-  // 初始化示例数据到 store
-  const newTaskSchedule = [
-    { poss: 'Poss1' },
-  ];
-  const newPotentialConflict = [
-    { poss: 'Poss1' },
-  ];
+const taskScheduleData = computed(() => matchedRows.value.map((row, index) => ({
+  key: `${props.taskKey || currentTask.value?.key || 'task'}-${row.key || index}`,
+  assigned: row.assigned,
+  status: row.assigned ? '已安排' : row.status || '未安排',
+  startTime: row.startTimeLabel || '-',
+  endTime: row.endTimeLabel || '-',
+  duration: row.durationMinutes ? `${row.durationMinutes} 分钟` : '-',
+  resource: row.resourceLabel || '-',
+  arcId: row.arcId || '-',
+  note: row.assigned
+    ? (row.target && row.target !== '-' ? `跟踪方案：${row.target}` : '算法已分配')
+    : (row.status || '当前任务未安排')
+})))
 
-  newTaskSchedule.forEach(task => addSchedulerState(getKey(), task));
-  newPotentialConflict.forEach(conflict => addPotentialConflict(getKey(), conflict));
-
-  // 任务安排信息表数据
-  taskScheduleData = ref(newTaskSchedule);
-  // 潜在冲突表数据
-  potentialConflictData = ref(newPotentialConflict);
-}
+const potentialConflictData = computed(() => {
+  if (!props.taskKey) return []
+  return schedulerStateMap.value.get(props.taskKey)?.potentialConflictData || []
+})
 
 const taskScheduleColumns = [
-  { title: 'Poss', dataIndex: 'poss', key: 'poss' },
+  { title: '状态', dataIndex: 'status', key: 'status', fixed: 'left' },
   { title: '开始时间', dataIndex: 'startTime', key: 'startTime' },
   { title: '结束时间', dataIndex: 'endTime', key: 'endTime' },
   { title: '持续时长', dataIndex: 'duration', key: 'duration' },
-  { title: '资源', dataIndex: 'resource', key: 'resource' },
-  { title: '备注', dataIndex: 'note', key: 'note' },
-];
+  { title: '测控资源', dataIndex: 'resource', key: 'resource' },
+  { title: '弧段 / 跟踪方案', dataIndex: 'arcId', key: 'arcId' },
+  { title: '备注', dataIndex: 'note', key: 'note' }
+]
 
 const potentialConflictColumns = [
-  { title: 'Poss', dataIndex: 'poss', key: 'poss' },
   { title: '冲突任务', dataIndex: 'conflictTask', key: 'conflictTask' },
   { title: '冲突资源', dataIndex: 'conflictResource', key: 'conflictResource' },
-  { title: 'AssignedStart', dataIndex: 'assignedStart', key: 'assignedStart' },
-  { title: 'AssignedStop', dataIndex: 'assignedStop', key: 'assignedStop' },
-];
+  { title: '开始时间', dataIndex: 'assignedStart', key: 'assignedStart' },
+  { title: '结束时间', dataIndex: 'assignedStop', key: 'assignedStop' }
+]
 </script>
 
 <style scoped>
 .form-container {
-  padding: 0rem 2rem;
+  padding: 0 2rem;
   background-color: #f9f9f9;
-  /* 去掉边框圆角和阴影 */
-  border-radius: 0;
-  box-shadow: none;
 }
 
 .form-head {
-  margin-bottom: 1.5rem;
+  margin-bottom: 16px;
 }
 
-.form-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-  font-size: 18px;
+.table-title {
+  margin: 18px 0 10px;
+  color: var(--sts-ink-primary);
+  font-size: 15px;
+  font-weight: 600;
 }
 
-/* 设置表格列名的字体大小 */
-:deep(.ant-table-thead) {
-  font-size: 18px;
-  font-weight: bold;
+.conflict-section {
+  margin-top: 24px;
 }
 
-:deep(.ant-table-tbody .ant-table-cell) {
-  font-size: 16px;
+@media (max-width: 767px) {
+  .form-container {
+    padding: 0;
+  }
 }
 </style>

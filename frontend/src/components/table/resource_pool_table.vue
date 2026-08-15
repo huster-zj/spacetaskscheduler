@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, defineProps } from 'vue';
+import { ref, computed } from 'vue';
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons-vue';
 
 const props = defineProps({
@@ -45,41 +45,35 @@ const props = defineProps({
     required: true,
   }
 })
-
-let { includeColumns, excludeColumns, includeList, excludeList } = props
-includeColumns = reactive(includeColumns)
-excludeColumns = reactive(excludeColumns)
-includeList = reactive(includeList)
-excludeList = reactive(excludeList)
+const emit = defineEmits(['update:includeList', 'update:excludeList'])
 
 // 定义添加、删除操作
 function deleteAction(value) {
-  console.log('delete');
-  console.log(value);
-  includeList.splice(includeList.findIndex(item => item.key === value), 1);
+  emit('update:includeList', props.includeList.filter(item => item.key !== value))
 }
 
 function addAction(value) {
-  console.log('add');
-  includeList.unshift(excludeList.find(item => item.key === value));
-  excludeList.splice(excludeList.findIndex(item => item.key === value), 1);
+  const item = props.excludeList.find(item => item.key === value)
+  if (!item) return
+  emit('update:includeList', [item, ...props.includeList])
+  emit('update:excludeList', props.excludeList.filter(item => item.key !== value))
 }
 
 // 计算属性：根据搜索查询过滤数据
 const searchQueryIn = ref('');
 const filteredIncludeList = computed(() => {
   if (!searchQueryIn.value) {
-    return includeList;
+    return props.includeList;
   }
-  return includeList.filter(item => (item.name && item.name.includes(searchQueryIn.value)) || (item.name2 && item.name2.includes(searchQueryIn.value)));
+  return props.includeList.filter(item => (item.name && item.name.includes(searchQueryIn.value)) || (item.name2 && item.name2.includes(searchQueryIn.value)));
 });
 
 const searchQueryEx = ref('');
 const filteredExcludeList = computed(() => {
   if (!searchQueryEx.value) {
-    return excludeList;
+    return props.excludeList;
   }
-  return excludeList.filter(item => (item.name && item.name.includes(searchQueryEx.value)) || (item.name2 && item.name2.includes(searchQueryEx.value)));
+  return props.excludeList.filter(item => (item.name && item.name.includes(searchQueryEx.value)) || (item.name2 && item.name2.includes(searchQueryEx.value)));
 });
 </script>
 

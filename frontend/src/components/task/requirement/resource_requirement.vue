@@ -1,251 +1,365 @@
 <template>
-  <div>
+  <div class="resource-requirement">
     <div class="constraint-line">
-      <label for="resource-constraint" class="form-label">资源约束:</label>
-      <a-input id="resource-constraint" v-model:value="resourceConstraint" class="form-input"
-        disabled />
-      <a-button type="primary" @click="calculateFeasibleTimeWindow">计算可行时间窗</a-button>
+      <label for="resource-constraint" class="form-label">资源需求表达式</label>
+      <a-textarea
+        id="resource-constraint"
+        ref="expressionInput"
+        v-model:value="resourceConstraint"
+        class="form-input"
+        :disabled="!taskRecord"
+        :auto-size="{ minRows: 2, maxRows: 4 }"
+        placeholder="例如：资源A and (资源B or 资源组C)"
+        @keydown.enter.exact.prevent="saveRequirement"
+      />
     </div>
-    <a-row :gutter="16" class="form-item">
-      <a-col :span="24">
-        <div class="form-item operator-row">
-          <a-button type="default" @click="insertText('and')">and</a-button>
-          <a-button type="default" @click="insertText('or')">or</a-button>
-          <a-button type="default" @click="insertText('（')">（</a-button>
-          <a-button type="default" @click="insertText('）')">）</a-button>
+
+    <div class="editor-actions">
+      <a-button type="primary" :disabled="!taskRecord" @click="saveRequirement">
+        <SaveOutlined />
+        保存
+      </a-button>
+      <a-button :disabled="!taskRecord" @click="clearRequirement">
+        <ClearOutlined />
+        清空
+      </a-button>
+      <a-button :disabled="!taskRecord" @click="validateRequirement">
+        <CheckOutlined />
+        校验表达式
+      </a-button>
+    </div>
+
+    <a-alert
+      v-if="taskNotFound"
+      type="warning"
+      show-icon
+      message="当前任务数据不存在"
+      description="请返回任务列表重新打开任务详情。"
+    />
+    <a-alert
+      v-else-if="validationMessage"
+      type="error"
+      show-icon
+      :message="validationMessage"
+    />
+
+    <div class="token-groups">
+      <section class="token-group">
+        <div class="token-group__title">资源</div>
+        <div v-if="resourceOptions.length" class="token-list">
+          <a-button
+            v-for="item in resourceOptions"
+            :key="item.value"
+            size="small"
+            @mousedown.prevent
+            @click="insertText(item.value)"
+          >
+            {{ item.value }}
+          </a-button>
         </div>
-      </a-col>
-    </a-row>
-    <a-row class="resource-grid" :gutter="16">
-      <a-col :span="5" class="resource-panel">
-        <div class="form-item">
-          <label class="form-label" style="font-weight: bold;">资源列表:</label>
+        <a-empty v-else :image="Empty.PRESENTED_IMAGE_SIMPLE" description="当前规划包暂无资源" />
+      </section>
+
+      <section class="token-group">
+        <div class="token-group__title">资源组</div>
+        <div v-if="resourceGroupOptions.length" class="token-list">
+          <a-button
+            v-for="item in resourceGroupOptions"
+            :key="item.value"
+            size="small"
+            @mousedown.prevent
+            @click="insertText(item.value)"
+          >
+            {{ item.value }}
+          </a-button>
         </div>
-        <div class="resource-list">
-          <a-button v-for="(item, index) in resourceNameList" :key="index" @click="insertText(item.name)">{{ item.name
-            }}</a-button>
+        <a-empty v-else :image="Empty.PRESENTED_IMAGE_SIMPLE" description="当前规划包暂无资源组" />
+      </section>
+
+      <section class="token-group token-group--operators">
+        <div class="token-group__title">运算符</div>
+        <div class="token-list">
+          <a-button v-for="operator in operators" :key="operator" size="small" @mousedown.prevent @click="insertText(operator)">
+            {{ operator }}
+          </a-button>
         </div>
-      </a-col>
-      <a-col :span="4" class="resource-panel">
-        <div class="form-item">
-          <label class="form-label" style="font-weight: bold;">资源池列表:</label>
+      </section>
+    </div>
+
+    <section class="pool-section">
+      <div class="pool-section__header">
+        <div>
+          <div class="pool-section__title">资源池候选</div>
+          <div class="pool-section__hint">候选内容来自当前规划包的资源和资源组。</div>
         </div>
-        <div class="resource-list">
-          <a-button v-for="(item, index) in resourceTemplateList" :key="index" @click="insertText(item.name)">{{
-            item.name }}</a-button>
-        </div>
-      </a-col>
-      <a-col :span="15" class="resource-panel resource-pool-panel">
-        <div class="form-item">
-          <label class="form-label" style="font-weight: bold;">资源池:</label>
-          <a-button>创建</a-button>
-        </div>
-        <div class="form-item">
-          <a-radio-group v-model:value="resourcePoolType" class="form-input">
-            <a-radio :value="1" class="form-input">需要所有资源</a-radio>
-            <a-radio :value="2" class="form-input">需要资源数量</a-radio>
-          </a-radio-group>
-          <a-input-number v-if="resourcePoolType === 2" v-model:value="resourceQuantity" :min="0" :precision="0"
-            class="input-number" />
-        </div>
-        <div class="table-container">
-          <ResourcePoolTable :includeColumns="poolResourceColumns" :excludeColumns="poolResourceGroupColumns"
-            :includeList="poolResourceData" :excludeList="poolResourceGroupData" />
-        </div>
-      </a-col>
-    </a-row>
+        <a-tag>{{ poolResourceData.length + poolResourceGroupData.length }} 项</a-tag>
+      </div>
+      <ResourcePoolTable
+        v-if="poolResourceData.length || poolResourceGroupData.length"
+        :include-columns="poolResourceColumns"
+        :exclude-columns="poolResourceGroupColumns"
+        :include-list="poolResourceData"
+        :exclude-list="poolResourceGroupData"
+        @update:include-list="updatePoolResourceData"
+        @update:exclude-list="updatePoolResourceGroupData"
+      />
+      <a-empty v-else :image="Empty.PRESENTED_IMAGE_SIMPLE" description="当前规划包暂无资源池候选" />
+    </section>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
-import ResourcePoolTable from '@/components/table/resource_pool_table.vue';
+import { Empty, message } from 'ant-design-vue'
+import { CheckOutlined, ClearOutlined, SaveOutlined } from '@ant-design/icons-vue'
+import { storeToRefs } from 'pinia'
+import { computed, nextTick, ref, watch } from 'vue'
 
-const resourceConstraint = ref('');
-const resourcePoolType = ref(1);
-const resourceQuantity = ref(0);
+import ResourcePoolTable from '@/components/table/resource_pool_table.vue'
+import {
+  createResourceRequirementCandidates,
+  validateResourceExpression
+} from '@/services/resourceRequirement'
+import { useBasicInfoStore as useTaskBasicInfoStore } from '@/stores/taskDetailNumStore'
+import { useFormHeadStore as useResourceFormHeadStore } from '@/stores/resourceDetailNumStore'
+import { useResourceGroupListStore } from '@/stores/useResourceGroupListStore'
 
-const calculateFeasibleTimeWindow = () => {
-  console.log('计算可行时间窗:', resourceConstraint.value);
-};
+const props = defineProps({
+  taskKey: {
+    type: String,
+    default: null
+  }
+})
 
-const insertText = (text) => {
-  resourceConstraint.value += text + ' ';
-};
+const taskBasicInfoStore = useTaskBasicInfoStore()
+const resourceFormHeadStore = useResourceFormHeadStore()
+const resourceGroupStore = useResourceGroupListStore()
+const { basicInfoList } = storeToRefs(taskBasicInfoStore)
+const { formHeadList: resourceList } = storeToRefs(resourceFormHeadStore)
+const { customResourceGroupList } = storeToRefs(resourceGroupStore)
+
+const taskRecord = computed(() => {
+  if (props.taskKey) {
+    return basicInfoList.value.find((item) => String(item.key) === String(props.taskKey)) || null
+  }
+  return basicInfoList.value[basicInfoList.value.length - 1] || null
+})
+const taskNotFound = computed(() => Boolean(props.taskKey) && !taskRecord.value)
+const resourceConstraint = ref('')
+const validationMessage = ref('')
+const expressionInput = ref(null)
+const operators = ['and', 'or', '(', ')']
+
+const resourceOptions = computed(() => createResourceRequirementCandidates({
+  resources: resourceList.value
+}).map((item) => ({ ...item, label: item.value })))
+
+const resourceGroupOptions = computed(() => createResourceRequirementCandidates({
+  resourceGroups: customResourceGroupList.value
+}).map((item) => ({ ...item, label: item.value })))
+
+const candidates = computed(() => createResourceRequirementCandidates({
+  resources: resourceList.value,
+  resourceGroups: customResourceGroupList.value
+}))
 
 const poolResourceColumns = [
-  {
-    title: '资源',
-    dataIndex: 'name',
-    key: 'name',
-  },
-  {
-    title: '操作',
-    dataIndex: 'action',
-    key: 'action',
-  },
-];
-
+  { title: '资源', dataIndex: 'name', key: 'name' },
+  { title: '操作', dataIndex: 'action', key: 'action' }
+]
 const poolResourceGroupColumns = [
-  {
-    title: '资源组名称',
-    dataIndex: 'name',
-    key: 'name',
-  },
-  {
-    title: '操作',
-    dataIndex: 'action',
-    key: 'action',
-  },
-];
+  { title: '资源组', dataIndex: 'name', key: 'name' },
+  { title: '操作', dataIndex: 'action', key: 'action' }
+]
+const poolResourceData = ref([])
+const poolResourceGroupData = ref([])
 
-const resourceNameList = reactive([
-  {
-    key: '1',
-    name: 'r1'
+watch(
+  [resourceOptions, resourceGroupOptions],
+  ([resources, groups]) => {
+    const currentResourceNames = new Set(poolResourceData.value.map((item) => item.name))
+    const currentGroupNames = new Set(poolResourceGroupData.value.map((item) => item.name))
+    poolResourceData.value = [
+      ...poolResourceData.value,
+      ...resources
+        .filter((item) => !currentResourceNames.has(item.value))
+        .map((item) => ({ key: item.value, name: item.value }))
+    ]
+    poolResourceGroupData.value = [
+      ...poolResourceGroupData.value,
+      ...groups
+        .filter((item) => !currentGroupNames.has(item.value))
+        .map((item) => ({ key: item.value, name: item.value }))
+    ]
   },
-  {
-    key: '2',
-    name: 'r2'
+  { immediate: true }
+)
+
+watch(
+  taskRecord,
+  (record) => {
+    resourceConstraint.value = record?.resourceRequirement || ''
+    validationMessage.value = ''
+  },
+  { immediate: true }
+)
+
+const updatePoolResourceData = (list) => {
+  poolResourceData.value = list
+}
+
+const updatePoolResourceGroupData = (list) => {
+  poolResourceGroupData.value = list
+}
+
+const getInputElement = () => expressionInput.value?.resizableTextArea?.textArea || expressionInput.value?.$el?.querySelector('textarea')
+
+const insertText = (text) => {
+  if (!taskRecord.value) return
+  const input = getInputElement()
+  const currentValue = resourceConstraint.value || ''
+  const start = input?.selectionStart ?? currentValue.length
+  const end = input?.selectionEnd ?? currentValue.length
+  const before = currentValue.slice(0, start)
+  const after = currentValue.slice(end)
+  const prefix = before && !/[\s(]$/.test(before) ? ' ' : ''
+  const suffix = after && !/^[\s)]/.test(after) ? ' ' : ' '
+  const inserted = `${prefix}${text}${suffix}`
+  const nextValue = `${before}${inserted}${after}`
+
+  resourceConstraint.value = nextValue
+  nextTick(() => {
+    const nextInput = getInputElement()
+    if (!nextInput) return
+    const cursor = before.length + inserted.length
+    nextInput.focus()
+    nextInput.setSelectionRange(cursor, cursor)
+  })
+}
+
+const validateRequirement = () => {
+  if (!taskRecord.value) return false
+  const result = validateResourceExpression(resourceConstraint.value, candidates.value)
+  validationMessage.value = result.valid ? '' : result.errors.join('；')
+  if (result.valid) {
+    message.success('资源需求表达式校验通过')
+  } else {
+    message.error(validationMessage.value)
   }
-]);
-let resourceTemplateList = reactive([
-  {
-    key: '1',
-    name: 'template1'
-  },
-  {
-    key: '2',
-    name: 'template2'
-  }
-]);
+  return result.valid
+}
 
-const poolResourceData = [
-  {
-    key: '1',
-    name: 'r1',
-  },
-  {
-    key: '2',
-    name: 'r2',
-  },
-];
+const saveRequirement = () => {
+  if (!taskRecord.value || !validateRequirement()) return
+  const result = validateResourceExpression(resourceConstraint.value, candidates.value)
+  taskRecord.value.resourceRequirement = result.normalizedExpression
+  resourceConstraint.value = result.normalizedExpression
+  message.success('资源需求已保存')
+}
 
-const poolResourceGroupData = [
-  {
-    key: '1',
-    name: '资源组1',
-  },
-  {
-    key: '2',
-    name: '资源组2',
-  },
-];
+const clearRequirement = () => {
+  if (!taskRecord.value) return
+  resourceConstraint.value = ''
+  taskRecord.value.resourceRequirement = ''
+  validationMessage.value = ''
+  message.success('资源需求已清空')
+}
 </script>
 
 <style scoped>
-.form-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
+.resource-requirement {
+  display: grid;
+  gap: 16px;
 }
 
 .constraint-line {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+}
+
+.form-label {
+  padding-top: 8px;
+  color: var(--sts-ink-primary);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.form-input {
+  min-width: 0;
+}
+
+.editor-actions {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.constraint-line .form-input {
-  width: min(100%, 350px);
-  margin: 0;
-}
-
-.operator-row {
-  gap: 6px;
-  margin: 8px 0 12px;
-}
-
-.resource-grid {
-  row-gap: 16px;
-}
-
-.resource-panel {
-  padding: 14px !important;
-  border: 1px solid var(--sts-border);
-  border-radius: var(--sts-radius-md);
-  background: var(--sts-surface-raised);
-}
-
-.resource-pool-panel .form-item {
-  justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.input-number {
-  margin-left: 10px;
-  /* 调整右边的间距 */
+.token-groups {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }
 
-.form-label {
-  width: auto;
-  text-align: left;
-  margin-right: 1rem;
-  white-space: nowrap;
-  font-size: 18px;
-}
-
-.form-input {
-  font-size: 18px;
-  margin-right: 2rem;
-}
-
-.table-container {
-  width: 100%;
+.token-group,
+.pool-section {
   min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--sts-border);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-subtle);
 }
 
-.table-container :deep(.ant-table) {
-  flex: 1;
-  /* 使两个表格平分容器宽度 */
-}
-
-:deep(.ant-btn) {
-  font-size: 16px;
+.token-group__title,
+.pool-section__title {
   margin-bottom: 10px;
-  /* 增加按钮之间的垂直间距 */
-  margin-right: 5px;
-  /* 增加按钮之间的水平间距 */
+  color: var(--sts-ink-primary);
+  font-size: 14px;
+  font-weight: 600;
 }
 
-/* 设置表格列名的字体大小 */
-:deep(.ant-table-thead) {
-  font-size: 18px;
-  font-weight: bold;
+.token-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-:deep(.ant-table-tbody .ant-table-cell) {
-  font-size: 16px;
+.token-list :deep(.ant-btn) {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.token-group :deep(.ant-empty) {
+  margin: 8px 0 0;
+}
+
+.pool-section__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.pool-section__hint {
+  color: var(--sts-ink-secondary);
+  font-size: 13px;
 }
 
 @media (max-width: 767px) {
-  .resource-grid > .ant-col {
-    max-width: 100%;
-    flex: 1 1 100%;
+  .constraint-line,
+  .token-groups {
+    grid-template-columns: 1fr;
   }
 
-  .resource-panel {
-    padding: 12px !important;
+  .form-label {
+    padding-top: 0;
   }
 
-  .form-label,
-  .form-input,
-  :deep(.ant-btn),
-  :deep(.ant-table-thead),
-  :deep(.ant-table-tbody .ant-table-cell) {
-    font-size: 14px;
+  .pool-section {
+    overflow: hidden;
   }
 }
 </style>

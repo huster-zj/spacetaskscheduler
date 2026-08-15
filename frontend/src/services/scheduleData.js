@@ -44,7 +44,23 @@ const durationMinutes = (start, end) => {
   return Math.max(1, Math.ceil((endDate - startDate) / MINUTE))
 }
 
-const normalizeLogicalTaskId = (value) => String(value || '').trim().replace(/_\d+$/, '')
+export const normalizeLogicalTaskId = (value) => String(value || '').trim().replace(/_\d+$/, '')
+
+export const findScheduleRowsForTask = (scheduleResult, task = {}) => {
+  const identifiers = [task.key, task.taskName]
+    .filter((value) => value !== undefined && value !== null && String(value).trim())
+    .map(String)
+
+  return (scheduleResult?.rows || []).filter((row) => {
+    const rowIdentifiers = [row.id, row.event?.task_name]
+      .filter((value) => value !== undefined && value !== null && String(value).trim())
+      .map(String)
+
+    return rowIdentifiers.some((rowIdentifier) => identifiers.some((identifier) =>
+      rowIdentifier === identifier || normalizeLogicalTaskId(rowIdentifier) === normalizeLogicalTaskId(identifier)
+    ))
+  })
+}
 
 const findEvent = (events, item) => {
   const arcId = String(item.arcId || '')

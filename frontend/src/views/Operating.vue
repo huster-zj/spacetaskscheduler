@@ -36,20 +36,6 @@
       <span v-if="runStatus" class="run-status" role="status">{{ runStatus }}</span>
     </div>
   </section>
-  <a-modal v-model:visible="visible" ok-text="确定" :footer="footer" wrapClassName="result_modal">
-    <!-- 使用title插槽实现自定义标题样式 -->
-    <template #title>
-      <div class="custom_title">{{ result }}</div>
-    </template>
-    <!-- 使用 pre 标签展示输出内容，保留格式 -->
-    <pre class="output-content">{{ outputContent }}</pre>
-
-    <footer class="footer">
-      <RouterLink to="/main_view">
-        <a-button type="primary" @click="handleSure" class="btn">确定</a-button>
-      </RouterLink>
-    </footer>
-  </a-modal>
 </template>
 
 <script setup>
@@ -60,6 +46,8 @@ import AlgorithmService from '@/services/Algorithm.js'
 import PreprocessService from '@/services/Preprocess.js'
 import { useAlgorithmOutputStore } from '@/stores/useAlgorithmOutput.js'
 import eventBus from '@/utils/eventBus.js';
+import router from '@/router'
+import { parseOutputContent } from '@/services/ParseFile.js'
 
 defineOptions({ name: 'PlanningOperatingView' })
 
@@ -93,17 +81,8 @@ function handelChangeAlgorithm() {
   }
 }
 
-// 算法运行结果数据、控制模态框显示样式
-const visible = ref(false);    // 控制模态框显示
-const footer = ref(false);    // 控制模态框底部默认按钮不显示
-const result = ref('算法运行结果')
-const outputContent = ref('')
 const running = ref(false)
 const runStatus = ref('')
-
-function handleSure() {
-  visible.value = false
-}
 
 // 运行按钮
 async function handleRun() {
@@ -117,8 +96,6 @@ async function handleRun() {
     }
 
     algorithmOutputStore.clearOutput()
-    outputContent.value = ''
-    visible.value = false
     running.value = true
     runStatus.value = '正在预处理当前规划包...'
     message.loading({ content: '正在预处理当前规划包...', duration: 0, key: 'planning-run' })
@@ -140,17 +117,21 @@ async function handleRun() {
     if (result.success) {
       console.log('算法执行成功:', result.data)
 
-      // 从返回结果中获取输出文本并显示
-      if (result.data && result.data.output_text) {
-        outputContent.value = result.data.output_text
-        visible.value = true
-        message.success({ content: '预处理与算法执行成功', key: 'planning-run' })
-        runStatus.value = '运行完成'
-        // 触发更新事件
-        eventBus.emit('algorithmSuccess')
-      } else {
+      const outputText = result.data?.output_text || ''
+      const parsedOutput = parseOutputContent(outputText)
+      if (!outputText.trim()) {
         throw new Error('未获取到算法输出结果')
       }
+      if (parsedOutput.parsingStatus === 'error') {
+        message.error({ content: parsedOutput.parsingError, key: 'planning-run' })
+        runStatus.value = '算法输出解析失败'
+        return
+      }
+
+      message.success({ content: '预处理与算法执行成功，正在打开调度结果', key: 'planning-run' })
+      runStatus.value = '运行完成'
+      eventBus.emit('algorithmSuccess')
+      await router.push({ name: 'result' })
     } else {
       console.error('算法执行失败:', result.message)
       message.error({ content: `算法执行失败：${result.message || '未知错误'}`, key: 'planning-run' })
@@ -234,57 +215,6 @@ async function handleRun() {
   min-height: 20px;
   color: var(--sts-ink-secondary);
   font-size: 13px;
-}
-
-/* 模态框样式 */
-li {
-  list-style: none;
-}
-
-/* 模态框标题样式 */
-.result_modal {
-  display: flex;
-  align-items: center;
-}
-
-.result_modal .custom_title {
-  font-size: 18px;
-  font-weight: 600;
-}
-
-/* 模态框内容样式 */
-.result_modal ul {
-  /* background-color: pink; */
-  margin: 0px;
-  padding: 0;
-}
-
-.result_modal .result_taskList {
-  border-bottom: 1px solid #f0f0f0;
-  padding: 10px 0 10px 15px;
-  font-size: 14px;
-}
-
-.output-content {
-  max-height: min(56vh, 520px);
-  overflow: auto;
-  margin: 0;
-  padding: 16px;
-  border: 1px solid var(--sts-border);
-  border-radius: var(--sts-radius-md);
-  background: var(--sts-surface-subtle);
-  color: var(--sts-ink-primary);
-  font-family: Consolas, "Courier New", monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-
-/* 模态框底部样式 */
-.footer {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
 }
 
 @media (max-width: 767px) {
