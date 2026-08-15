@@ -4,7 +4,8 @@ import { parseOutputContent } from '@/services/ParseFile'
 import {
   buildResourceGanttData,
   buildTaskGanttData,
-  createScheduleResult
+  createScheduleResult,
+  findScheduleRowsForTask
 } from '@/services/scheduleData'
 
 const outputText = `调度结果\n飞控事件ID|状态|开始时间|结束时间|弧段ID\nFK-1|是|1735689600|1735693200|ARC-1\nFK-2|否|||ARC-2\n使用的弧段总数：1`
@@ -92,6 +93,21 @@ describe('schedule data conversion', () => {
     expect(scheduleResult.rows[0].event.tracking_plan_id).toBe('Plan_1_7')
     expect(taskGantt.data).toHaveLength(1)
     expect(taskGantt.data[0].kind).toBe('scheduled')
+  })
+
+  it('matches task detail rows by task identity without mixing neighboring tasks', () => {
+    const scheduleResult = createScheduleResult({
+      outputText: `调度结果\n飞控事件ID|状态|开始时间|结束时间|弧段ID\n任务-A_1|是|1735689600|1735693200|ARC-A\n任务-B|否|||ARC-B`,
+      taskDefinitions: [
+        { key: 'task-a', taskName: '任务-A' },
+        { key: 'task-b', taskName: '任务-B' }
+      ]
+    })
+
+    expect(findScheduleRowsForTask(scheduleResult, { key: 'task-a', taskName: '任务-A' }).map(({ id }) => id))
+      .toEqual(['任务-A_1'])
+    expect(findScheduleRowsForTask(scheduleResult, { key: 'task-b', taskName: '任务-B' }).map(({ id }) => id))
+      .toEqual(['任务-B'])
   })
 
   it('groups assigned rows under real resource names', () => {

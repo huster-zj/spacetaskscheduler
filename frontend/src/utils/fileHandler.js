@@ -90,6 +90,11 @@ const requireAlignedLists = (label, lists) => {
   })
 }
 
+const normalizeTaskBasicInfoList = (list) => list.map((item) => ({
+  ...item,
+  resourceRequirement: item.resourceRequirement ?? ''
+}))
+
 const validateSnapshot = (snapshot) => {
   requireObject(snapshot, '规划包')
   requireObject(snapshot.basicConfig, '基本配置')
@@ -119,6 +124,10 @@ const validateSnapshot = (snapshot) => {
     snapshot.taskDetail.taskPropList,
     snapshot.taskDetail.taskDurationList
   ])
+
+  snapshot.taskDetail.taskBasicInfoList = normalizeTaskBasicInfoList(
+    snapshot.taskDetail.taskBasicInfoList
+  )
 
   return snapshot
 }

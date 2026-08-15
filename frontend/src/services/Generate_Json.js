@@ -94,7 +94,11 @@ class GenerateJsonService {
       });
 
       // 从taskBasicInfoList中移除keyPointConstraint
-      processedData.taskBasicInfoList = processedData.taskBasicInfoList.map(({ keyPointConstraint, ...rest }) => rest);
+      processedData.taskBasicInfoList = processedData.taskBasicInfoList.map((item) => {
+        const rest = { ...item };
+        delete rest.keyPointConstraint;
+        return rest;
+      });
 
       return {
         original: originalData,
@@ -122,7 +126,10 @@ class GenerateJsonService {
       // 构建任务数据对象
       const originalTaskData = {
         taskFormHeadList: formHeadStore.formHeadList,
-        taskBasicInfoList: basicInfoStore.basicInfoList,
+        taskBasicInfoList: basicInfoStore.basicInfoList.map((task) => ({
+          ...task,
+          resourceRequirement: task.resourceRequirement ?? ''
+        })),
         taskPropList: propStore.propList,
         taskDurationList: durationStore.durationList,
         taskSchedulerStateMap: Array.from(schedulerStateStore.schedulerStateMap.entries())

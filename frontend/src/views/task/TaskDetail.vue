@@ -6,7 +6,7 @@
       <BasicInfo class="page-section" :taskKey="taskKey" />
       <Prop class="page-section" :taskKey="taskKey" />
       <Duration class="page-section" :taskKey="taskKey" />
-      <Requirement class="page-section" />
+      <Requirement class="page-section" :taskKey="taskKey" />
       <SchedulerState class="page-section" :taskKey="taskKey" />
       </div>
     </div>
@@ -25,8 +25,7 @@ import SchedulerState from '@/components/task/scheduler_state.vue';
 const props = defineProps({
   taskKey: {
     type: String,
-    // default: null
-    required: true
+    default: null
   }
 })
 console.log('taskKey', props);
