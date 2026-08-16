@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.tox/
+.nox/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+.venv/
+.venv-*/
+venv/
+env/
+
+# Node.js and frontend builds
+node_modules/
+dist/
+coverage/
+
+# Local configuration and logs
+.env
+.env.*
+!.env.example
+*.log
+copt.lic
+copt.key
+license.dat
+
+# Editors and operating systems
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db

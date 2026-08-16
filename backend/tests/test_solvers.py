@@ -69,7 +69,30 @@ def test_branch_price_cut_returns_partial_result_when_a_task_has_no_arc(tmp_path
     assert [row["status"] for row in result["rows"]] == ["是", "否"]
 
 
-def test_copt_requires_a_candidate_for_every_task(tmp_path):
+def test_copt_requires_a_candidate_for_every_task(tmp_path, monkeypatch):
+    class FakeModel:
+        def addVar(self, **_kwargs):
+            return 1
+
+        def addConstr(self, *_args, **_kwargs):
+            return None
+
+    class FakeEnvironment:
+        def createModel(self, _name):
+            return FakeModel()
+
+    class FakeCoptModule:
+        Envr = FakeEnvironment
+        quicksum = staticmethod(sum)
+
+    class FakeCoptConstants:
+        BINARY = 1
+
+    monkeypatch.setattr(
+        copt_scheduler,
+        "_load_copt",
+        lambda: (FakeCoptModule, FakeCoptConstants),
+    )
     problem = write_problem(
         tmp_path,
         [

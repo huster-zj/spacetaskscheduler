@@ -4,7 +4,7 @@
 
 项目由华中科技大学管理系统工程研究中心祁超团队建设，主要用于航天任务规划与调度研究、算例演示和业务流程验证。
 
-> 当前系统已接入基于优先级的启发式调度算法。COPT 和分支定价切割算法仍是预留入口，暂不可运行。
+> 当前系统已接入基于优先级的 Java 启发式算法、COPT 精确求解和 Python 分支定价切割调度。COPT 运行需要本机或服务器安装 COPT Python 接口并配置有效许可证。
 
 ![航天任务调度工具功能流程](frontend/src/assets/help/planning-workflow.png)
 
@@ -21,7 +21,7 @@ flowchart LR
     C --> D[定义任务与资源需求]
     D --> E[配置时态和逻辑约束]
     E --> F[计算可行时间窗]
-    F --> G[运行启发式算法]
+    F --> G[选择并运行调度算法]
     G --> H[查看调度结果与甘特图]
     H --> I[导出规划包和报告]
 ```
@@ -39,7 +39,7 @@ flowchart LR
 | 任务资源池 | 为单个任务组合资源或资源组，支持“全部资源”与“指定数量”语义 |
 | 约束建模 | 编辑锚定需求、时态约束和逻辑任务组约束 |
 | 可行时间窗 | 支持单任务计算和任务列表批量计算，展示候选测控弧段及资源占用 |
-| 调度算法 | 自动预处理当前规划包并运行基于优先级的 Java 启发式算法 |
+| 调度算法 | 自动预处理当前规划包，并可选择 Java 启发式、COPT 或分支定价切割算法 |
 | 结果展示 | 查看任务分配状态、开始/结束时间、测控弧段和使用资源 |
 | 主视图 | 提供资源甘特图、任务甘特图和日程表视图 |
 | 报告 | 动态生成摘要、调度、任务、资源、任务组和未分配任务报告，可下载 Markdown |
@@ -66,7 +66,7 @@ flowchart LR
 
 ### 可行时间窗
 
-可行时间窗是任务在满足任务时间范围、测控资源可用性和资源需求表达式后得到的候选弧段。它可以在任务详情中单独计算，也可以在任务列表中批量计算。单任务计算不会覆盖启发式算法使用的批量输入。
+可行时间窗是任务在满足任务时间范围、测控资源可用性和资源需求表达式后得到的候选弧段。它可以在任务详情中单独计算，也可以在任务列表中批量计算。单任务计算不会覆盖调度算法使用的批量输入。
 
 ### 资源需求与资源池
 
@@ -100,16 +100,16 @@ flowchart TB
         API[预处理与调度接口]
         Preprocess[Python 可行时间窗预处理]
         Filter[资源表达式与资源池筛选]
-        Heuristic[Java 启发式调度算法]
-        API --> Preprocess --> Filter --> Heuristic
+        Solvers[Java 启发式 COPT 分支定价切割]
+        API --> Preprocess --> Filter --> Solvers
     end
 
     Store -->|任务 资源 约束| API
-    Heuristic -->|弧段与调度输出| Store
+    Solvers -->|弧段与调度输出| Store
     Store --> View
 ```
 
-运行算法时，前端会先把当前规划包中的任务、资源和资源目录发送到后端。后端在独立临时目录中完成预处理和资源需求筛选，成功后再发布本批次算法输入；随后调用仓库内置的 Java JAR 运行启发式调度。结果返回前端后，会同步驱动结果页、甘特图、日程表和报告。
+运行算法时，前端会先把当前规划包中的任务、资源和资源目录发送到后端。后端在独立临时目录中完成预处理和资源需求筛选，成功后再发布本批次算法输入；随后根据页面选择调用仓库内置的 Java JAR、COPT Python 模型或分支定价切割调度器。结果返回前端后，会同步驱动结果页、甘特图、日程表和报告。
 
 ## 最快体验方式
 
@@ -137,8 +137,9 @@ flowchart TB
 
 - Node.js 20 LTS（推荐）
 - npm 10+
-- Python 3.9+
-- Java 运行环境，且 `java` 命令可从终端直接调用
+- Python 3.11（推荐，与 CI 一致）
+- Java 运行环境，且 `java` 命令可从终端直接调用（启发式算法需要）
+- COPT 8 Python 接口及有效许可证（仅 COPT 算法需要）
 - Windows、Linux 或 macOS；当前项目主要在 Windows 环境下开发和验收
 
 仓库已经包含启发式算法 JAR：
@@ -200,9 +201,9 @@ npm run dev
 
 多选示例下载的是 `.zip`，请先解压，再选择其中一个 `.sts` 文件。
 
-**安装旧版数值计算依赖失败**
+**COPT 算法提示接口或许可证不可用**
 
-后端预处理代码依赖 `pandas` 和 `numpy`，仓库中的版本约束来自现有算法环境。建议优先使用项目已验证的 Python/Conda 环境；若新环境无法直接安装，不要随意升级依赖后提交，应先验证预处理结果与算法输入兼容性。
+确认 COPT 已安装、`coptpy` 能在启动后端的同一个 Python 环境中导入，并使用 COPT 自带工具验证许可证。CI 不安装 COPT，也不保存商业许可证；缺少 COPT 时其他算法和测试仍可运行。
 
 ## 开发与验证
 
@@ -210,21 +211,20 @@ npm run dev
 
 ```powershell
 cd frontend
-npx vitest run
-npm run build-only
+npm run test:unit:run
+npm run build
 ```
 
-- `npx vitest run`：一次性运行前端单元测试。
-- `npm run build-only`：生成生产资源到 `frontend/dist`。
+- `npm run test:unit:run`：一次性运行前端单元测试并自动退出。
+- `npm run build`：依次完成 Vue/TypeScript 检查和生产资源构建。
+- `npm run build-only`：仅生成生产资源，不能替代正式构建验收。
 - `npm run dev`：启动开发服务器。
-
-项目当前仍有一组既有的 JavaScript 模块声明和 `Task.vue` 类型问题，因此包含 `vue-tsc` 的 `npm run build` 可能失败；纯生产打包请使用 `npm run build-only`。
 
 ### 后端
 
 ```powershell
 cd backend
-python -m pip install -r requirements-dev.txt
+python -m pip install -r requirements.txt -r requirements-dev.txt
 python -m pytest tests -q
 python -m py_compile main.py interface/preprocess_support.py
 ```
@@ -233,9 +233,10 @@ python -m py_compile main.py interface/preprocess_support.py
 
 截至 2026-08-16：
 
-- 前端 Vitest：47 个通过，1 个集成测试按配置跳过。
-- 后端 pytest：12 个通过。
-- Vite 生产打包、定向 ESLint 和 Python 编译通过。
+- 前端 Vitest：59 个通过，1 个集成测试按配置跳过。
+- 后端 pytest：共收集 20 个测试；无 COPT 环境时真实 COPT 冒烟测试按预期跳过。
+- `npm run build` 的 Vue/TypeScript 检查与 Vite 生产打包通过。
+- GitHub Actions 在 push 和 Pull Request 上分别执行前端、后端验证。
 
 ## 项目结构
 
@@ -271,8 +272,9 @@ spacetaskscheduler/
 
 当前版本定位为研究与业务验证原型，而不是生产级多用户平台。主要限制包括：
 
-- 只接入一种基于优先级的启发式算法。
-- 启发式算法通过仓库内固定 Java JAR 调用，算法插件机制尚未实现。
+- COPT 算法依赖部署环境中的商业求解器和许可证，仓库不提供许可证。
+- 当前分支定价切割实现是面向现有候选弧段的工程化版本，尚未实现完整的 LP 对偶定价与节点级割平面分离。
+- 启发式算法仍通过仓库内固定 Java JAR 调用，统一的算法插件生命周期尚未实现。
 - 前端后端地址目前固定为本地 `8000` 端口，尚未统一环境变量配置。
 - 历史规划包保存在当前浏览器本地，不具备多人协作和远端同步能力。
 - 登录为前端原型门禁，账号密码写在前端代码中，未提供服务端认证、密码加密、用户管理或权限隔离。

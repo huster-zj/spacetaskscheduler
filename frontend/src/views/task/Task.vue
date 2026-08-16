@@ -75,10 +75,22 @@ import { useFormHeadStore } from '@/stores/taskDetailNumStore.js'
 import Steps from '@/components/Steps.vue'
 import { deleteTaskKey } from '@/stores/keyManager.js'
 import TaskTransferService from '@/services/TaskTransfer.js'
-import { message } from 'ant-design-vue'; // 添加这行导入
+import { message } from 'ant-design-vue'
+import type { UploadFile } from 'ant-design-vue'
 import PreprocessService from '@/services/Preprocess.js'
-import { usePreprocessOutputStore } from '@/stores/usePreprocessOutput' // 导入预处理输出 store
-import eventBus from '@/utils/eventBus.js';
+import { usePreprocessOutputStore } from '@/stores/usePreprocessOutput'
+import eventBus from '@/utils/eventBus.js'
+
+interface TaskFormHead {
+  key: string | number
+  taskName: string
+}
+
+interface TaskResultItem {
+  key: string | number
+  task: string
+  task_result: string
+}
 
 defineOptions({ name: 'PlanningTaskView' })
 
@@ -112,32 +124,33 @@ const { formHeadList } = formHeadStore
 const isImporting = ref(false)
 const isPreprocessing = ref(false)
 
-const fileList = ref([])  // 添加文件列表状态
+const fileList = ref<UploadFile[]>([])  // 添加文件列表状态
 const notProcessed = ref(true)  // 添加处理状态标志
 
 // 修改文件处理函数
-async function handleTaskFile(file, fileList) {
+async function handleTaskFile(_file: File, selectedFiles: File[]) {
   if (isImporting.value || isPreprocessing.value) {
     return false
   }
 
-  if (fileList.length < 1) {
+  const firstFile = selectedFiles[0]
+  if (!firstFile) {
     return false
   }
 
   isImporting.value = true
   try {
-    let jsonData = null
-    const fileExtension = fileList[0].name.split('.').pop().toLowerCase()
+    let jsonData: unknown = null
+    const fileExtension = firstFile.name.split('.').pop()?.toLowerCase()
 
     if (fileExtension === 'csv') {
       // CSV 文件需要转换
-      if (fileList.length < 3) {
+      if (selectedFiles.length < 3) {
         throw new Error('CSV格式需要上传3个文件')
       }
 
       const formData = new FormData()
-      fileList.forEach(file => {
+      selectedFiles.forEach((file) => {
         if (file.name.includes('non')) {
           formData.append('task_non_file', file)
         } else if (file.name.includes('con')) {
@@ -160,21 +173,24 @@ async function handleTaskFile(file, fileList) {
       jsonData = data.data.task
     } else if (fileExtension === 'json') {
       // JSON 文件直接读取
-      if (fileList.length > 1) {
+      if (selectedFiles.length > 1) {
         throw new Error('JSON格式只需要上传1个文件')
       }
 
       const reader = new FileReader()
-      jsonData = await new Promise((resolve, reject) => {
-        reader.onload = (e) => {
+      jsonData = await new Promise<unknown>((resolve, reject) => {
+        reader.onload = () => {
           try {
-            resolve(JSON.parse(e.target.result))
+            if (typeof reader.result !== 'string') {
+              throw new Error('文件内容不是文本格式')
+            }
+            resolve(JSON.parse(reader.result))
           } catch (error) {
             reject(new Error('JSON解析失败'))
           }
         }
         reader.onerror = () => reject(new Error('文件读取失败'))
-        reader.readAsText(fileList[0])
+        reader.readAsText(firstFile)
       })
     } else {
       throw new Error('不支持的文件格式，请上传 .json 或 .csv 文件')
@@ -194,7 +210,7 @@ async function handleTaskFile(file, fileList) {
 
   } catch (error) {
     console.error('文件处理失败:', error)
-    message.error(error.message || '文件处理失败')
+    message.error(error instanceof Error ? error.message : '文件处理失败')
   } finally {
     isImporting.value = false
   }
@@ -216,7 +232,7 @@ function updateTaskResultList() {
   const formHeadStore = useFormHeadStore()
 
   task_result_list.length = 0 // 清空现有数据
-  formHeadStore.formHeadList.forEach(task => {
+  formHeadStore.formHeadList.forEach((task: TaskFormHead) => {
     const taskState = preprocessStore.getTaskState(task.key, task.taskName)
     if (taskState.status === 'empty') {
       task_result_list.push({
@@ -251,7 +267,7 @@ async function showResult() {
     }
   } catch (error) {
     console.error('计算可行时间窗失败:', error)
-    message.error(error.message || '计算可行时间窗失败')
+    message.error(error instanceof Error ? error.message : '计算可行时间窗失败')
     result.value = '预处理失败'  // 修改这里
     visible.value = true
   } finally {
@@ -259,7 +275,7 @@ async function showResult() {
   }
 }
 
-let task_result_list = reactive([])
+const task_result_list = reactive<TaskResultItem[]>([])
 
 // 清除模态框的底部内容，只显示代码中添加的一个"确定"按钮
 const footer = ref(null)
