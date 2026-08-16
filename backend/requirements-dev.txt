@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # 后端开发依赖 - 测试和代码规范
 
 # 测试
@@ -9,4 +10,4 @@ pytest-cov>=4.1.0
 ruff>=0.1.0
 
 # 开发工具
-httpx>=0.25.0  # 用于测试 FastAPI
+httpx>=0.25.0,<0.28.0  # Starlette 0.27 TestClient 需要旧版 app 参数
