@@ -20,6 +20,7 @@ import {
   useDurationStore as task_useDurationStore,
   useSchedulerStateStore as task_useSchedulerStateStore
 } from '@/stores/taskDetailNumStore'
+import { useTaskResourcePoolStore } from '@/stores/useTaskResourcePoolStore'
 
 class GenerateJsonService {
   /**
@@ -122,6 +123,7 @@ class GenerateJsonService {
       const propStore = task_usePropStore()
       const durationStore = task_useDurationStore()
       const schedulerStateStore = task_useSchedulerStateStore()
+      const resourcePoolStore = useTaskResourcePoolStore()
 
       // 构建任务数据对象
       const originalTaskData = {
@@ -132,7 +134,8 @@ class GenerateJsonService {
         })),
         taskPropList: propStore.propList,
         taskDurationList: durationStore.durationList,
-        taskSchedulerStateMap: Array.from(schedulerStateStore.schedulerStateMap.entries())
+        taskSchedulerStateMap: Array.from(schedulerStateStore.schedulerStateMap.entries()),
+        taskResourcePoolList: resourcePoolStore.taskResourcePoolList
       }
 
       // 预处理数据

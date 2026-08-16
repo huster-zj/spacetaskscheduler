@@ -14,6 +14,7 @@ import {
   usePropStore as task_usePropStore,
   useSchedulerStateStore as task_useSchedulerStateStore
 } from '@/stores/taskDetailNumStore'
+import { useTaskResourcePoolStore } from '@/stores/useTaskResourcePoolStore'
 import { useAlgorithmOutputStore } from '@/stores/useAlgorithmOutput'
 import {
   createDefaultAnchorConstraints,
@@ -95,6 +96,16 @@ const normalizeTaskBasicInfoList = (list) => list.map((item) => ({
   resourceRequirement: item.resourceRequirement ?? ''
 }))
 
+const normalizeTaskResourcePoolList = (list) => (Array.isArray(list) ? list : [])
+
+const normalizePreprocessOutput = (value) => ({
+  continuousEvents: Array.isArray(value?.continuousEvents) ? value.continuousEvents : [],
+  discreteEvents: Array.isArray(value?.discreteEvents) ? value.discreteEvents : [],
+  taskStates: value?.taskStates && typeof value.taskStates === 'object'
+    ? value.taskStates
+    : {}
+})
+
 const validateSnapshot = (snapshot) => {
   requireObject(snapshot, '规划包')
   requireObject(snapshot.basicConfig, '基本配置')
@@ -128,6 +139,9 @@ const validateSnapshot = (snapshot) => {
   snapshot.taskDetail.taskBasicInfoList = normalizeTaskBasicInfoList(
     snapshot.taskDetail.taskBasicInfoList
   )
+  snapshot.taskDetail.taskResourcePoolList = normalizeTaskResourcePoolList(
+    snapshot.taskDetail.taskResourcePoolList
+  )
 
   return snapshot
 }
@@ -144,6 +158,7 @@ const getStores = () => ({
   taskProp: task_usePropStore(),
   taskDuration: task_useDurationStore(),
   taskSchedulerState: task_useSchedulerStateStore(),
+  taskResourcePools: useTaskResourcePoolStore(),
   anchorConstraints: useAnchorContraintListStore(),
   temporalConstraints: useTemConstraintsListStore(),
   logicalConstraints: useLogicalConstraintsListStore(),
@@ -175,7 +190,8 @@ export const createPlanningPackageSnapshot = () => {
       taskBasicInfoList: clone(stores.taskBasicInfo.basicInfoList),
       taskPropList: clone(stores.taskProp.propList),
       taskDurationList: clone(stores.taskDuration.durationList),
-      taskSchedulerStateMap: clone(mapToEntries(stores.taskSchedulerState.schedulerStateMap))
+      taskSchedulerStateMap: clone(mapToEntries(stores.taskSchedulerState.schedulerStateMap)),
+      taskResourcePoolList: clone(stores.taskResourcePools.taskResourcePoolList)
     },
     constraints: {
       anchorConstraintList: clone(stores.anchorConstraints.anchorContraintList),
@@ -187,7 +203,7 @@ export const createPlanningPackageSnapshot = () => {
       cekongResourceList: clone(stores.cekongResources.cekongResourceList)
     },
     execution: {
-      preprocessOutput: clone(stores.preprocessOutput.preprocessOutput),
+      preprocessOutput: normalizePreprocessOutput(clone(stores.preprocessOutput.preprocessOutput)),
       algorithmOutput: clone(stores.algorithmOutput.algorithmOutput)
     }
   }
@@ -214,6 +230,7 @@ export const restorePlanningPackageSnapshot = (inputSnapshot) => {
   stores.taskProp.propList = snapshot.taskDetail.taskPropList
   stores.taskDuration.durationList = snapshot.taskDetail.taskDurationList
   stores.taskSchedulerState.schedulerStateMap = entriesToMap(snapshot.taskDetail.taskSchedulerStateMap)
+  stores.taskResourcePools.replaceResourcePools(snapshot.taskDetail.taskResourcePoolList || [])
 
   stores.anchorConstraints.anchorContraintList = normalizeAnchorConstraints(
     constraints.anchorConstraintList
@@ -223,9 +240,7 @@ export const restorePlanningPackageSnapshot = (inputSnapshot) => {
   stores.logicalConstraints.logicalConstraintsList = clone(constraints.logicalConstraintList || [])
   stores.resourceGroups.customResourceGroupList = clone(resourceCatalog.resourceGroupList || [])
   stores.cekongResources.cekongResourceList = clone(resourceCatalog.cekongResourceList || [])
-  stores.preprocessOutput.preprocessOutput = clone(
-    execution.preprocessOutput || { continuousEvents: [], discreteEvents: [] }
-  )
+  stores.preprocessOutput.preprocessOutput = normalizePreprocessOutput(execution.preprocessOutput)
   stores.algorithmOutput.algorithmOutput = clone(execution.algorithmOutput || { outputText: '' })
 
   return snapshot
@@ -250,7 +265,8 @@ export const createEmptyPlanningPackage = () => ({
     taskBasicInfoList: [],
     taskPropList: [],
     taskDurationList: [],
-    taskSchedulerStateMap: []
+    taskSchedulerStateMap: [],
+    taskResourcePoolList: []
   },
   constraints: {
     anchorConstraintList: clone(EMPTY_ANCHOR_CONSTRAINTS),
@@ -262,7 +278,7 @@ export const createEmptyPlanningPackage = () => ({
     cekongResourceList: []
   },
   execution: {
-    preprocessOutput: { continuousEvents: [], discreteEvents: [] },
+    preprocessOutput: normalizePreprocessOutput(),
     algorithmOutput: { outputText: '' }
   }
 })
@@ -357,7 +373,8 @@ export const readPlanningPackage = async (file) => {
       taskBasicInfoList: taskDetail.taskBasicInfoList || [],
       taskPropList: taskDetail.taskPropList || [],
       taskDurationList: taskDetail.taskDurationList || [],
-      taskSchedulerStateMap: taskDetail.taskSchedulerStateMap || []
+      taskSchedulerStateMap: taskDetail.taskSchedulerStateMap || [],
+      taskResourcePoolList: taskDetail.taskResourcePoolList || []
     },
     constraints: constraints || {
       anchorConstraintList: legacyAnchors || clone(EMPTY_ANCHOR_CONSTRAINTS),

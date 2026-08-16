@@ -215,20 +215,10 @@ function updateTaskResultList() {
   const preprocessStore = usePreprocessOutputStore()
   const formHeadStore = useFormHeadStore()
 
-  // 获取预处理结果
-  const continuousEvents = preprocessStore.getContinuousEvents() || []
-  const discreteEvents = preprocessStore.getDiscreteEvents() || []
-
-  // 获取所有任务名称集合
-  const processedTasks = new Set([
-    ...continuousEvents.map(event => event.task_name),
-    ...discreteEvents.map(event => event.task_name)
-  ])
-
-  // 过滤未处理的任务
   task_result_list.length = 0 // 清空现有数据
   formHeadStore.formHeadList.forEach(task => {
-    if (!processedTasks.has(task.taskName)) {
+    const taskState = preprocessStore.getTaskState(task.key, task.taskName)
+    if (taskState.status === 'empty') {
       task_result_list.push({
         key: task.key,
         task: task.taskName,

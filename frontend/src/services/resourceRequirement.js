@@ -9,7 +9,7 @@ const isTokenBoundary = (text, end) => {
   return end >= text.length || /\s|[()]/.test(next)
 }
 
-export const createResourceRequirementCandidates = ({ resources = [], resourceGroups = [] } = {}) => {
+export const createResourceRequirementCandidates = ({ resources = [], resourceGroups = [], resourcePools = [] } = {}) => {
   const candidates = [
     ...resources.map((item) => ({
       value: String(item?.resourceName || item?.name || '').trim(),
@@ -18,6 +18,10 @@ export const createResourceRequirementCandidates = ({ resources = [], resourceGr
     ...resourceGroups.map((item) => ({
       value: String(item?.resourceGroupName || item?.name || '').trim(),
       type: 'resource-group'
+    })),
+    ...resourcePools.map((item) => ({
+      value: String(item?.poolName || item?.name || '').trim(),
+      type: 'resource-pool'
     }))
   ]
 

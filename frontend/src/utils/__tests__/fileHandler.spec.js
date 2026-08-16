@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import { useOccupancyStore } from '@/stores/resourceDetailNumStore'
 import { useSchedulerStateStore } from '@/stores/taskDetailNumStore'
+import { useTaskResourcePoolStore } from '@/stores/useTaskResourcePoolStore'
 import { useConfigStore } from '@/stores/useConfigStore'
 import {
   PLANNING_PACKAGE_COLLECTION_FILE,
@@ -82,6 +83,7 @@ describe('planning package file handler', () => {
     const snapshot = await readPlanningPackage(await toFile(minimalPackage({ taskDetail: legacyTask })))
 
     expect(snapshot.taskDetail.taskBasicInfoList[0].resourceRequirement).toBe('')
+    expect(snapshot.taskDetail.taskResourcePoolList).toEqual([])
   })
 
   it('keeps resource requirements isolated by task key in saved snapshots', () => {
@@ -104,6 +106,37 @@ describe('planning package file handler', () => {
         { key: 'task-a', resourceRequirement: '资源 A' },
         { key: 'task-b', resourceRequirement: '资源 B' }
       ])
+  })
+
+  it('restores and saves task resource pools', () => {
+    const taskDetail = {
+      taskFormHeadList: [{ key: 'task-a' }],
+      taskBasicInfoList: [{ key: 'task-a', resourceRequirement: '主备资源池' }],
+      taskPropList: [{ key: 'task-a' }],
+      taskDurationList: [{ key: 'task-a' }],
+      taskSchedulerStateMap: [],
+      taskResourcePoolList: [{
+        key: 'pool-a',
+        taskKey: 'task-a',
+        poolName: '主备资源池',
+        selectionMode: 'count',
+        requiredCount: 1,
+        resourceList: ['资源 A'],
+        resourceGroupList: []
+      }]
+    }
+
+    restorePlanningPackageSnapshot(minimalPackage({ taskDetail }))
+    const captured = createPlanningPackageSnapshot()
+
+    expect(useTaskResourcePoolStore().taskResourcePoolList).toHaveLength(1)
+    expect(captured.taskDetail.taskResourcePoolList[0]).toMatchObject({
+      key: 'pool-a',
+      taskKey: 'task-a',
+      poolName: '主备资源池',
+      selectionMode: 'count',
+      requiredCount: 1
+    })
   })
 
   it('accepts legacy packages without optional files', async () => {

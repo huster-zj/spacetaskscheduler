@@ -48,6 +48,11 @@
 - `task_non_file`: 非连续跟踪任务CSV文件
 - `task_con_file`: 连续跟踪任务CSV文件
 - `key_points_file`: 关键时间点约束CSV文件
+- `sun_file` / `umbra_file`: 可选光照和阴影CSV文件；上传文件按原始时间使用，未上传时使用接口内置数据
+- JSON模式可使用 `ck_json` 与 `task_json` 代替上述CSV文件
+- `algorithm_task_json`: 可选的算法任务JSON；批量预处理成功后作为启发式算法的任务输入，未提供时回退到 `task_json`
+- `resource_catalog_json`: 可选的资源目录，包含 `resourceGroups` 和 `resourcePools` 数组
+- `task_key`: 可选的任务稳定key；传入时只计算该任务，不传时计算整包任务
 
 **响应**:
 ```json
@@ -60,10 +65,20 @@
     "non_continuous_original": [...],
     "continuous_original": [...],
     "non_continuous_json": [...],
-    "continuous_json": [...]
+    "continuous_json": [...],
+    "scope": "batch",
+    "task_key": null,
+    "task_name": null,
+    "continuous_events_data": [...],
+    "discrete_events_data": [...],
+    "no_result_tasks": [...]
   }
 }
 ```
+
+JSON模式下，`task_key` 用于单任务计算。单任务结果只返回当前任务的备选弧段，不覆盖批量预处理和算法使用的规范输出；省略 `task_key` 时保持原有批量行为。每次请求使用独立临时目录，批量结果仅在预处理和资源表达式筛选全部成功后发布；发布过程与启发式算法读取使用同一互斥保护，避免读到不同批次的混合文件。候选事件结构为 `task_key`、`task_name`、`tracking_plan_id`、`start_time`、`end_time`、`duration`、`task_to_craft` 和 `cekong_resource`。表达式合法但没有匹配弧段时接口仍返回 `success: true`，并返回空事件数组及 `no_result_tasks`。当任务时间范围与内置光照/阴影数据不重叠时，接口只为内置数据在临时目录生成对齐副本；用户上传的光照/阴影文件不会被平移或改写。
+
+资源需求表达式支持资源名、资源组名和资源池名。资源池结构为 `taskKey`、`poolName`、`selectionMode`、`requiredCount`、`resourceList` 和 `resourceGroupList`；`all` 要求候选方案包含池内展开后的全部资源，`count` 要求至少包含 `requiredCount` 个池成员。资源组会先应用包含和排除列表，再加入资源池；资源池也会随任务 JSON 的 `taskResourcePoolList` 保存。
 
 ### 3. 调度算法接口
 
@@ -147,7 +162,7 @@ curl -X POST "http://localhost:8000/api/schedule_algorithm_heuristic" \
 
 ## 注意事项
 
-1. 所有上传的文件将临时存储在服务器的`temp`目录中，处理完成后不会自动删除。
+1. 预处理上传文件按请求隔离存储在临时目录中，并在请求结束后自动清理；批量成功结果会发布到算法规范目录。
 2. 在生产环境中，应该限制CORS设置，只允许特定的来源访问API。
 3. 调度算法需要Java环境支持，请确保服务器上已安装Java。
-4. 使用FastAPIOffline确保在网络状态不佳时也能正常加载API文档。 
+4. 使用FastAPIOffline确保在网络状态不佳时也能正常加载API文档。

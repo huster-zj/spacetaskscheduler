@@ -12,6 +12,7 @@ import {
   usePropStore,
   useDurationStore
 } from '../stores/taskDetailNumStore'
+import { useTaskResourcePoolStore } from '../stores/useTaskResourcePoolStore'
 
 export default class TaskTransferService {
   transferTask(fileContent) {
@@ -21,6 +22,7 @@ export default class TaskTransferService {
     const basicInfoStore = useBasicInfoStore()
     const propStore = usePropStore()
     const durationStore = useDurationStore()
+    const resourcePoolStore = useTaskResourcePoolStore()
     const { addTaskFormHead } = formHeadStore
     const { addTaskBasicInfo } = basicInfoStore
     const { addTaskProp } = propStore
@@ -34,6 +36,12 @@ export default class TaskTransferService {
     try {
       // 获取所有任务的key列表
       const taskKeys = fileContent.taskFormHeadList.map((task) => task.key)
+      const duplicateKeys = taskKeys.filter((key, index) => taskKeys.indexOf(key) !== index)
+      const existingKeys = new Set(formHeadList.map((task) => String(task.key)))
+      const conflicts = taskKeys.filter((key) => existingKeys.has(String(key)))
+      if (duplicateKeys.length || conflicts.length) {
+        throw new Error('导入任务存在重复 key：' + [...new Set([...duplicateKeys, ...conflicts])].join('、'))
+      }
       console.log('taskKeys:', taskKeys)
 
       // 遍历每个任务的key
@@ -107,6 +115,14 @@ export default class TaskTransferService {
         propList[propList.length - 1].key = key
         durationList[durationList.length - 1].key = key
       })
+
+      if (Array.isArray(fileContent.taskResourcePoolList)) {
+        const importedKeys = new Set(taskKeys.map(String))
+        const retainedPools = resourcePoolStore.taskResourcePoolList.filter(
+          (pool) => !importedKeys.has(String(pool.taskKey))
+        )
+        resourcePoolStore.replaceResourcePools([...retainedPools, ...fileContent.taskResourcePoolList])
+      }
 
       return {
         success: true,

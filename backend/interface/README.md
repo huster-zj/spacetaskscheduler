@@ -34,6 +34,18 @@
    - 输出:
      - 可行时间窗列表
      - 每个时间窗的具体参数
+   - JSON请求还支持：
+     - `ck_json`: 测控资源JSON文件
+     - `task_json`: 任务详情JSON文件
+     - `sun_file` / `umbra_file`: 可选光照和阴影CSV文件；上传文件按原始时间使用，未上传时使用接口内置数据
+     - `algorithm_task_json`: 可选算法任务JSON；批量成功后写入启发式算法任务输入，省略时使用 `task_json`
+     - `resource_catalog_json`: 可选资源目录，格式为
+       `{ "resourceGroups": [{ "resourceGroupName": "组名", "includeResourceList": [], "excludeResourceList": [] }], "resourcePools": [{ "taskKey": "任务key", "poolName": "池名", "selectionMode": "all", "requiredCount": null, "resourceList": [], "resourceGroupList": [] }] }`
+     - `task_key`: 可选的稳定任务key；省略时批量计算，传入时单任务计算
+   - 每次预处理请求使用独立临时目录；单任务响应只返回目标任务候选弧段，不覆盖批量预处理规范目录。批量结果在全部处理和筛选成功后成组发布，并与启发式算法读取互斥，避免混用不同批次文件。
+   - 候选弧段字段包括 `task_key`、`task_name`、`tracking_plan_id`、`start_time`、`end_time`、`duration`、`task_to_craft` 和 `cekong_resource`。
+   - `resourceRequirement` 支持资源名、资源组名、资源池名、`and`、`or` 和括号。资源池 `all` 模式要求候选方案包含展开后的全部成员，`count` 模式要求至少包含指定数量成员。空表达式保持旧行为；表达式合法但无匹配方案时返回成功空结果，而不是接口错误。
+   - 当任务时间范围与内置光照/阴影数据不重叠时，仅为内置数据在临时目录生成日期对齐副本；用户上传的光照/阴影文件不平移、不改写。
 
 4. **调度算法接口**
    - 实现启发式算法

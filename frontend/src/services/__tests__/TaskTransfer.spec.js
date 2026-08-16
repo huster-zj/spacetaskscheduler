@@ -2,6 +2,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import TaskTransferService from '@/services/TaskTransfer'
+import { useTaskResourcePoolStore } from '@/stores/useTaskResourcePoolStore'
 import {
   useBasicInfoStore,
   useDurationStore,
@@ -37,5 +38,27 @@ describe('task transfer', () => {
       ])
     expect(usePropStore().propList.map(({ key }) => key)).toEqual(['task-a', 'task-b'])
     expect(useDurationStore().durationList.map(({ key }) => key)).toEqual(['task-a', 'task-b'])
+  })
+
+  it('rejects duplicate keys without clearing resource pools from a legacy import', () => {
+    const pools = useTaskResourcePoolStore()
+    pools.addResourcePool({
+      key: 'pool-a',
+      taskKey: 'existing-task',
+      poolName: '现有资源池',
+      resourceList: ['资源 A']
+    })
+    useFormHeadStore().formHeadList.push({ key: 'task-a', taskName: '现有任务' })
+
+    const result = new TaskTransferService().transferTask({
+      taskFormHeadList: [{ key: 'task-a', taskName: '重复任务' }],
+      taskBasicInfoList: [{ key: 'task-a' }],
+      taskPropList: [{ key: 'task-a' }],
+      taskDurationList: [{ key: 'task-a' }]
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.message).toContain('重复 key')
+    expect(pools.taskResourcePoolList.map(({ poolName }) => poolName)).toEqual(['现有资源池'])
   })
 })

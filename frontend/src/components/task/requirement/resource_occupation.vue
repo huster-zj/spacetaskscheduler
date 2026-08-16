@@ -1,24 +1,65 @@
 <template>
   <a-collapse accordion>
     <a-collapse-panel key="1" header="资源占用">
+      <a-alert
+        v-if="taskNotFound"
+        type="warning"
+        show-icon
+        message="当前任务数据不存在"
+        description="请返回任务列表重新打开任务详情。"
+      />
+      <a-alert
+        v-else-if="calculationState.status === 'idle'"
+        type="info"
+        show-icon
+        message="尚未生成资源占用候选"
+        description="计算可行时间窗后，这里会显示备选方案的预计测控资源占用。"
+      />
+      <a-alert
+        v-else-if="calculationState.status === 'stale'"
+        type="warning"
+        show-icon
+        message="资源占用候选可能已过期"
+        :description="calculationState.message || '任务配置已变更，请重新计算可行时间窗。'"
+      />
+      <a-alert
+        v-else-if="calculationState.status === 'error'"
+        type="error"
+        show-icon
+        message="资源占用候选计算失败"
+        :description="calculationState.message || '请检查输入后重试。'"
+      />
+      <a-alert
+        v-else-if="calculationState.status === 'empty' && !resourceOccupationTaskData.length"
+        type="warning"
+        show-icon
+        message="未找到可行资源占用"
+        :description="calculationState.message || '请检查任务时段和资源需求表达式。'"
+      />
+
       <a-collapse accordion>
-        <a-collapse-panel :key="1 - 1" :header="`资源占用_任务 (${resourceOccupationTaskData.length})`">
-          <!-- 资源占用_任务的内容 -->
-          <a-table :columns="resourceOccupationTaskColumns" :dataSource="resourceOccupationTaskData" />
+        <a-collapse-panel key="1-1" :header="`资源占用_任务 (${resourceOccupationTaskData.length})`">
+          <a-table
+            :data-source="resourceOccupationTaskData"
+            :columns="resourceOccupationTaskColumns"
+            :pagination="false"
+            :scroll="{ x: 980 }"
+            row-key="key"
+          />
+          <a-empty v-if="!resourceOccupationTaskData.length" description="暂无备选资源占用" />
         </a-collapse-panel>
-        <a-collapse-panel :key="1 - 2"
-          :header="`资源占用_可能性 (${possibilityData.length}, ${possibilityResourceData.length})`">
-          <!-- 资源占用_可能性的内容 -->
-          <a-row :gutter="16">
-            <a-col :span="6">
-              <label class="form-label" style="font-weight: bold;">可能性列表</label>
-              <a-table :columns="possibilityColumns" :dataSource="possibilityData" />
-            </a-col>
-            <a-col :span="18">
-              <label class="form-label" style="font-weight: bold;">可能性对应的资源</label>
-              <a-table :columns="possibilityResourceColumns" :dataSource="possibilityResourceData" />
-            </a-col>
-          </a-row>
+        <a-collapse-panel
+          key="1-2"
+          :header="`资源占用_可能性 (${possibilityData.length})`"
+        >
+          <a-table
+            :columns="possibilityColumns"
+            :data-source="possibilityData"
+            :pagination="false"
+            :scroll="{ x: 920 }"
+            row-key="key"
+          />
+          <a-empty v-if="!possibilityData.length" description="暂无资源占用方案" />
         </a-collapse-panel>
       </a-collapse>
     </a-collapse-panel>
@@ -26,178 +67,76 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
+
+import {
+  buildCandidateResourcePlanRows,
+  buildCandidateResourceRows,
+  getTaskCandidateEvents
+} from '@/services/preprocessData'
+import { usePreprocessOutputStore } from '@/stores/usePreprocessOutput'
+import { useFormHeadStore as useTaskFormHeadStore } from '@/stores/taskDetailNumStore'
+
+const props = defineProps({
+  taskKey: {
+    type: String,
+    default: null
+  }
+})
+
+const taskFormHeadStore = useTaskFormHeadStore()
+const preprocessStore = usePreprocessOutputStore()
+const { formHeadList } = storeToRefs(taskFormHeadStore)
+const { preprocessOutput } = storeToRefs(preprocessStore)
+
+const currentTask = computed(() => {
+  if (props.taskKey) {
+    return formHeadList.value.find((item) => String(item.key) === String(props.taskKey)) || null
+  }
+  return formHeadList.value[formHeadList.value.length - 1] || null
+})
+const taskNotFound = computed(() => Boolean(props.taskKey) && !currentTask.value)
+const calculationState = computed(() => preprocessStore.getTaskState(
+  currentTask.value?.key,
+  currentTask.value?.taskName
+))
+const candidateEvents = computed(() => getTaskCandidateEvents(
+  preprocessOutput.value,
+  currentTask.value || { key: props.taskKey }
+))
+const resourceOccupationTaskData = computed(() => buildCandidateResourceRows(candidateEvents.value))
+const possibilityData = computed(() => buildCandidateResourcePlanRows(candidateEvents.value))
 
 const resourceOccupationTaskColumns = [
-  {
-    title: '资源名称',
-    dataIndex: 'resourceName',
-    key: 'resourceName',
-  },
-  {
-    title: '资源类型',
-    dataIndex: 'resourceType',
-    key: 'resourceType',
-  },
-  {
-    title: '消耗/补充',
-    dataIndex: 'consumptionOrSupply',
-    key: 'consumptionOrSupply',
-  },
-  {
-    title: '数量/模式',
-    dataIndex: 'quantityOrMode',
-    key: 'quantityOrMode',
-  },
-  {
-    title: '准备时间',
-    dataIndex: 'preparationTime',
-    key: 'preparationTime',
-  },
-  {
-    title: '冷却时间',
-    dataIndex: 'coolingTime',
-    key: 'coolingTime',
-  },
-  {
-    title: '是否可容纳',
-    dataIndex: 'accommodatable',
-    key: 'accommodatable',
-  },
-];
-
-const resourceOccupationTaskData = [
-  {
-    key: '1',
-    resourceName: 'r1',
-    resourceType: '类型1',
-    consumptionOrSupply: '消耗',
-    quantityOrMode: '数量1',
-    preparationTime: '10分钟',
-    coolingTime: '5分钟',
-    accommodatable: '是',
-  },
-  {
-    key: '2',
-    resourceName: 'r2',
-    resourceType: '类型2',
-    consumptionOrSupply: '补充',
-    quantityOrMode: '模式2',
-    preparationTime: '15分钟',
-    coolingTime: '10分钟',
-    accommodatable: '否',
-  },
-];
+  { title: '资源 ID', dataIndex: 'resourceId', key: 'resourceId' },
+  { title: '资源名称', dataIndex: 'resourceName', key: 'resourceName' },
+  { title: '测控站', dataIndex: 'station', key: 'station' },
+  { title: '跟踪方案', dataIndex: 'planId', key: 'planId' },
+  { title: '占用开始时间', dataIndex: 'startTime', key: 'startTime' },
+  { title: '占用结束时间', dataIndex: 'endTime', key: 'endTime' },
+  { title: '占用时长', dataIndex: 'duration', key: 'duration' }
+]
 
 const possibilityColumns = [
-  {
-    title: '可能性',
-    dataIndex: 'possibility',
-    key: 'possibility',
-  },
-  {
-    title: '资源',
-    dataIndex: 'resource',
-    key: 'resource',
-  },
-];
-
-const possibilityData = [
-  {
-    key: '1',
-    possibility: '可能性1',
-    resource: 'r1',
-  },
-  {
-    key: '2',
-    possibility: '可能性2',
-    resource: 'r2',
-  },
-];
-
-const possibilityResourceColumns = [
-  {
-    title: '资源名称',
-    dataIndex: 'resourceName',
-    key: 'resourceName',
-  },
-  {
-    title: '资源类型',
-    dataIndex: 'resourceType',
-    key: 'resourceType',
-  },
-  {
-    title: '消耗/补充',
-    dataIndex: 'consumptionOrSupply',
-    key: 'consumptionOrSupply',
-  },
-  {
-    title: '数量/模式',
-    dataIndex: 'quantityOrMode',
-    key: 'quantityOrMode',
-  },
-  {
-    title: '准备时间',
-    dataIndex: 'preparationTime',
-    key: 'preparationTime',
-  },
-  {
-    title: '冷却时间',
-    dataIndex: 'coolingTime',
-    key: 'coolingTime',
-  },
-];
-
-const possibilityResourceData = [
-  {
-    key: '1',
-    resourceName: 'r1',
-    resourceType: '类型1',
-    consumptionOrSupply: '消耗',
-    quantityOrMode: '数量1',
-    preparationTime: '10分钟',
-    coolingTime: '5分钟',
-  },
-  {
-    key: '2',
-    resourceName: 'r2',
-    resourceType: '类型2',
-    consumptionOrSupply: '补充',
-    quantityOrMode: '模式2',
-    preparationTime: '15分钟',
-    coolingTime: '10分钟',
-  },
-];
+  { title: '跟踪方案', dataIndex: 'planId', key: 'planId' },
+  { title: '资源数', dataIndex: 'resourceCount', key: 'resourceCount' },
+  { title: '资源列表', dataIndex: 'resources', key: 'resources' },
+  { title: '开始时间', dataIndex: 'startTime', key: 'startTime' },
+  { title: '结束时间', dataIndex: 'endTime', key: 'endTime' },
+  { title: '持续时长', dataIndex: 'duration', key: 'duration' }
+]
 </script>
 
 <style scoped>
-.form-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
+:deep(.ant-table-wrapper) {
+  max-width: 100%;
+  overflow: hidden;
 }
 
-.form-label {
-  width: auto;
-  text-align: left;
-  margin-right: 1rem;
-  white-space: nowrap;
-  font-size: 18px;
-}
-
-.form-input {
-  flex: 1;
-  font-size: 18px;
-  margin-right: 2rem;
-}
-
-/* 设置表格列名的字体大小 */
-:deep(.ant-table-thead) {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-:deep(.ant-table-tbody .ant-table-cell) {
-  font-size: 16px;
+@media (max-width: 767px) {
+  :deep(.ant-table) {
+    font-size: 13px;
+  }
 }
 </style>

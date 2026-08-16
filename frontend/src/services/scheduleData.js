@@ -37,7 +37,7 @@ export const formatGanttDate = (value) => {
   return date ? dayjs(date).format('YYYY-MM-DD HH:mm') : ''
 }
 
-const durationMinutes = (start, end) => {
+export const durationMinutes = (start, end) => {
   const startDate = toDate(start)
   const endDate = toDate(end)
   if (!startDate || !endDate || endDate <= startDate) return 0
