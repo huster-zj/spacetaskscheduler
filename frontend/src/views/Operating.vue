@@ -20,8 +20,8 @@
           class="algorithm-capability"
           type="info"
           show-icon
-          message="目前仅接入启发式算法"
-          description="其他算法选项暂不可运行。"
+          message="已接入三种调度算法"
+          description="COPT 用于完整可行调度；分支定价切割支持资源不足时的部分完成方案。"
         />
         <a-radio-group @change="handelChangeAlgorithm" v-model:value="valueAlgorithm" name="algorithmsRadioGroup" class="option-stack">
           <a-radio v-for="item in algorithmsList" :key="item.key" :value="item.key" :disabled="item.disabled" class="algorithm-option">
@@ -39,7 +39,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import Steps from '@/components/Steps.vue'
 import { message } from 'ant-design-vue';
 import AlgorithmService from '@/services/Algorithm.js'
@@ -66,10 +66,11 @@ const valueTarget = ref(targetList[0].key);
 // 算法配置
 const algorithmsList = [
   { key: '1', algorithm_name: '基于优先级的调度启发式算法', algorithm_note: '可求解资源供小于需的问题，可能存在部分任务未安排，无需配置目标，计算时间短' },
-  { key: '2', algorithm_name: '求解器-COPT', algorithm_note: '只能求解资源供大于需的问题，可能无解，解较优', disabled: true },
-  { key: '3', algorithm_name: '分支定价切割算法', algorithm_note: '可求解资源供小于需的问题，解最优，计算时间长', disabled: true },
+  { key: '2', algorithm_name: '求解器-COPT', algorithm_note: '求解完整可行调度，资源或时段冲突时会明确返回不可行原因' },
+  { key: '3', algorithm_name: '分支定价切割算法', algorithm_note: '资源不足时优先完成高优先级任务，计算时间随候选弧段数量增加' },
 ];
 const valueAlgorithm = ref(algorithmsList[0].key);
+const selectedAlgorithm = computed(() => algorithmsList.find((item) => item.key === valueAlgorithm.value))
 disabled.value = true
 function handelChangeAlgorithm() {
   console.log('value', valueAlgorithm.value);
@@ -89,12 +90,6 @@ async function handleRun() {
   if (running.value) return
 
   try {
-    // 检查是否选择了启发式算法
-    if (valueAlgorithm.value !== '1') {
-      message.warning('目前只支持基于优先级的调度启发式算法')
-      return
-    }
-
     algorithmOutputStore.clearOutput()
     running.value = true
     runStatus.value = '正在预处理当前规划包...'
@@ -110,9 +105,13 @@ async function handleRun() {
       return
     }
 
-    runStatus.value = '预处理完成，正在运行启发式算法...'
-    message.loading({ content: '正在运行启发式算法...', duration: 0, key: 'planning-run' })
-    const result = await AlgorithmService.executeAlgorithm()
+    const algorithmName = selectedAlgorithm.value?.algorithm_name || '调度算法'
+    runStatus.value = `预处理完成，正在运行${algorithmName}...`
+    message.loading({ content: `正在运行${algorithmName}...`, duration: 0, key: 'planning-run' })
+    const result = await AlgorithmService.executeAlgorithm({
+      algorithm: valueAlgorithm.value,
+      target: valueTarget.value
+    })
 
     if (result.success) {
       console.log('算法执行成功:', result.data)

@@ -13,15 +13,13 @@ class AlgorithmService {
     // 移除所有前端文件路径，改为使用后端API
   }
 
-  async executeAlgorithm() {
+  async executeAlgorithm({ algorithm = '1', target = '1' } = {}) {
     try {
-      // 调用后端算法接口，让后端直接使用其内部的文件
-      const response = await fetch(`${this.baseUrl}/api/schedule_algorithm_heuristic`, {
+      const response = await fetch(`${this.baseUrl}/api/schedule_algorithm`, {
         method: 'POST',
-        // 不传递任何文件，让后端使用默认的内部文件
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ algorithm, target })
       })
-
-      console.log('算法运行的结果：', response)
 
       const result = await response.json()
 
