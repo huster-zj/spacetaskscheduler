@@ -3,6 +3,8 @@ import os
 import subprocess
 import json
 import tempfile
+import shutil
+import threading
 from fastapi_offline import FastAPIOffline
 from fastapi import UploadFile, File, Form, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,6 +19,13 @@ import uvicorn
 from interface.convert_to_json import resource_to_json, task_to_json
 from interface.pre_process import fk1_pre_process, fk2_pre_process
 from interface.pre_process_json import fk1_pre_process_json, fk2_pre_process_json
+from interface.preprocess_support import (
+    align_solar_data_to_tasks,
+    filter_candidate_events_by_requirements,
+    resource_catalog_aliases,
+    select_task_json,
+    validate_resource_requirement,
+)
 
 app = FastAPIOffline(
     title="航天器任务规划系统API",
@@ -37,6 +46,33 @@ app.add_middleware(
 # 创建临时目录用于存储上传的文件
 TEMP_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "interface")
 os.makedirs(TEMP_DIR, exist_ok=True)
+CANONICAL_DATA_LOCK = threading.Lock()
+
+
+def _copy_file_atomic(source_path, target_path):
+    """Publish one completed artifact without exposing a partially written file."""
+    os.makedirs(os.path.dirname(target_path), exist_ok=True)
+    descriptor, temporary_path = tempfile.mkstemp(
+        prefix=".publish-",
+        dir=os.path.dirname(target_path),
+    )
+    os.close(descriptor)
+    try:
+        shutil.copyfile(source_path, temporary_path)
+        os.replace(temporary_path, target_path)
+    finally:
+        if os.path.exists(temporary_path):
+            os.remove(temporary_path)
+
+
+def _validate_unique_task_names(task_payload):
+    names = []
+    for item in task_payload.get("taskFormHeadList", []) if isinstance(task_payload, dict) else []:
+        if isinstance(item, dict):
+            names.append(str(item.get("taskName", "")).strip())
+    duplicates = sorted({name for name in names if name and names.count(name) > 1})
+    if duplicates:
+        raise ValueError("任务名称不能重复：" + "、".join(duplicates))
 
 # 模型定义
 class AlgorithmResponse(BaseModel):
@@ -134,12 +170,15 @@ async def preprocess_data(
     umbra_file: UploadFile = None,
     # 新增 JSON 输入
     ck_json: UploadFile = None,
-    task_json: UploadFile = None
+    task_json: UploadFile = None,
+    algorithm_task_json: UploadFile = None,
+    resource_catalog_json: UploadFile = None,
+    task_key: str = Form(None),
 ):
+    request_dir = tempfile.mkdtemp(prefix="preprocess-request-", dir=TEMP_DIR)
     try:
-        # 修改这里 - 使用 TEMP_DIR 而不是 input_path
-        backend_input_path = os.path.join(TEMP_DIR, "backend_input_data")
-        output_path = os.path.join(TEMP_DIR, "preprocess_output")
+        backend_input_path = os.path.join(request_dir, "backend_input_data")
+        output_path = os.path.join(request_dir, "preprocess_output")
         os.makedirs(backend_input_path, exist_ok=True)
         os.makedirs(output_path, exist_ok=True)
 
@@ -150,6 +189,10 @@ async def preprocess_data(
         key_points_path = None
         input_ck_json_path = None
         input_task_json_path = None
+        input_algorithm_task_json_path = None
+        input_resource_catalog_path = None
+        input_sun_path = None
+        input_umbra_path = None
 
         # 修改这里 - 设置固定的光照和阴影文件路径
         sun_file_path = os.path.join(TEMP_DIR, "source_data_show", "CSS_TIANHE_48274_Sun.csv")
@@ -185,6 +228,16 @@ async def preprocess_data(
             with open(key_points_path, "wb") as f:
                 f.write(await key_points_file.read())
 
+        if sun_file:
+            input_sun_path = os.path.join(backend_input_path, "sun.csv")
+            with open(input_sun_path, "wb") as f:
+                f.write(await sun_file.read())
+
+        if umbra_file:
+            input_umbra_path = os.path.join(backend_input_path, "umbra.csv")
+            with open(input_umbra_path, "wb") as f:
+                f.write(await umbra_file.read())
+
         # 保存 JSON 文件
         if ck_json:
             input_ck_json_path = os.path.join(backend_input_path, "测控资源.json")
@@ -196,6 +249,26 @@ async def preprocess_data(
             with open(input_task_json_path, "wb") as f:
                 f.write(await task_json.read())
 
+        if algorithm_task_json:
+            input_algorithm_task_json_path = os.path.join(backend_input_path, "taskDetail2.json")
+            with open(input_algorithm_task_json_path, "wb") as f:
+                f.write(await algorithm_task_json.read())
+
+        if resource_catalog_json:
+            input_resource_catalog_path = os.path.join(backend_input_path, "resourceCatalog.json")
+            with open(input_resource_catalog_path, "wb") as f:
+                f.write(await resource_catalog_json.read())
+
+        if input_sun_path:
+            sun_file_path = input_sun_path
+        if input_umbra_path:
+            umbra_file_path = input_umbra_path
+
+        if sun_file_path and not os.path.exists(sun_file_path):
+            sun_file_path = None
+        if umbra_file_path and not os.path.exists(umbra_file_path):
+            umbra_file_path = None
+
         # 修改输出逻辑，只打印非None的路径
         print("输入文件路径:")
         print(f"测控资源文件: {input_ck_path if input_ck_path else '未上传'}")
@@ -206,6 +279,7 @@ async def preprocess_data(
         print(f"阴影文件: {umbra_file_path if umbra_file_path else '未上传'}")
         print(f"测控资源JSON文件: {input_ck_json_path if input_ck_json_path else '未上传'}")
         print(f"任务JSON文件: {input_task_json_path if input_task_json_path else '未上传'}")
+        print(f"资源目录JSON文件: {input_resource_catalog_path if input_resource_catalog_path else '未上传'}")
 
 
         result_data = {}
@@ -252,12 +326,114 @@ async def preprocess_data(
 
         # JSON处理流程
         if has_json_inputs:
+            with open(input_task_json_path, "r", encoding="utf-8") as f:
+                task_payload = json.load(f)
+
+            _validate_unique_task_names(task_payload)
+            requested_task_key = str(task_key).strip() if task_key else ""
+            selected_task = None
+            selected_payload = None
+            task_input_path = input_task_json_path
+            task_output_path = output_path
+
+            # A task-scoped run must not replace the canonical batch files that
+            # are consumed by the heuristic algorithm endpoint.
+            if requested_task_key:
+                selected_payload, selected_task = select_task_json(task_payload, requested_task_key)
+                task_input_path = os.path.join(backend_input_path, "selectedTaskDetail.json")
+                with open(task_input_path, "w", encoding="utf-8") as f:
+                    json.dump(selected_payload, f, ensure_ascii=False, indent=2)
+            input_ck_json_for_run = input_ck_json_path
+
+            alignment_payload = selected_payload or task_payload
+            if not input_sun_path:
+                sun_file_path, _ = align_solar_data_to_tasks(
+                    sun_file_path, None, alignment_payload, request_dir
+                )
+            if not input_umbra_path:
+                _, umbra_file_path = align_solar_data_to_tasks(
+                    None, umbra_file_path, alignment_payload, request_dir
+                )
+
+            resource_groups = []
+            resource_pools = task_payload.get("taskResourcePoolList", [])
+            with open(input_ck_json_path, "r", encoding="utf-8") as f:
+                known_resources = resource_catalog_aliases(json.load(f))
+            if input_resource_catalog_path and os.path.exists(input_resource_catalog_path):
+                with open(input_resource_catalog_path, "r", encoding="utf-8") as f:
+                    resource_catalog = json.load(f)
+                resource_groups = resource_catalog.get(
+                    "resourceGroups",
+                    resource_catalog.get("resourceGroupList", [])
+                ) if isinstance(resource_catalog, dict) else []
+                if not resource_pools and isinstance(resource_catalog, dict):
+                    resource_pools = resource_catalog.get("resourcePools", resource_catalog.get("resourcePoolList", []))
+
+            if selected_payload is not None:
+                selected_pools = selected_payload.get("taskResourcePoolList")
+                if selected_pools:
+                    resource_pools = selected_pools
+                else:
+                    selected_key = str(selected_task.get("key", ""))
+                    selected_name = str(selected_task.get("taskName", ""))
+                    resource_pools = [
+                        pool for pool in resource_pools
+                        if isinstance(pool, dict) and str(
+                            pool.get("taskKey") or pool.get("task_key") or ""
+                        ) in {"", selected_key, selected_name}
+                    ]
+
+            task_heads = task_payload.get("taskFormHeadList", [])
+            task_basic_info = task_payload.get("taskBasicInfoList", [])
+            requirements = {}
+            task_identities = []
+            basic_by_key = {
+                str(item.get("key")): item
+                for item in task_basic_info
+                if isinstance(item, dict) and item.get("key") is not None
+            }
+            for head in task_heads:
+                if not isinstance(head, dict):
+                    continue
+                head_key = str(head.get("key", ""))
+                task_name = str(head.get("taskName", head_key))
+                basic = basic_by_key.get(head_key, {})
+                requirement = basic.get("resourceRequirement", "") if isinstance(basic, dict) else ""
+                requirements[head_key] = requirement or ""
+                requirements[task_name] = requirement or ""
+                task_identities.append({"task_key": head_key, "task_name": task_name})
+
+            if selected_task:
+                task_identities = [{
+                    "task_key": str(selected_task.get("key", "")),
+                    "task_name": str(selected_task.get("taskName", selected_task.get("key", ""))),
+                }]
+
+            # Validate expressions before generating candidates. Otherwise an
+            # unknown operand could look like a valid empty result when the
+            # underlying preprocessing step produces no candidate events.
+            for identity in task_identities:
+                identity_key = identity["task_key"]
+                identity_name = identity["task_name"]
+                task_pools = [
+                    pool for pool in resource_pools
+                    if isinstance(pool, dict) and str(
+                        pool.get("taskKey") or pool.get("task_key") or ""
+                    ) in {"", identity_key, identity_name}
+                ]
+                validate_resource_requirement(
+                    requirements.get(identity_key, requirements.get(identity_name, "")),
+                    resource_groups,
+                    task_pools,
+                    known_resources,
+                )
+
             # 处理非连续跟踪任务（JSON处理）
-            non_con_json_output_path = os.path.join(output_path, "非连续跟踪飞控事件JSON处理结果")
+            non_con_json_output_path = os.path.join(task_output_path, "非连续跟踪飞控事件JSON处理结果")
             os.makedirs(non_con_json_output_path, exist_ok=True)
             fk1_pre_process_json(
-                fk_file_path=input_task_json_path,
-                ck_file_path=input_ck_json_path,
+                fk_file_path=task_input_path,
+                ck_file_path=input_ck_json_for_run,
                 sun_file_path=sun_file_path,
                 umbra_file_path=umbra_file_path,
                 output_path=non_con_json_output_path
@@ -265,11 +441,11 @@ async def preprocess_data(
             result_data['non_continuous_json'] = os.listdir(non_con_json_output_path)
 
             # 处理连续跟踪任务（JSON处理）
-            con_json_output_path = os.path.join(output_path, "连续跟踪飞控事件JSON处理结果")
+            con_json_output_path = os.path.join(task_output_path, "连续跟踪飞控事件JSON处理结果")
             os.makedirs(con_json_output_path, exist_ok=True)
             fk2_pre_process_json(
-                fk_file_path=input_task_json_path,
-                ck_file_path=input_ck_json_path,
+                fk_file_path=task_input_path,
+                ck_file_path=input_ck_json_for_run,
                 output_path=con_json_output_path
             )
             result_data['continuous_json'] = os.listdir(con_json_output_path)
@@ -297,6 +473,91 @@ async def preprocess_data(
                 result_data['continuous_events_data'] = []
                 result_data['discrete_events_data'] = []
 
+            all_events = [
+                *result_data.get("continuous_events_data", []),
+                *result_data.get("discrete_events_data", []),
+            ]
+            name_to_key = {
+                item["task_name"]: item["task_key"]
+                for item in task_identities
+                if item.get("task_name")
+            }
+            for event in all_events:
+                if isinstance(event, dict):
+                    event.setdefault("task_key", name_to_key.get(str(event.get("task_name", "")), ""))
+
+            result_data["continuous_events_data"] = filter_candidate_events_by_requirements(
+                result_data.get("continuous_events_data", []),
+                requirements,
+                resource_groups,
+                resource_pools,
+                known_resources,
+            )
+            result_data["discrete_events_data"] = filter_candidate_events_by_requirements(
+                result_data.get("discrete_events_data", []),
+                requirements,
+                resource_groups,
+                resource_pools,
+                known_resources,
+            )
+
+            if not requested_task_key:
+                canonical_continuous = [
+                    {key: value for key, value in event.items() if key != "task_key"}
+                    for event in result_data["continuous_events_data"]
+                ]
+                canonical_discrete = [
+                    {key: value for key, value in event.items() if key != "task_key"}
+                    for event in result_data["discrete_events_data"]
+                ]
+                with open(con_result_file, "w", encoding="utf-8") as f:
+                    json.dump(canonical_continuous, f, ensure_ascii=False, indent=2)
+                with open(non_con_result_file, "w", encoding="utf-8") as f:
+                    json.dump(canonical_discrete, f, ensure_ascii=False, indent=2)
+
+                canonical_output_path = os.path.join(TEMP_DIR, "preprocess_output")
+                canonical_transfer_path = os.path.join(TEMP_DIR, "transfer_json_output")
+                with CANONICAL_DATA_LOCK:
+                    _copy_file_atomic(
+                        con_result_file,
+                        os.path.join(canonical_output_path, "连续跟踪飞控事件JSON处理结果", os.path.basename(con_result_file)),
+                    )
+                    _copy_file_atomic(
+                        non_con_result_file,
+                        os.path.join(canonical_output_path, "非连续跟踪飞控事件JSON处理结果", os.path.basename(non_con_result_file)),
+                    )
+                    _copy_file_atomic(input_task_json_path, os.path.join(canonical_transfer_path, "taskDetail.json"))
+                    _copy_file_atomic(
+                        input_algorithm_task_json_path or input_task_json_path,
+                        os.path.join(canonical_transfer_path, "taskDetail2.json"),
+                    )
+                    _copy_file_atomic(input_ck_json_path, os.path.join(canonical_transfer_path, "测控资源.json"))
+
+            result_data["scope"] = "single" if requested_task_key else "batch"
+            result_data["task_key"] = (
+                str(selected_task.get("key")) if selected_task else None
+            )
+            result_data["task_name"] = (
+                str(selected_task.get("taskName")) if selected_task else None
+            )
+            available_task_keys = {
+                str(event.get("task_key", ""))
+                for event in [
+                    *result_data.get("continuous_events_data", []),
+                    *result_data.get("discrete_events_data", []),
+                ]
+            }
+            no_result = [
+                item for item in task_identities
+                if item.get("task_key") not in available_task_keys
+            ]
+            result_data["no_result_tasks"] = no_result
+            result_data["no_result_reasons"] = {
+                item["task_key"]: "资源需求表达式或时段约束未找到匹配的测控弧段"
+                for item in no_result
+                if item.get("task_key")
+            }
+
         if not result_data:
             return AlgorithmResponse(
                 success=False,
@@ -316,10 +577,13 @@ async def preprocess_data(
             message=f"数据预处理失败: {str(e)}",
             data=None
         )
+    finally:
+        shutil.rmtree(request_dir, ignore_errors=True)
 
 # 3. 调度算法接口
 @app.post("/api/schedule_algorithm_heuristic", response_model=AlgorithmResponse)
 async def heuristic_algorithm():
+    CANONICAL_DATA_LOCK.acquire()
     try:
         # 使用后端内部的固定文件路径
         input_path = os.path.join(TEMP_DIR, "backend_input_data")
@@ -426,6 +690,8 @@ async def heuristic_algorithm():
             message=f"调度算法执行失败: {str(e)}",
             data=None
         )
+    finally:
+        CANONICAL_DATA_LOCK.release()
 
 # 4. 保存JSON数据接口
 @app.post("/api/save_json", response_model=AlgorithmResponse)

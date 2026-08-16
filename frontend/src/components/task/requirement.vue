@@ -12,8 +12,8 @@
             <resource-requirement :taskKey="taskKey" />
           </div>
           <a-col :span="24">
-            <time-segment class="resource-margin" style="margin-top: 16px;" />
-            <resource-occupation style="margin-bottom: 16px;" />
+            <time-segment :task-key="taskKey" class="resource-margin" style="margin-top: 16px;" />
+            <resource-occupation :task-key="taskKey" style="margin-bottom: 16px;" />
           </a-col>
         </a-col>
       </a-col>

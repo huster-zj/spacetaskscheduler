@@ -14,6 +14,7 @@ import {
   useDurationStore,
   useSchedulerStateStore
 } from './taskDetailNumStore.js'
+import { useTaskResourcePoolStore } from './useTaskResourcePoolStore.js'
 
 let Key = null
 
@@ -72,6 +73,7 @@ export function deleteTaskKey(key) {
   const propStore = usePropStore()
   const durationStore = useDurationStore()
   const schedulerStateStore = useSchedulerStateStore()
+  const resourcePoolStore = useTaskResourcePoolStore()
 
   // 删除 FormHead 相关记录
   const formHeadIndex = formHeadStore.formHeadList.findIndex((item) => item.key === key)
@@ -96,6 +98,8 @@ export function deleteTaskKey(key) {
   if (durationIndex !== -1) {
     durationStore.removeTaskDuration(durationIndex)
   }
+
+  resourcePoolStore.removePoolsForTask(key)
 
   // 删除 SchedulerState 相关记录
   schedulerStateStore.schedulerStateMap.forEach((value, mapKey) => {

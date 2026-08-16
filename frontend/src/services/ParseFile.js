@@ -27,6 +27,47 @@ export const normalizeResources = (value) => {
     .map(String)
 }
 
+export const normalizeResourceDetails = (value) => {
+  if (!value) return []
+  const source = Array.isArray(value) ? value : [value]
+
+  return source.map((item) => {
+    if (typeof item === 'string') {
+      return {
+        id: item,
+        station: '',
+        name: item
+      }
+    }
+
+    return {
+      id: String(firstDefined(
+        item?.cekong_resource_id,
+        item?.resource_id,
+        item?.id,
+        item?.resourceName,
+        item?.name,
+        ''
+      )),
+      station: String(firstDefined(
+        item?.cekong_station,
+        item?.station,
+        item?.stationName,
+        ''
+      )),
+      name: String(firstDefined(
+        item?.resourceName,
+        item?.resource_name,
+        item?.name,
+        item?.cekong_resource_id,
+        item?.resource_id,
+        item?.id,
+        ''
+      ))
+    }
+  }).filter((item) => item.id || item.name || item.station)
+}
+
 export const normalizePreprocessEvents = (input) => {
   const source = Array.isArray(input)
     ? input
@@ -34,6 +75,7 @@ export const normalizePreprocessEvents = (input) => {
 
   return source.filter(Boolean).map((item, index) => ({
     key: String(firstDefined(item.key, item.tracking_plan_id, `arc-${index + 1}`)),
+    task_key: String(firstDefined(item.task_key, item.taskKey, '')),
     task_name: String(firstDefined(item.task_name, item.taskName, item.id, '')),
     tracking_plan_id: String(firstDefined(item.tracking_plan_id, item.trackingPlanId, '')),
     start_time: firstDefined(item.start_time, item.startTime, ''),
@@ -41,8 +83,30 @@ export const normalizePreprocessEvents = (input) => {
     duration: firstDefined(item.duration, ''),
     task_to_craft: String(firstDefined(item.task_to_craft, item.taskToCraft, '')),
     resources: normalizeResources(firstDefined(item.cekong_resource, item.resources, item.resource)),
+    resourceDetails: normalizeResourceDetails(firstDefined(
+      item.cekong_resource,
+      item.resources,
+      item.resource
+    )),
     raw: item
   }))
+}
+
+export const findPreprocessEventsForTask = (input, task = {}) => {
+  const events = normalizePreprocessEvents(input)
+  const taskKey = String(task.key || '').trim()
+  const taskName = String(task.taskName || task.name || '').trim()
+  if (!taskKey && !taskName) return []
+
+  const keyedEvents = taskKey
+    ? events.filter((event) => event.task_key && event.task_key === taskKey)
+    : []
+  if (keyedEvents.length) return keyedEvents
+
+  return events.filter((event) => {
+    if (event.task_key) return false
+    return taskName && event.task_name === taskName
+  })
 }
 
 export async function parsePreprocessFiles() {
