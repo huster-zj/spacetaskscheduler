@@ -9,7 +9,7 @@ from fastapi_offline import FastAPIOffline
 from fastapi import UploadFile, File, Form, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse  # 添加这行
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import os  
 import io  
 import zipfile  
@@ -26,6 +26,8 @@ from interface.preprocess_support import (
     select_task_json,
     validate_resource_requirement,
 )
+from solvers import SolverError, load_problem
+from solvers import branch_price_cut, copt_scheduler
 
 app = FastAPIOffline(
     title="航天器任务规划系统API",
@@ -85,6 +87,12 @@ class SaveJsonRequest(BaseModel):
     data: Any  # 修改为Any类型，接受任何数据类型
     file_name: str
     file_path: str
+
+
+class ScheduleRequest(BaseModel):
+    algorithm: str = "1"
+    target: str = "1"
+    time_limit: float = Field(default=120.0, ge=1.0, le=3600.0)
 
 # 1. 数据转换接口
 @app.post("/api/convert_csv_to_json", response_model=AlgorithmResponse)
@@ -692,6 +700,70 @@ async def heuristic_algorithm():
         )
     finally:
         CANONICAL_DATA_LOCK.release()
+
+
+def _solver_input_paths():
+    task_json_path = os.path.join(TEMP_DIR, "transfer_json_output", "taskDetail2.json")
+    preprocess_path = os.path.join(TEMP_DIR, "preprocess_output")
+    arc_paths = [
+        os.path.join(
+            preprocess_path,
+            "非连续跟踪飞控事件JSON处理结果",
+            "非连续跟踪遥控事件预处理备选弧段.json",
+        ),
+        os.path.join(
+            preprocess_path,
+            "连续跟踪飞控事件JSON处理结果",
+            "连续跟踪遥控事件预处理备选弧段.json",
+        ),
+    ]
+    return task_json_path, arc_paths
+
+
+@app.post("/api/schedule_algorithm", response_model=AlgorithmResponse)
+async def schedule_algorithm(request: ScheduleRequest):
+    aliases = {
+        "1": "heuristic",
+        "heuristic": "heuristic",
+        "2": "copt",
+        "copt": "copt",
+        "3": "branch_price_cut",
+        "branch_price_cut": "branch_price_cut",
+        "branch-price-cut": "branch_price_cut",
+    }
+    algorithm = aliases.get(str(request.algorithm).strip().lower(), "")
+    if not algorithm:
+        return AlgorithmResponse(success=False, message="不支持的调度算法", data=None)
+    target = str(request.target).strip()
+    if target not in {"1", "2"}:
+        return AlgorithmResponse(success=False, message="不支持的调度目标", data=None)
+    if algorithm == "heuristic":
+        return await heuristic_algorithm()
+
+    with CANONICAL_DATA_LOCK:
+        try:
+            task_path, arc_paths = _solver_input_paths()
+            problem = load_problem(task_path, arc_paths)
+            if algorithm == "copt":
+                result = copt_scheduler.solve(
+                    problem,
+                    target=target,
+                    time_limit=request.time_limit,
+                )
+                message = "COPT 调度完成"
+            else:
+                result = branch_price_cut.solve(
+                    problem,
+                    target=target,
+                    time_limit=min(request.time_limit, 300.0),
+                )
+                message = "分支定价切割调度完成"
+            return AlgorithmResponse(success=True, message=message, data=result)
+        except SolverError as exc:
+            return AlgorithmResponse(success=False, message=str(exc), data=None)
+        except Exception as exc:
+            return AlgorithmResponse(success=False, message=f"调度算法执行失败: {exc}", data=None)
+
 
 # 4. 保存JSON数据接口
 @app.post("/api/save_json", response_model=AlgorithmResponse)

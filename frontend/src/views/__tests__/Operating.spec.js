@@ -32,7 +32,12 @@ const mountOperating = () => mount(Operating, {
     stubs: {
       Steps: { template: '<div />' },
       AAlert: { template: '<div />' },
-      ARadioGroup: { template: '<div><slot /></div>' },
+      ARadioGroup: {
+        name: 'ARadioGroup',
+        props: ['value'],
+        emits: ['update:value'],
+        template: '<div><slot /></div>'
+      },
       ARadio: { template: '<label><input type="radio" /><slot /></label>' },
       AButton: {
         props: ['disabled', 'loading'],
@@ -61,6 +66,7 @@ describe('operating result navigation', () => {
 
     expect(mocks.routerPush).toHaveBeenCalledWith({ name: 'result' })
     expect(mocks.routerPush).not.toHaveBeenCalledWith('/main_view')
+    expect(mocks.executeAlgorithm).toHaveBeenCalledWith({ algorithm: '1', target: '1' })
   })
 
   it('stays on the operating page when algorithm output is empty', async () => {
@@ -72,5 +78,16 @@ describe('operating result navigation', () => {
 
     expect(mocks.routerPush).not.toHaveBeenCalled()
   })
-})
 
+  it.each(['2', '3'])('passes algorithm %s through to the unified scheduler API', async (algorithm) => {
+    const wrapper = mountOperating()
+    const groups = wrapper.findAllComponents({ name: 'ARadioGroup' })
+    groups[1].vm.$emit('update:value', algorithm)
+    await flushPromises()
+
+    await wrapper.get('button.btn').trigger('click')
+    await flushPromises()
+
+    expect(mocks.executeAlgorithm).toHaveBeenCalledWith({ algorithm, target: '1' })
+  })
+})
