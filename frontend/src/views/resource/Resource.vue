@@ -120,7 +120,7 @@ async function handleCekongResourceFile(file) {
       const formData = new FormData()
       formData.append('ck_file', file)
 
-      const response = await fetch('http://localhost:8000/api/convert_csv_to_json', {
+      const response = await fetch('/api/convert_csv_to_json', {
         method: 'POST',
         body: formData
       })

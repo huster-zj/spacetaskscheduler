@@ -116,7 +116,7 @@ const handleConvert = async () => {
     }
 
     // 发送请求
-    const response = await fetch('http://localhost:8000/api/convert_csv_to_json', {
+    const response = await fetch('/api/convert_csv_to_json', {
       method: 'POST',
       body: formData
     })

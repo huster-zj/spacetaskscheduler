@@ -17,7 +17,17 @@ export default defineConfig({
   plugins: [vue(), vueJsx(), vueDevTools()],
   server: {
     host: '0.0.0.0', // 监听所有地址
-    port: 5173 // 默认端口
+    port: 5173, // 默认端口
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true
+      },
+      '/static-offline-docs': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true
+      }
+    }
   },
   resolve: {
     alias: {
