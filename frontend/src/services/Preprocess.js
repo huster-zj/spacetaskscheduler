@@ -33,7 +33,7 @@ const eventBelongsToTask = (event, task) => {
 
 class PreprocessService {
   constructor() {
-    this.baseUrl = 'http://localhost:8000'
+    this.baseUrl = ''
     this.requestVersion = 0
   }
 

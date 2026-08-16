@@ -9,7 +9,7 @@ import { useAlgorithmOutputStore } from '@/stores/useAlgorithmOutput.js'
 
 class AlgorithmService {
   constructor() {
-    this.baseUrl = 'http://localhost:8000'
+    this.baseUrl = ''
     // 移除所有前端文件路径，改为使用后端API
   }
 

@@ -1,0 +1,21 @@
+[Unit]
+Description=AstroScheduler FastAPI backend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=copt
+Group=copt
+WorkingDirectory=/www/wwwroot/astroscheduler-backend
+Environment=HOME=/home/copt
+Environment=COPT_HOME=/home/copt/copt
+Environment=COPT_LICENSE_DIR=/home/copt/copt
+Environment=LD_LIBRARY_PATH=/home/copt/copt/lib:/home/copt/copt/lib/python/deps
+ExecStart=/www/wwwroot/astroscheduler-backend-venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=3
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
