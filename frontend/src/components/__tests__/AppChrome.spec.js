@@ -1,13 +1,14 @@
 // @vitest-environment jsdom
 
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import * as Icons from '@ant-design/icons-vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import AppHeader from '../AppHeader.vue'
 import NavigationBar from '../NavigationBar.vue'
 import Steps from '../Steps.vue'
+import { AUTH_SESSION_KEY } from '../../services/auth'
 
 const routes = [
   { path: '/', component: { template: '<div />' } },
@@ -24,7 +25,8 @@ const routes = [
   { path: '/report_detail', component: { template: '<div />' } },
   { path: '/help', component: { template: '<div />' } },
   { path: '/license', component: { template: '<div />' } },
-  { path: '/about', component: { template: '<div />' } }
+  { path: '/about', component: { template: '<div />' } },
+  { path: '/login', name: 'login', component: { template: '<div />' } }
 ]
 
 const createTestRouter = async (path = '/') => {
@@ -35,6 +37,10 @@ const createTestRouter = async (path = '/') => {
 }
 
 describe('application chrome', () => {
+  beforeEach(() => {
+    sessionStorage.clear()
+  })
+
   it('exposes the sample download as a named button', async () => {
     const router = await createTestRouter()
     const wrapper = mount(AppHeader, {
@@ -91,6 +97,28 @@ describe('application chrome', () => {
     })
 
     expect(wrapper.findAll('.command-item.is-active')).toHaveLength(1)
+  })
+
+  it('clears the session and returns to login when signing out', async () => {
+    sessionStorage.setItem(AUTH_SESSION_KEY, 'authenticated')
+    const router = await createTestRouter('/task')
+    const wrapper = mount(AppHeader, {
+      global: {
+        plugins: [router],
+        components: Icons,
+        stubs: {
+          AButton: { template: '<button><slot /></button>' },
+          ACheckbox: { template: '<label><input type="checkbox" /><slot /></label>' },
+          APopover: { template: '<div><slot /></div>' }
+        }
+      }
+    })
+
+    await wrapper.get('button[aria-label="退出登录"]').trigger('click')
+    await flushPromises()
+
+    expect(sessionStorage.getItem(AUTH_SESSION_KEY)).toBeNull()
+    expect(router.currentRoute.value.name).toBe('login')
   })
 
   it('keeps the planning step index and route mapping', async () => {

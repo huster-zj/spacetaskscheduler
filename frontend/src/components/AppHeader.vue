@@ -14,13 +14,14 @@
       <div class="app-header__navigation">
         <slot />
       </div>
-      <a-popover
-        v-model:visible="sampleSelectorVisible"
-        placement="bottomRight"
-        trigger="click"
-        overlay-class-name="sample-selector-popover"
-      >
-        <template #content>
+      <div class="header-actions">
+        <a-popover
+          v-model:visible="sampleSelectorVisible"
+          placement="bottomRight"
+          trigger="click"
+          overlay-class-name="sample-selector-popover"
+        >
+          <template #content>
           <section
             id="sample-selector"
             class="sample-selector"
@@ -58,26 +59,38 @@
             </footer>
           </section>
         </template>
+          <button
+            class="header-action-button download-button"
+            type="button"
+            aria-label="下载示例规划包"
+            aria-haspopup="dialog"
+            aria-controls="sample-selector"
+            :aria-expanded="sampleSelectorVisible"
+            title="下载示例规划包"
+          >
+            <DownloadOutlined aria-hidden="true" />
+          </button>
+        </a-popover>
         <button
-          class="download-button"
+          class="header-action-button"
           type="button"
-          aria-label="下载示例规划包"
-          aria-haspopup="dialog"
-          aria-controls="sample-selector"
-          :aria-expanded="sampleSelectorVisible"
-          title="下载示例规划包"
+          aria-label="退出登录"
+          title="退出登录"
+          @click="handleLogout"
         >
-          <DownloadOutlined aria-hidden="true" />
+          <LogoutOutlined aria-hidden="true" />
         </button>
-      </a-popover>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
+import { LogoutOutlined } from '@ant-design/icons-vue'
+import { clearAuthentication } from '@/services/auth'
 import {
   SAMPLE_PLANNING_PACKAGES,
   downloadSamplePlanningPackages
@@ -88,6 +101,7 @@ const defaultSample = SAMPLE_PLANNING_PACKAGES.find(({ id }) => id === 'integrat
   || SAMPLE_PLANNING_PACKAGES[0]
 const selectedSampleIds = ref(defaultSample ? [defaultSample.id] : [])
 const downloading = ref(false)
+const router = useRouter()
 
 const toggleSample = (id, checked) => {
   const nextSelection = new Set(selectedSampleIds.value)
@@ -107,6 +121,12 @@ const handleDownload = async () => {
   } finally {
     downloading.value = false
   }
+}
+
+const handleLogout = async () => {
+  sampleSelectorVisible.value = false
+  clearAuthentication()
+  await router.replace({ name: 'login' })
 }
 </script>
 
@@ -149,7 +169,14 @@ const handleDownload = async () => {
   flex: 1;
 }
 
-.download-button {
+.header-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-action-button {
   display: inline-flex;
   width: 36px;
   height: 36px;
@@ -164,19 +191,19 @@ const handleDownload = async () => {
   cursor: pointer;
 }
 
-.download-button:hover {
+.header-action-button:hover {
   border-color: var(--sts-primary);
   background: var(--sts-primary-soft);
   color: var(--sts-primary-hover);
 }
 
-.download-button .anticon {
+.header-action-button .anticon {
   display: inline-flex;
   color: currentColor;
   font-size: 16px;
 }
 
-.download-button .anticon :deep(svg) {
+.header-action-button .anticon :deep(svg) {
   width: 16px;
   height: 16px;
 }
@@ -258,7 +285,7 @@ const handleDownload = async () => {
     flex-basis: 40px;
   }
 
-  .download-button {
+  .header-action-button {
     width: 36px;
     height: 36px;
     flex-basis: 36px;

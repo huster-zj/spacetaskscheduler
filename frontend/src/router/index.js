@@ -2,10 +2,17 @@ import { createRouter, createWebHistory } from 'vue-router'
 import WorkSpace from '../views/WorkSpace.vue'
 // 动态路由
 import ResourceGroup from '@/views/resource/ResourceGroup.vue'
+import { createAuthGuard } from '@/services/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/Login.vue'),
+      meta: { public: true }
+    },
     {
       path: '/',
       name: 'workSpace',
@@ -197,5 +204,7 @@ const router = createRouter({
     }
   ]
 })
+
+router.beforeEach(createAuthGuard())
 
 export default router
