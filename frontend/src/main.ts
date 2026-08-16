@@ -32,4 +32,7 @@ Object.keys(Icons).forEach((key: string) => {
 })
 
 
-app.mount('#app')
+// Wait for the initial navigation, including the access-control guard, before
+// rendering the application shell. This prevents protected chrome from flashing
+// while an unauthenticated visitor is redirected to the login page.
+router.isReady().then(() => app.mount('#app'))

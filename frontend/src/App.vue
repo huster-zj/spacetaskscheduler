@@ -6,14 +6,18 @@
  * @FilePath: \spacetaskscheduler\frontend\src\App.vue
 -->
 <script setup>
-import { RouterView } from 'vue-router'
+import { computed } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
 import NavigationBar from './components/NavigationBar.vue'
+
+const route = useRoute()
+const showApplicationChrome = computed(() => route.meta.public !== true)
 </script>
 
 <template>
-  <div class="app-container">
-    <header class="app-chrome">
+  <div class="app-container" :class="{ 'app-container--public': !showApplicationChrome }">
+    <header v-if="showApplicationChrome" class="app-chrome">
       <AppHeader>
         <NavigationBar />
       </AppHeader>
@@ -21,7 +25,7 @@ import NavigationBar from './components/NavigationBar.vue'
     <main class="main-content">
       <RouterView />
     </main>
-    <footer class="app-footer">
+    <footer v-if="showApplicationChrome" class="app-footer">
       <div class="footer-content">
         <span>航天任务调度工具</span>
         <span class="footer-separator" aria-hidden="true"></span>
@@ -41,6 +45,10 @@ import NavigationBar from './components/NavigationBar.vue'
   display: flex;
   flex-direction: column;
   background: var(--sts-surface-base);
+}
+
+.app-container--public {
+  display: block;
 }
 
 .app-chrome {
