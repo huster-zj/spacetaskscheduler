@@ -1,0 +1,123 @@
+name: CD
+
+on:
+  push:
+    branches: [v2_main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: astroscheduler-production
+  cancel-in-progress: false
+
+jobs:
+  validate-and-build:
+    name: Validate and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run frontend tests
+        working-directory: frontend
+        run: npm run test:unit:run
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+
+      - name: Install backend dependencies
+        run: python -m pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+
+      - name: Run backend tests
+        run: python -m pytest backend/tests -q
+
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          if-no-files-found: error
+          retention-days: 3
+
+  deploy-production:
+    name: Deploy production
+    needs: validate-and-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+      - name: Build deployment artifact
+        run: |
+          tar -czf astroscheduler-${GITHUB_SHA}.tar.gz \
+            --exclude='backend/__pycache__' \
+            --exclude='backend/tests' \
+            --exclude='backend/interface/__pycache__' \
+            --exclude='backend/interface/backend_input_data' \
+            --exclude='backend/interface/transfer_json_output' \
+            --exclude='backend/interface/preprocess_output' \
+            --exclude='backend/interface/algorithm_output' \
+            backend frontend/dist
+
+      - name: Configure deployment SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.PROD_KNOWN_HOSTS }}
+        run: |
+          install -d -m 0700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 0600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+
+      - name: Upload deployment artifact
+        env:
+          DEPLOY_HOST: ${{ secrets.PROD_HOST }}
+          DEPLOY_PORT: ${{ secrets.PROD_PORT }}
+          DEPLOY_USER: ${{ secrets.PROD_USER }}
+        run: scp -P "$DEPLOY_PORT" astroscheduler-${GITHUB_SHA}.tar.gz "$DEPLOY_USER@$DEPLOY_HOST:/home/deploy/incoming/"
+
+      - name: Deploy on server
+        env:
+          DEPLOY_HOST: ${{ secrets.PROD_HOST }}
+          DEPLOY_PORT: ${{ secrets.PROD_PORT }}
+          DEPLOY_USER: ${{ secrets.PROD_USER }}
+        run: ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "sudo /usr/local/sbin/deploy-astroscheduler /home/deploy/incoming/astroscheduler-${GITHUB_SHA}.tar.gz ${GITHUB_SHA}"
+
+      - name: Verify public website
+        env:
+          PROD_URL: ${{ secrets.PROD_URL }}
+        run: curl --fail --show-error --silent --retry 10 --retry-delay 3 "$PROD_URL" >/dev/null
