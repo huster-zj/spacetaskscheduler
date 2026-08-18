@@ -95,6 +95,11 @@ const filteredData = computed(() => {
   min-width: 0;
   gap: 16px;
   margin: 0;
+  padding: 16px;
+  border: 1px solid var(--sts-border);
+  border-radius: var(--sts-radius-lg);
+  background: var(--sts-surface-raised);
+  box-shadow: var(--sts-shadow-sm);
 }
 
 .container .header {
@@ -103,6 +108,8 @@ const filteredData = computed(() => {
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--sts-border);
 }
 
 /* 设置搜索框样式 */
@@ -160,6 +167,10 @@ const filteredData = computed(() => {
 }
 
 @media (max-width: 767px) {
+  .container {
+    padding: 12px;
+  }
+
   .container .header {
     align-items: stretch;
     flex-direction: column;

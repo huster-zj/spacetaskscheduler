@@ -23,7 +23,9 @@ const showApplicationChrome = computed(() => route.meta.public !== true)
       </AppHeader>
     </header>
     <main class="main-content">
-      <RouterView />
+      <RouterView v-slot="{ Component, route: currentRoute }">
+        <component :is="Component" :key="currentRoute.fullPath" />
+      </RouterView>
     </main>
     <footer v-if="showApplicationChrome" class="app-footer">
       <div class="footer-content">
@@ -56,14 +58,16 @@ const showApplicationChrome = computed(() => route.meta.public !== true)
   z-index: 100;
   top: 0;
   border-bottom: 1px solid var(--sts-border);
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: var(--sts-shadow-sm);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: var(--sts-shadow-nav);
+  backdrop-filter: blur(12px);
 }
 
 .main-content {
   flex: 1;
   width: 100%;
   min-width: 0;
+  overflow-x: clip;
 }
 
 .app-footer {
@@ -115,4 +119,5 @@ const showApplicationChrome = computed(() => route.meta.public !== true)
     flex-wrap: wrap;
   }
 }
+
 </style>

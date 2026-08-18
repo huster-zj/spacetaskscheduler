@@ -1,6 +1,12 @@
 <template>
   <Steps :current_page="page" />
   <section class="page-shell constraints-page">
+    <header class="page-header">
+      <div>
+        <h1 class="page-heading">任务约束</h1>
+        <p class="page-description">管理锚定需求与时态约束，检查任务之间的时间关系。</p>
+      </div>
+    </header>
     <section class="constraint-section">
       <header class="section-header">
         <h1 class="section-heading">锚定需求</h1>

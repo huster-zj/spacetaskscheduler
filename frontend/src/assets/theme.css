@@ -10,6 +10,8 @@
   --sts-surface-base: #f4f7f9;
   --sts-surface-raised: #ffffff;
   --sts-surface-subtle: #edf2f5;
+  --sts-surface-inset: #e7eef1;
+  --sts-surface-hover: #f2f8fa;
   --sts-ink-primary: #16242e;
   --sts-ink-secondary: #52636f;
   --sts-ink-muted: #758590;
@@ -18,14 +20,20 @@
   --sts-primary: #176b87;
   --sts-primary-hover: #12566d;
   --sts-primary-soft: #e4f2f6;
+  --sts-primary-quiet: #f0f8fa;
   --sts-success: #2e7d68;
   --sts-warning: #b7791f;
   --sts-danger: #b4413e;
   --sts-shadow-sm: 0 1px 2px rgba(22, 36, 46, 0.06);
-  --sts-shadow-md: 0 12px 32px rgba(22, 36, 46, 0.1);
+  --sts-shadow-md: 0 10px 26px rgba(22, 36, 46, 0.08);
+  --sts-shadow-nav: 0 4px 16px rgba(22, 36, 46, 0.08);
   --sts-radius-sm: 4px;
   --sts-radius-md: 6px;
   --sts-radius-lg: 8px;
+  --sts-control-height: 36px;
+  --sts-focus-ring: 0 0 0 3px rgba(23, 107, 135, 0.16);
+  --sts-transition-fast: 140ms ease;
+  --sts-transition-base: 180ms ease;
   --sts-content-max: 1920px;
 }
 
@@ -42,6 +50,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  overflow-x: hidden;
   color: var(--sts-ink-primary);
   background: var(--sts-surface-base);
   font-size: 14px;
@@ -77,7 +86,7 @@ a:hover {
 .page-shell {
   width: min(100%, var(--sts-content-max));
   margin: 0 auto;
-  padding: 20px 16px;
+  padding: 24px 24px 32px;
 }
 
 .page-heading {
@@ -93,6 +102,11 @@ a:hover {
   max-width: 760px;
   margin: 6px 0 0;
   color: var(--sts-ink-secondary);
+}
+
+.list-page {
+  display: grid;
+  gap: 16px;
 }
 
 .section-heading {
@@ -111,13 +125,53 @@ a:hover {
   box-shadow: var(--sts-shadow-sm);
 }
 
+.page-header {
+  position: relative;
+  padding-bottom: 4px;
+}
+
+.page-header::after {
+  display: block;
+  width: 36px;
+  height: 3px;
+  margin-top: 12px;
+  border-radius: 2px;
+  background: var(--sts-primary);
+  content: '';
+}
+
+.page-shell > .ant-alert,
+.page-shell > .surface-panel,
+.page-shell > .content_body,
+.page-shell > .content,
+.page-shell > .main-container {
+  animation: surface-enter 180ms ease both;
+}
+
+@keyframes surface-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Ant Design brand layer */
 .ant-btn {
-  min-height: 36px;
+  min-height: var(--sts-control-height);
   border-radius: var(--sts-radius-md);
   font-size: 14px;
   font-weight: 500;
   box-shadow: none;
+  transition: border-color var(--sts-transition-fast), background-color var(--sts-transition-fast),
+    color var(--sts-transition-fast), box-shadow var(--sts-transition-fast), transform var(--sts-transition-fast);
+}
+
+.ant-btn:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .ant-btn-primary {
@@ -138,10 +192,11 @@ a:hover {
 .ant-input-number,
 .ant-picker,
 .ant-select:not(.ant-select-customize-input) .ant-select-selector {
-  min-height: 36px;
+  min-height: var(--sts-control-height);
   border-color: var(--sts-border-strong);
   border-radius: var(--sts-radius-md) !important;
   font-size: 14px;
+  transition: border-color var(--sts-transition-fast), box-shadow var(--sts-transition-fast);
 }
 
 .ant-input:hover,
@@ -159,7 +214,33 @@ a:hover {
 .ant-picker-focused,
 .ant-select-focused:not(.ant-select-disabled) .ant-select-selector {
   border-color: var(--sts-primary) !important;
-  box-shadow: 0 0 0 3px rgba(23, 107, 135, 0.14) !important;
+  box-shadow: var(--sts-focus-ring) !important;
+}
+
+.ant-input::placeholder,
+.ant-input-number-input::placeholder {
+  color: var(--sts-ink-muted);
+}
+
+.ant-tag {
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.ant-alert {
+  border-radius: var(--sts-radius-lg);
+}
+
+.ant-empty {
+  color: var(--sts-ink-secondary);
+}
+
+.ant-empty-image {
+  margin-bottom: 12px;
+}
+
+.ant-table-wrapper {
+  box-shadow: none;
 }
 
 .ant-radio-checked .ant-radio-inner,
@@ -200,7 +281,7 @@ a:hover {
 }
 
 .ant-table-tbody > tr.ant-table-row:hover > td {
-  background: #f2f8fa;
+  background: var(--sts-surface-hover);
 }
 
 .ant-table-pagination.ant-pagination {
@@ -234,7 +315,7 @@ a:hover {
 .app-container .main-content .text_create,
 .app-container .main-content .router_btn {
   display: inline-flex;
-  min-height: 36px;
+  min-height: var(--sts-control-height);
   align-items: center;
   justify-content: center;
   margin: 0;
@@ -298,7 +379,7 @@ a:hover {
 
 @media (max-width: 1199px) {
   .page-shell {
-    padding: 18px 14px;
+    padding: 20px 16px 28px;
   }
 
   .app-container .main-content .content_header,
@@ -311,11 +392,15 @@ a:hover {
 
 @media (max-width: 767px) {
   .page-shell {
-    padding: 14px 10px;
+    padding: 16px 12px 24px;
   }
 
   .page-heading {
     font-size: 21px;
+  }
+
+  .page-header::after {
+    margin-top: 10px;
   }
 
   .app-container .main-content .form-container {
@@ -420,5 +505,13 @@ a:hover {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  .page-shell > .ant-alert,
+  .page-shell > .surface-panel,
+  .page-shell > .content_body,
+  .page-shell > .content,
+  .page-shell > .main-container {
+    animation: none;
   }
 }

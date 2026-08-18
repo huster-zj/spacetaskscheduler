@@ -132,35 +132,53 @@ const handleLogout = async () => {
 
 <style scoped>
 .app-header {
+  position: relative;
   background: var(--sts-surface-raised);
+}
+
+.app-header::before {
+  display: block;
+  height: 3px;
+  background: var(--sts-primary);
+  content: '';
 }
 
 .app-header__inner {
   display: flex;
   width: 100%;
-  min-height: 76px;
-  padding: 0 12px;
+  min-height: 72px;
+  padding: 0 16px;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .brand {
   display: inline-flex;
+  width: 48px;
+  height: 48px;
   flex: 0 0 auto;
   align-items: center;
+  justify-content: center;
+  border: 1px solid var(--sts-border);
+  border-radius: var(--sts-radius-md);
+  background: var(--sts-surface-subtle);
   color: var(--sts-ink-primary);
+  transition: border-color var(--sts-transition-fast), background-color var(--sts-transition-fast),
+    box-shadow var(--sts-transition-fast);
 }
 
 .brand:hover {
+  border-color: var(--sts-primary);
+  background: var(--sts-primary-quiet);
+  box-shadow: var(--sts-shadow-sm);
   color: var(--sts-ink-primary);
 }
 
 .brand__logo {
-  width: 48px;
-  height: 48px;
-  flex: 0 0 48px;
-  border: 1px solid var(--sts-border);
-  border-radius: var(--sts-radius-md);
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 4px;
   object-fit: cover;
 }
 
@@ -173,14 +191,16 @@ const handleLogout = async () => {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  padding-left: 8px;
+  border-left: 1px solid var(--sts-border);
 }
 
 .header-action-button {
   display: inline-flex;
-  width: 36px;
-  height: 36px;
-  flex: 0 0 36px;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
   align-items: center;
   justify-content: center;
   padding: 0;
@@ -189,9 +209,23 @@ const handleLogout = async () => {
   background: var(--sts-surface-raised);
   color: var(--sts-ink-primary);
   cursor: pointer;
+  transition: border-color var(--sts-transition-fast), background-color var(--sts-transition-fast),
+    color var(--sts-transition-fast), box-shadow var(--sts-transition-fast);
 }
 
 .header-action-button:hover {
+  border-color: var(--sts-primary);
+  background: var(--sts-primary-soft);
+  color: var(--sts-primary-hover);
+}
+
+.header-action-button:focus-visible,
+.brand:focus-visible {
+  outline: none;
+  box-shadow: var(--sts-focus-ring);
+}
+
+.download-button {
   border-color: var(--sts-primary);
   background: var(--sts-primary-soft);
   color: var(--sts-primary-hover);
@@ -275,20 +309,25 @@ const handleLogout = async () => {
 @media (max-width: 767px) {
   .app-header__inner {
     min-height: 68px;
-    padding: 0 8px;
+    padding: 0 12px;
     gap: 6px;
   }
 
+  .brand {
+    width: 44px;
+    height: 44px;
+  }
+
   .brand__logo {
-    width: 40px;
-    height: 40px;
-    flex-basis: 40px;
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
   }
 
   .header-action-button {
-    width: 36px;
-    height: 36px;
-    flex-basis: 36px;
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
   }
 }
 </style>

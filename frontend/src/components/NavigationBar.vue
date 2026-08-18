@@ -19,7 +19,12 @@
               <FolderOutlined aria-hidden="true" />
               <span>另存为</span>
             </button>
-            <RouterLink to="/attributes" class="command-item" :class="{ 'is-active': isRouteActive(['/attributes']) }">
+            <RouterLink
+              to="/attributes"
+              class="command-item"
+              :class="{ 'is-active': isRouteActive(['/attributes']) }"
+              :aria-current="isRouteActive(['/attributes']) ? 'page' : undefined"
+            >
               <PicLeftOutlined aria-hidden="true" />
               <span>属性</span>
             </RouterLink>
@@ -138,6 +143,7 @@
               to="/help"
               class="command-item"
               :class="{ 'is-active': isRouteActive(['/help']) }"
+              :aria-current="isRouteActive(['/help']) ? 'page' : undefined"
             >
               <QuestionCircleOutlined aria-hidden="true" />
               <span>帮助中心</span>
@@ -146,6 +152,7 @@
               to="/license"
               class="command-item"
               :class="{ 'is-active': isRouteActive(['/license']) }"
+              :aria-current="isRouteActive(['/license']) ? 'page' : undefined"
             >
               <SolutionOutlined aria-hidden="true" />
               <span>许可证</span>
@@ -154,6 +161,7 @@
               to="/about"
               class="command-item"
               :class="{ 'is-active': isRouteActive(['/about']) }"
+              :aria-current="isRouteActive(['/about']) ? 'page' : undefined"
             >
               <InfoCircleOutlined aria-hidden="true" />
               <span>关于</span>
@@ -162,19 +170,49 @@
         </section>
 
         <div class="quick-tools" aria-label="常用功能快捷入口">
-          <RouterLink to="/main_view" class="quick-tool" title="主视图" aria-label="主视图">
+          <RouterLink
+            to="/main_view"
+            class="quick-tool"
+            :class="{ 'is-active': isRouteActive(['/main_view']) }"
+            title="主视图"
+            aria-label="主视图"
+          >
             <LayoutOutlined aria-hidden="true" />
           </RouterLink>
-          <RouterLink to="/resource" class="quick-tool" title="资源" aria-label="资源">
+          <RouterLink
+            to="/resource"
+            class="quick-tool"
+            :class="{ 'is-active': isRouteActive(resourceRoutes) }"
+            title="资源"
+            aria-label="资源"
+          >
             <UnorderedListOutlined aria-hidden="true" />
           </RouterLink>
-          <RouterLink to="/task" class="quick-tool" title="任务" aria-label="任务">
+          <RouterLink
+            to="/task"
+            class="quick-tool"
+            :class="{ 'is-active': isRouteActive(taskRoutes) }"
+            title="任务"
+            aria-label="任务"
+          >
             <BarsOutlined aria-hidden="true" />
           </RouterLink>
-          <RouterLink to="/operating" class="quick-tool" title="运行" aria-label="运行">
+          <RouterLink
+            to="/operating"
+            class="quick-tool"
+            :class="{ 'is-active': isRouteActive(['/operating']) }"
+            title="运行"
+            aria-label="运行"
+          >
             <PlayCircleOutlined aria-hidden="true" />
           </RouterLink>
-          <RouterLink to="/report" class="quick-tool" title="报告" aria-label="报告">
+          <RouterLink
+            to="/report"
+            class="quick-tool"
+            :class="{ 'is-active': isRouteActive(reportRoutes) }"
+            title="报告"
+            aria-label="报告"
+          >
             <FileTextOutlined aria-hidden="true" />
           </RouterLink>
         </div>
@@ -256,15 +294,15 @@ const handleCreatePackage = async () => {
   display: flex;
   width: max-content;
   min-width: 100%;
-  min-height: 76px;
-  padding: 6px 0;
+  min-height: 72px;
+  padding: 5px 0;
   align-items: stretch;
 }
 
 .command-group {
   display: flex;
   position: relative;
-  padding: 0 10px 16px;
+  padding: 0 10px 15px;
   align-items: center;
   border-right: 1px solid var(--sts-border);
 }
@@ -279,9 +317,12 @@ const handleCreatePackage = async () => {
   bottom: 0;
   left: 10px;
   color: var(--sts-ink-muted);
-  font-size: 11px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0;
   line-height: 16px;
   text-align: center;
+  text-transform: uppercase;
 }
 
 .command-group__items {
@@ -293,7 +334,7 @@ const handleCreatePackage = async () => {
 .command-item {
   display: inline-flex;
   min-width: 50px;
-  min-height: 44px;
+  min-height: 46px;
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -307,6 +348,8 @@ const handleCreatePackage = async () => {
   line-height: 1.2;
   white-space: nowrap;
   cursor: pointer;
+  transition: background-color var(--sts-transition-fast), color var(--sts-transition-fast),
+    box-shadow var(--sts-transition-fast);
 }
 
 .command-item:hover {
@@ -319,6 +362,7 @@ const handleCreatePackage = async () => {
   background: var(--sts-primary-soft);
   color: var(--sts-primary-hover);
   font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--sts-primary);
 }
 
 .command-item .anticon {
@@ -345,12 +389,21 @@ const handleCreatePackage = async () => {
   border: 1px solid var(--sts-border);
   border-radius: var(--sts-radius-md);
   color: var(--sts-ink-secondary);
+  transition: border-color var(--sts-transition-fast), background-color var(--sts-transition-fast),
+    color var(--sts-transition-fast), box-shadow var(--sts-transition-fast);
 }
 
 .quick-tool:hover {
   border-color: var(--sts-primary);
   background: var(--sts-primary-soft);
   color: var(--sts-primary-hover);
+}
+
+.quick-tool.is-active {
+  border-color: var(--sts-primary);
+  background: var(--sts-primary-soft);
+  color: var(--sts-primary-hover);
+  box-shadow: inset 0 -2px 0 var(--sts-primary);
 }
 
 @media (max-width: 767px) {
