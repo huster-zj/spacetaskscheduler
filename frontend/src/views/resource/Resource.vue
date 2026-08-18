@@ -3,6 +3,12 @@
   <!-- <button @click="cekongResourceListStore.importCekongResourceList(test_cekong_resource)">点击调用导入测控资源数据函数</button> -->
   <Steps :current_page="page" />
   <section class="page-shell list-page">
+    <header class="page-header">
+      <div>
+        <h1 class="page-heading">资源管理</h1>
+        <p class="page-description">导入或定义测控资源，维护资源能力、优先级和可用时间窗。</p>
+      </div>
+    </header>
     <!-- 资源列表 -->
     <ShowTable :columns="columns" :data="formHeadList">
     <!-- 特定按钮功能 -->

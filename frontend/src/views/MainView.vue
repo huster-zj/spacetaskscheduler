@@ -7,6 +7,12 @@
 -->
 <template>
   <section class="page-shell main-view-page">
+    <header class="page-header">
+      <div>
+        <h1 class="page-heading">调度主视图</h1>
+        <p class="page-description">切换资源、任务和日程视角，检查当前规划与调度结果。</p>
+      </div>
+    </header>
     <div class="main-container surface-panel">
       <div class="view-control">
         <a-radio-group v-model:value="currentView" option-type="button" @change="switchView">
@@ -39,6 +45,11 @@ function switchView(e) {
 </script>
 
 <style scoped>
+.main-view-page {
+  display: grid;
+  gap: 16px;
+}
+
 .main-container {
   display: flex;
   flex-direction: column;

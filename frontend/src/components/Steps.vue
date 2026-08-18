@@ -1,7 +1,9 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <section class="workflow-strip" :data-current-step="current" aria-label="规划流程">
     <div class="workflow-strip__heading">
       <span>规划流程</span>
+      <strong class="workflow-strip__current">{{ currentStepTitle }}</strong>
     </div>
     <div class="workflow-strip__scroll">
       <ol class="workflow-steps">
@@ -12,7 +14,12 @@
             'workflow-step',
             `workflow-step--${step.group}`,
             `workflow-step--${step.kind}`,
-            { 'workflow-step--group-end': step.groupEnd }
+            {
+              'workflow-step--group-end': step.groupEnd,
+              'workflow-step--complete': index < current,
+              'workflow-step--current': index === current,
+              'workflow-step--upcoming': index > current
+            }
           ]"
           :style="{
             '--workflow-step-color': step.color,
@@ -23,6 +30,7 @@
             class="workflow-step__button"
             type="button"
             :aria-current="index === current ? 'step' : undefined"
+            :aria-disabled="!step.path ? 'true' : undefined"
             :aria-label="step.title"
             :disabled="!step.path"
             @click="toPath(index)"
@@ -65,6 +73,7 @@ const steps = [
 
 const router = useRouter()
 const current = computed(() => props.current_page)
+const currentStepTitle = computed(() => steps[current.value]?.title || '工作台')
 
 const toPath = (index) => {
   const target = steps[index]
@@ -77,20 +86,34 @@ const toPath = (index) => {
 <style scoped>
 .workflow-strip {
   display: flex;
-  width: min(calc(100% - 64px), 1320px);
-  margin: 14px auto 10px;
-  padding: 10px 0 12px;
+  width: min(calc(100% - 48px), 1320px);
+  margin: 16px auto 0;
+  padding: 10px 14px 11px;
   align-items: center;
-  gap: 16px;
-  border-bottom: 1px solid var(--sts-border);
-  background: transparent;
+  gap: 18px;
+  border: 1px solid var(--sts-border);
+  border-radius: var(--sts-radius-lg);
+  background: var(--sts-surface-raised);
+  box-shadow: var(--sts-shadow-sm);
 }
 
 .workflow-strip__heading {
+  display: grid;
+  min-width: 84px;
   flex: 0 0 auto;
-  color: var(--sts-ink-secondary);
+  gap: 2px;
+  color: var(--sts-ink-muted);
   font-size: 12px;
   font-weight: 600;
+  line-height: 1.3;
+}
+
+.workflow-strip__current {
+  overflow: hidden;
+  color: var(--sts-ink-primary);
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -107,7 +130,7 @@ const toPath = (index) => {
   width: 1128px;
   min-width: 1128px;
   margin: 0 auto;
-  padding: 5px 0 0;
+  padding: 3px 0 0;
   list-style: none;
 }
 
@@ -138,6 +161,7 @@ const toPath = (index) => {
   background: transparent;
   color: var(--sts-ink-secondary);
   cursor: pointer;
+  transition: color var(--sts-transition-fast), opacity var(--sts-transition-fast);
 }
 
 .workflow-step__button:disabled {
@@ -158,6 +182,8 @@ const toPath = (index) => {
   border-radius: 50%;
   background: var(--workflow-step-color);
   box-shadow: 0 0 0 3px var(--sts-surface-base);
+  transition: width var(--sts-transition-fast), height var(--sts-transition-fast),
+    background-color var(--sts-transition-fast), box-shadow var(--sts-transition-fast);
 }
 
 .workflow-step--major .workflow-step__marker {
@@ -167,6 +193,23 @@ const toPath = (index) => {
 
 .workflow-step__button[aria-current='step'] .workflow-step__marker {
   box-shadow: 0 0 0 3px var(--sts-surface-base), 0 0 0 5px var(--workflow-line-color);
+}
+
+.workflow-step--complete .workflow-step__marker {
+  background: var(--workflow-line-color);
+}
+
+.workflow-step--upcoming .workflow-step__marker {
+  opacity: 0.62;
+}
+
+.workflow-step--upcoming .workflow-step__title {
+  color: var(--sts-ink-muted) !important;
+}
+
+.workflow-step--current .workflow-step__title {
+  color: var(--sts-ink-primary) !important;
+  font-weight: 700;
 }
 
 .workflow-step__connector {
@@ -194,11 +237,14 @@ const toPath = (index) => {
 
 @media (max-width: 767px) {
   .workflow-strip {
-    width: calc(100% - 20px);
-    margin-top: 10px;
-    margin-bottom: 6px;
-    padding: 8px 0 10px;
+    width: calc(100% - 24px);
+    margin-top: 12px;
+    padding: 9px 10px 10px;
     gap: 10px;
+  }
+
+  .workflow-strip__heading {
+    min-width: 72px;
   }
 }
 </style>

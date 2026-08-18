@@ -84,6 +84,7 @@ describe('application chrome', () => {
     expect(wrapper.get('.quick-tools').attributes('aria-label')).toBe('常用功能快捷入口')
     expect(wrapper.get('.quick-tool[aria-label="主视图"]').attributes('href')).toBe('/main_view')
     expect(wrapper.get('.quick-tool[aria-label="运行"]').attributes('href')).toBe('/operating')
+    expect(wrapper.get('.quick-tool[aria-label="任务"]').classes()).toContain('is-active')
   })
 
   it('keeps a single active project command on the attributes route', async () => {
@@ -97,6 +98,7 @@ describe('application chrome', () => {
     })
 
     expect(wrapper.findAll('.command-item.is-active')).toHaveLength(1)
+    expect(wrapper.get('a[href="/attributes"]').attributes('aria-current')).toBe('page')
   })
 
   it('clears the session and returns to login when signing out', async () => {
@@ -132,11 +134,14 @@ describe('application chrome', () => {
     })
 
     expect(wrapper.attributes('data-current-step')).toBe('2')
+    expect(wrapper.get('.workflow-strip__current').text()).toContain('定义资源')
     expect(wrapper.text()).toContain('定义资源')
     expect(wrapper.find('.workflow-strip__progress').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('/ 10')
     expect(wrapper.findAll('.workflow-step--major')).toHaveLength(5)
     expect(wrapper.findAll('.workflow-step--group-end')).toHaveLength(4)
+    expect(wrapper.findAll('.workflow-step--complete')).toHaveLength(2)
+    expect(wrapper.get('button[aria-label="定义资源"]').attributes('aria-current')).toBe('step')
     expect(wrapper.findAll('.workflow-step__button')[5].attributes('disabled')).toBeDefined()
     await wrapper.get('button[aria-label="资源"]').trigger('click')
     expect(router.currentRoute.value.path).toBe('/resource')

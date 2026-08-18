@@ -5,6 +5,12 @@
     并获取显示到列表中，在ant-design中单选按钮有这样的功能
   </h1> -->
   <section class="page-shell list-page">
+    <header class="page-header">
+      <div>
+        <h1 class="page-heading">逻辑约束</h1>
+        <p class="page-description">定义任务组及其组合关系，控制任务之间的逻辑依赖。</p>
+      </div>
+    </header>
     <ShowTable :columns="columns" :data="data">
     <!-- 特定按钮功能 -->
     <template #special_btn>

@@ -134,11 +134,7 @@ const handleSubmit = async () => {
   min-height: 100vh;
   padding: 32px;
   place-items: center;
-  background:
-    linear-gradient(90deg, rgba(23, 107, 135, 0.05) 1px, transparent 1px),
-    linear-gradient(rgba(23, 107, 135, 0.05) 1px, transparent 1px),
-    var(--sts-surface-base);
-  background-size: 36px 36px;
+  background: var(--sts-surface-base);
 }
 
 .login-shell {
