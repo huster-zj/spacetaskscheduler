@@ -39,7 +39,7 @@ const handleSubmit = async () => {
       <aside class="login-identity">
         <img :src="logoUrl" alt="" class="login-identity__logo" />
         <div>
-          <p class="login-identity__organization">华中科技大学管理系统工程研究中心</p>
+          <p class="login-identity__organization">个人研究与学习演示</p>
           <h1>航天任务调度工具</h1>
           <p class="login-identity__summary">规划建模、可行时间窗计算与调度结果分析</p>
         </div>
@@ -131,7 +131,7 @@ const handleSubmit = async () => {
 <style scoped>
 .login-page {
   display: grid;
-  min-height: 100vh;
+  min-height: calc(100dvh - var(--sts-public-footer-height, 64px));
   padding: 32px;
   place-items: center;
   background: var(--sts-surface-base);
@@ -397,7 +397,7 @@ const handleSubmit = async () => {
   }
 
   .login-shell {
-    min-height: 100vh;
+    min-height: calc(100dvh - var(--sts-public-footer-height, 64px));
     border: 0;
     border-radius: 0;
   }
