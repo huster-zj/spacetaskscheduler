@@ -27,7 +27,7 @@ const showApplicationChrome = computed(() => route.meta.public !== true)
         <component :is="Component" :key="currentRoute.fullPath" />
       </RouterView>
     </main>
-    <footer v-if="showApplicationChrome" class="app-footer">
+    <footer class="app-footer">
       <div class="footer-content">
         <span>航天任务调度工具</span>
         <span class="footer-separator" aria-hidden="true"></span>
@@ -50,7 +50,13 @@ const showApplicationChrome = computed(() => route.meta.public !== true)
 }
 
 .app-container--public {
-  display: block;
+  --sts-public-footer-height: 64px;
+}
+
+.app-container--public .app-footer {
+  min-height: var(--sts-public-footer-height);
+  display: flex;
+  align-items: center;
 }
 
 .app-chrome {

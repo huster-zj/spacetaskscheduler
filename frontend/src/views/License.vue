@@ -1,8 +1,8 @@
 <template>
-  <DocumentationPage title="许可证" description="本项目采用 MIT License。">
+  <DocumentationPage title="使用与许可说明" description="个人研究演示网站的软件使用说明。">
     <section class="license-summary">
       <h2>MIT License</h2>
-      <p>Copyright (c) 2026 华中科技大学管理系统工程研究中心祁超团队</p>
+      <p>项目软件的完整许可及原始版权声明保存在源码根目录的 LICENSE 文件中。本页为许可摘要，不替代完整许可证，也不改变既有成果的权利归属。</p>
       <p>在保留版权声明和许可声明的前提下，可使用、复制、修改、合并、发布、分发、再许可及销售本软件副本。</p>
       <div class="license-points" aria-label="许可证摘要">
         <div><strong>允许使用</strong><span>可复制、修改和分发本软件。</span></div>
@@ -12,28 +12,12 @@
     </section>
 
     <section>
-      <h2>许可原文</h2>
-      <pre class="license-text">MIT License
-
-Copyright (c) 2026 QI Chao's Team, Research Center for Management Systems Engineering, Huazhong University of Science and Technology
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.</pre>
+      <h2>第三方组件</h2>
+      <p>第三方组件及优化求解器适用各自的许可证与授权条件，项目软件许可不授予这些组件的额外使用权。复制、分发或用于其他场景前，应分别核对相应授权。</p>
+    </section>
+    <section>
+      <h2>演示使用范围</h2>
+      <p>本站用于个人学习、研究记录与算例演示。示例数据和调度结果用于方法验证，不作为实际任务执行依据。网站维护主体不等同于全部研究成果的著作权人。</p>
     </section>
   </DocumentationPage>
 </template>
@@ -72,21 +56,6 @@ defineOptions({ name: 'PlanningLicenseView' })
 .license-points span {
   color: var(--sts-ink-secondary);
   font-size: 13px;
-}
-
-.license-text {
-  overflow-x: auto;
-  margin: 0;
-  padding: 20px;
-  border: 1px solid var(--sts-border);
-  border-radius: var(--sts-radius-md);
-  background: var(--sts-surface-subtle);
-  color: var(--sts-ink-secondary);
-  font-family: Consolas, "Courier New", monospace;
-  font-size: 13px;
-  line-height: 1.7;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
 }
 
 @media (max-width: 767px) {
